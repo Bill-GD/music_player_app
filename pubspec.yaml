@@ -38,15 +38,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  path_provider:
-  just_audio:
-  audio_waveforms: <=5.3.1
-  audio_video_progress_bar:
-  audio_service:
+  path_provider: <=2.1.2
+  just_audio: <=0.9.36
+  audio_waveforms: <=1.0.4
+  audio_video_progress_bar: <=1.0.1
+  audio_service: <=0.18.12
   awesome_notifications: <=0.7.6
-  audio_session:
+  audio_session: <=0.1.18
   shared_preferences:
-  theme_provider:
+  theme_provider: <=0.6.0
   animations: <=2.0.8
   youtube_explode_dart: <=1.12.4
 
@@ -83,12 +83,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+        - asset: assets/fonts/Nunito-Bold.ttf
+        - asset: assets/fonts/Nunito-Italic.ttf
+          style: italic
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
