@@ -1,4 +1,4 @@
-package com.example.music_player_app
+package com.billgd.music_hub
 
 import io.flutter.embedding.android.FlutterActivity
 
