@@ -8,14 +8,7 @@ class MusicTrack {
   String trackName, artist;
   bool isFavorite;
   int timeListened;
-
-  /// [absolutePath] is required.<br>
-  /// [trackName], [artist], [isFavorite] and [timeListened] are optional.<br>
-  ///
-  /// `trackName`: Defaults to the name of the file, excluding extension.<br>
-  /// `artist`: Defaults to `Unknown`.<br>
-  /// `isFavorite`: Defaults to `false`.<br>
-  /// `timeListened`: Defaults to `0`.<br>
+  
   MusicTrack(
     this.absolutePath, {
     this.trackName = 'filename',
@@ -23,12 +16,12 @@ class MusicTrack {
     this.isFavorite = false,
     this.timeListened = 0,
   }) {
-    trackName = absolutePath.split(RegExp('/')).last.split('.').first;
+    trackName = absolutePath.split('/').last.split('.mp3').first;
   }
 
   MusicTrack.fromJson(Map json)
       : absolutePath = json['absolutePath'],
-        trackName = json['trackName'] ?? json['absolutePath'].split(RegExp('/')).last.split('.').first,
+        trackName = json['trackName'] ?? json['absolutePath'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
         isFavorite = json['isFavorite'],
         timeListened = json['timeListened'];

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_player_app/main_screen.dart';
-import 'package:music_player_app/storage_permission.dart';
+// import 'package:music_player_app/storage_permission.dart';
 
 void main() {
   runApp(const MusicPlayerApp());
@@ -11,12 +11,13 @@ class MusicPlayerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Music Player',
-      home: const MainScreen(),
-      routes: {
-        '/storage_permission': (context) => const StoragePermissionPage(),
-      },
+      home: MainScreen(),
+      // setup route to use Navigator.pushNamed to wait page navigation (pause previous page until return)
+      // routes: {
+      //   '/storage_permission': (context) => const StoragePermissionDialog(),
+      // },
     );
   }
 }
