@@ -6,14 +6,12 @@ import 'package:flutter/material.dart';
 class MusicTrack {
   String absolutePath;
   String trackName, artist;
-  bool isFavorite;
   int timeListened;
   
   MusicTrack(
     this.absolutePath, {
     this.trackName = 'filename',
     this.artist = 'Unknown',
-    this.isFavorite = false,
     this.timeListened = 0,
   }) {
     trackName = absolutePath.split('/').last.split('.mp3').first;
@@ -23,7 +21,6 @@ class MusicTrack {
       : absolutePath = json['absolutePath'],
         trackName = json['trackName'] ?? json['absolutePath'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
-        isFavorite = json['isFavorite'],
         timeListened = json['timeListened'];
 
   MusicTrack.fromJsonString(String jsonString) : this.fromJson(json.decode(jsonString));
@@ -32,7 +29,6 @@ class MusicTrack {
         'absolutePath': absolutePath,
         'trackName': trackName,
         'artist': artist,
-        'isFavorite': isFavorite,
         'timeListened': timeListened
       };
 
