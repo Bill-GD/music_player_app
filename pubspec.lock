@@ -393,7 +393,7 @@ packages:
     source: hosted
     version: "2.2.1"
   permission_handler:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: permission_handler
       sha256: "551f8c3398f1ff26aed2ccc8d0b4e4f905cd7b1714e6a688e0b870621ad33524"

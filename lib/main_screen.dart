@@ -1,7 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:music_player_app/music_track.dart';
+import 'package:music_player_app/storage_permission.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// The main screen of the application. This screen has: settings, tabs (songs list, artists), app bar for current song...
 class MainScreen extends StatefulWidget {
@@ -15,14 +15,38 @@ class _MainScreenState extends State<MainScreen> {
   late List<MusicTrack> allMusicTracks;
   bool isLoading = true;
 
+  void checkStoragePermission() async {
+    PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
+
+    if (!storagePermissionStatus.isGranted && context.mounted) {
+      debugPrint('Storage permission not granted, redirecting to request page');
+      await Navigator.pushNamed(context, '/storage_permission');
+
+      storagePermissionStatus = await Permission.manageExternalStorage.status;
+      if (storagePermissionStatus.isGranted) {
+        debugPrint('Storage permission is granted');
+        getTrackFromStorage().then((value) {
+          allMusicTracks = value;
+          isLoading = false;
+          setState(() {});
+        });
+      }
+    } else {
+      debugPrint('Storage permission already granted');
+      if (storagePermissionStatus.isGranted) {
+        getTrackFromStorage().then((value) {
+          allMusicTracks = value;
+          isLoading = false;
+          setState(() {});
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getTrackFromStorage().then((value) {
-      allMusicTracks = value;
-      isLoading = false;
-      setState(() {});
-    });
+    checkStoragePermission();
   }
 
   @override
@@ -34,8 +58,9 @@ class _MainScreenState extends State<MainScreen> {
             )
           : ListView.builder(
               itemCount: allMusicTracks.length,
-              itemBuilder: (context, index) => Text(
-                '${allMusicTracks[index].toJson()}\n',
+              itemBuilder: (context, index) => ListTile(
+                title: Text(allMusicTracks[index].trackName),
+                onTap: () => {},
               ),
             ),
     );

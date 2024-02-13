@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MusicTrack {
   String absolutePath;
@@ -49,18 +48,8 @@ class MusicTrack {
 }
 
 Future<List<MusicTrack>> getTrackFromStorage() async {
-  PermissionStatus status = await Permission.manageExternalStorage.request();
-  if (status.isPermanentlyDenied) {
-    await openAppSettings();
-  }
-  if (status.isDenied) {
-    debugPrint('Perm denied');
-  }
-  if (!status.isGranted) {
-    debugPrint('Perm not granted');
-  }
-
   final downloadPath = Directory('/storage/emulated/0/Download');
+  debugPrint('Getting music files from: ${downloadPath.path}');
   return downloadPath
       .listSync()
       .where((file) => file.path.endsWith('.mp3'))
