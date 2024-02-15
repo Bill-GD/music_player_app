@@ -7,7 +7,7 @@ class MusicTrack {
   String absolutePath;
   String trackName, artist;
   int timeListened;
-  
+
   MusicTrack(
     this.absolutePath, {
     this.trackName = 'filename',
@@ -29,7 +29,7 @@ class MusicTrack {
         'absolutePath': absolutePath,
         'trackName': trackName,
         'artist': artist,
-        'timeListened': timeListened
+        'timeListened': timeListened,
       };
 
   bool compareTrackPath(MusicTrack other) => absolutePath == other.absolutePath;
