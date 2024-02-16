@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:music_player_app/main_screen.dart';
 import 'package:theme_provider/theme_provider.dart';
-// import 'package:music_player_app/storage_permission.dart';
+
+import 'package:music_player_app/main_screen/main_screen.dart';
 
 void main() {
   runApp(const MusicPlayerApp());

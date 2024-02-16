@@ -32,6 +32,7 @@ dependencies:
   theme_provider: <=0.6.0
   just_audio: <=0.9.36
   collection: <=1.18.0
+  path_provider: <=2.1.2
   flutter:
     sdk: flutter
 
@@ -42,7 +43,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  path_provider: <=2.1.2
   audio_waveforms: <=1.0.4
   audio_video_progress_bar: <=1.0.1
   audio_service: <=0.18.12
@@ -55,7 +55,6 @@ dev_dependencies:
   internet_connection_checker_plus: <=1.0.1
   connectivity_plus: <=5.0.2
   get_it: <=7.6.0
-  sticky_headers: ^0.3.0+2
   # permission_handler: <=11.2.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
