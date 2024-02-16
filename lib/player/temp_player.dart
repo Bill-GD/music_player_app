@@ -1,15 +1,12 @@
-// import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_player_app/scroll_configuration.dart';
 
+import '../globals/variables.dart';
 import '../music_track.dart';
 
 class TempPlayerDialog extends StatefulWidget {
-  final AudioPlayer player;
-  final MusicTrack song;
-  const TempPlayerDialog({super.key, required this.player, required this.song});
+  final int songIndex;
+  const TempPlayerDialog({super.key, required this.songIndex});
 
   @override
   State<TempPlayerDialog> createState() => _TempPlayerDialogState();
@@ -22,10 +19,10 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
   @override
   Widget build(BuildContext context) {
     // StreamSubscription? posStream;
-    widget.player
+    audioPlayer
         .setAudioSource(
           AudioSource.uri(
-            Uri.parse(Uri.encodeComponent(widget.song.absolutePath)),
+            Uri.parse(Uri.encodeComponent(allMusicTracks[widget.songIndex].absolutePath)),
           ),
           initialPosition: Duration.zero,
           preload: true,
@@ -35,7 +32,7 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
     return StatefulBuilder(
       builder: (stfContext, stfSetState) {
         // posStream =
-        widget.player.positionStream.listen((current) {
+        audioPlayer.positionStream.listen((current) {
           currentDuration = current.inMilliseconds;
           if (currentDuration >= maxDuration) {
             isPlaying = false;
@@ -54,9 +51,9 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.song.toJson().entries.length,
+                itemCount: allMusicTracks[widget.songIndex].toJson().entries.length,
                 itemBuilder: (context, i) {
-                  final valuePair = widget.song.toJson().entries.elementAt(i);
+                  final valuePair = allMusicTracks[widget.songIndex].toJson().entries.elementAt(i);
                   return ListTile(
                     title: Text('${valuePair.key}: ${valuePair.value}'),
                   );
@@ -69,14 +66,14 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
                   IconButton(
                     onPressed: () {
                       if (currentDuration >= maxDuration) {
-                        widget.player.seek(Duration.zero);
+                        audioPlayer.seek(Duration.zero);
                         currentDuration = 0;
                       }
                       if (currentDuration <= 0) {
-                        widget.song.timeListened++;
-                        // saveTracksToStorage(allMusicTracks);
+                        allMusicTracks[widget.songIndex].timeListened++;
+                        saveTracksToStorage(allMusicTracks);
                       }
-                      isPlaying ? widget.player.pause() : widget.player.play();
+                      isPlaying ? audioPlayer.pause() : audioPlayer.play();
                       isPlaying = !isPlaying;
                       stfSetState(() {});
                     },

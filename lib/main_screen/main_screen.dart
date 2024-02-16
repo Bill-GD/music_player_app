@@ -1,16 +1,14 @@
-// import 'dart:async';
-
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_player_app/main_screen/artists_list.dart';
-import 'package:music_player_app/main_screen/extra_menu.dart';
-import 'package:music_player_app/main_screen/songs_list.dart';
-import 'package:music_player_app/scroll_configuration.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'package:music_player_app/music_track.dart';
-import 'package:music_player_app/permission/storage_permission.dart';
+import '../globals/variables.dart';
+import '../music_track.dart';
+import '../permission/storage_permission.dart';
+import '../scroll_configuration.dart';
+import 'artists_list.dart';
+import 'extra_menu.dart';
+import 'songs_list.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,13 +17,9 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-List<MusicTrack> allMusicTracks = [];
-
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
   // late TabController _tabController;
-  late AudioPlayer player;
 
-  Map<String, List<MusicTrack>> artists = {};
   bool isLoading = true, isDarkTheme = false;
 
   void _checkStoragePermission() async {
@@ -50,11 +44,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   void _getMusicData() async {
     // get songs
-    allMusicTracks = (await getTrackFromStorage());
+    await getTrackFromStorage();
 
     // get artists
-    artists = Map.fromEntries(allMusicTracks.groupListsBy((element) => element.artist).entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key)));
+    groupMusicByArtist();
 
     isLoading = false;
     setState(() {});
@@ -64,7 +57,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _checkStoragePermission();
-    player = AudioPlayer();
+    audioPlayer = AudioPlayer();
     // _tabController = TabController(
     //   initialIndex: 0,
     //   length: 2,
@@ -75,7 +68,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     super.dispose();
-    player.dispose();
+    audioPlayer.dispose();
   }
 
   @override
@@ -90,7 +83,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               builder: (context) => IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {
-                  // go to settings page/sidebar
                   Scaffold.of(context).openDrawer();
                 },
               ),
@@ -114,7 +106,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               },
             ),
             bottom: TabBar(
-              // controller: _tabController,
               indicatorSize: TabBarIndicatorSize.label,
               indicator: UnderlineTabIndicator(
                 borderRadius: BorderRadius.circular(10),
@@ -147,14 +138,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 )
               : setOverscroll(
                   overscroll: false,
-                  child: TabBarView(
-                    // controller: _tabController,
+                  child: const TabBarView(
                     children: [
-                      SongList(
-                        player: player,
-                        allMusicTracks: allMusicTracks,
-                      ),
-                      ArtistList(artists: artists),
+                      SongList(),
+                      ArtistList(),
                     ],
                   ),
                 ),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:music_player_app/music_track.dart';
-import 'package:music_player_app/scroll_configuration.dart';
+
+import '../globals/variables.dart';
+import '../scroll_configuration.dart';
 
 class ArtistList extends StatefulWidget {
-  final Map<String, List<MusicTrack>> artists;
-  const ArtistList({super.key, required this.artists});
+  const ArtistList({super.key});
 
   @override
   State<ArtistList> createState() => _ArtistListState();
@@ -16,14 +16,15 @@ class _ArtistListState extends State<ArtistList> {
     return setOverscroll(
       overscroll: false,
       child: ListView.builder(
-        itemCount: widget.artists.length,
+        itemCount: artists.length,
         itemBuilder: (context, artistIndex) {
-          String artistName = widget.artists.keys.elementAt(artistIndex);
-          int songCount = widget.artists[artistName]?.length ?? 0;
+          String artistName = artists.keys.elementAt(artistIndex);
+          int songCount = artists[artistName]?.length ?? 0;
           return ListTile(
             title: Text(artistName),
             subtitle: Text('$songCount song${songCount > 1 ? "s" : ""}'),
             onTap: () {
+              // to song list of artist
               showDialog(
                 context: context,
                 builder: (context) {
@@ -38,9 +39,9 @@ class _ArtistListState extends State<ArtistList> {
                           overscroll: false,
                           child: ListView.builder(
                             shrinkWrap: true,
-                            itemCount: widget.artists[artistName]!.length,
+                            itemCount: artists[artistName]!.length,
                             itemBuilder: (context, i) {
-                              final song = widget.artists[artistName]!.elementAt(i);
+                              final song = artists[artistName]!.elementAt(i);
                               return ListTile(
                                 title: Text(song.trackName),
                               );
