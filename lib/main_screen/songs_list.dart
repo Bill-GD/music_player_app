@@ -1,9 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../globals/config.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../music_track.dart';
 import '../player/temp_player.dart';
 import '../scroll_configuration.dart';
 
@@ -25,9 +25,13 @@ class _SongListState extends State<SongList> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(
-                splashColor: const Color(0x00000000),
-                icon: const Icon(Icons.sort_rounded, size: 30),
+              TextButton(
+                child: Row(
+                  children: [
+                    Text(getSortOptionDisplayString()),
+                    const Icon(CupertinoIcons.sort_down, size: 30),
+                  ],
+                ),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
@@ -58,38 +62,23 @@ class _SongListState extends State<SongList> {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   children: [
-                                    ListTile(
-                                      title: const Text(
-                                        'By name',
-                                        style: modalBottomSheetText,
-                                      ),
-                                      onTap: () {
-                                        sortAllTracks(SongSorting.name);
-                                        setState(() {});
-                                        Navigator.of(context).pop();
-                                      },
+                                    sortingOptionTile(
+                                      title: 'By name',
+                                      sortOption: SongSorting.name,
+                                      setState: setState,
+                                      context: context,
                                     ),
-                                    ListTile(
-                                      title: const Text(
-                                        'By the number of times played',
-                                        style: modalBottomSheetText,
-                                      ),
-                                      onTap: () {
-                                        sortAllTracks(SongSorting.mostPlayed);
-                                        setState(() {});
-                                        Navigator.of(context).pop();
-                                      },
+                                    sortingOptionTile(
+                                      title: 'By the number of times played',
+                                      sortOption: SongSorting.mostPlayed,
+                                      setState: setState,
+                                      context: context,
                                     ),
-                                    ListTile(
-                                      title: const Text(
-                                        'By adding time',
-                                        style: modalBottomSheetText,
-                                      ),
-                                      onTap: () {
-                                        sortAllTracks(SongSorting.recentlyAdded);
-                                        setState(() {});
-                                        Navigator.of(context).pop();
-                                      },
+                                    sortingOptionTile(
+                                      title: 'By adding time',
+                                      sortOption: SongSorting.recentlyAdded,
+                                      setState: setState,
+                                      context: context,
                                     ),
                                   ],
                                 ),

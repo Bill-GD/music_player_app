@@ -21,7 +21,7 @@ class MusicTrack {
     this.timeListened = 0,
   }) {
     trackName = absolutePath.split('/').last.split('.mp3').first;
-    timeAdded = File(absolutePath).statSync().changed;
+    timeAdded = File(absolutePath).statSync().modified;
   }
 
   MusicTrack.fromJson(Map json)
@@ -29,7 +29,8 @@ class MusicTrack {
         trackName = json['trackName'] ?? json['absolutePath'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
         timeListened = json['timeListened'],
-        timeAdded = json['timeAdded'] ?? File(json['absolutePath']).statSync().changed;
+        timeAdded = DateTime.parse(
+            json['timeAdded'] ?? File(json['absolutePath']).statSync().modified.toIso8601String());
 
   MusicTrack.fromJsonString(String jsonString) : this.fromJson(json.decode(jsonString));
 
@@ -38,8 +39,18 @@ class MusicTrack {
         'trackName': trackName,
         'artist': artist,
         'timeListened': timeListened,
-        'timeAdded': timeAdded,
+        'timeAdded': timeAdded.toIso8601String(),
       };
+
+  MusicTrack copyWith({String? trackName, String? artist, int? timeListened}) {
+    var newTrack = MusicTrack(
+      absolutePath,
+      trackName: trackName ?? this.trackName,
+      artist: artist ?? this.artist,
+      timeListened: timeListened ?? this.timeListened,
+    )..timeAdded = timeAdded;
+    return newTrack;
+  }
 }
 
 Future<void> getTrackFromStorage() async {
@@ -64,11 +75,17 @@ Future<void> getTrackFromStorage() async {
       if (i >= tracksFromStorage.length || i >= tracksFromSaved.length) {
         break;
       }
-      tracksFromStorage[i] = tracksFromSaved
+      final matchingTrack = tracksFromSaved
           .where(
             (element) => element.absolutePath == tracksFromStorage[i].absolutePath,
           )
           .first;
+
+      tracksFromStorage[i] = tracksFromStorage[i].copyWith(
+        trackName: matchingTrack.trackName,
+        artist: matchingTrack.artist,
+        timeListened: matchingTrack.timeListened,
+      );
     }
   } else {
     // save to local if has no save file
