@@ -18,8 +18,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
-  // late TabController _tabController;
-
   bool isLoading = true, isDarkTheme = false;
 
   void _checkStoragePermission() async {
@@ -38,19 +36,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
     if (storagePermissionStatus.isGranted) {
       debugPrint('Storage permission is granted');
-      _getMusicData();
+      await getMusicData();
+      setState(() => isLoading = false);
     }
-  }
-
-  void _getMusicData() async {
-    // get songs
-    await getTrackFromStorage();
-
-    // get artists
-    groupMusicByArtist();
-
-    isLoading = false;
-    setState(() {});
   }
 
   @override
@@ -58,11 +46,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     super.initState();
     _checkStoragePermission();
     audioPlayer = AudioPlayer();
-    // _tabController = TabController(
-    //   initialIndex: 0,
-    //   length: 2,
-    //   vsync: this,
-    // );
   }
 
   @override
@@ -79,31 +62,27 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         child: Scaffold(
           appBar: AppBar(
             elevation: 0,
-            leading: Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
+            title: Container(
+              height: AppBar().preferredSize.height * 0.65,
+              margin: const EdgeInsets.only(right: 15),
+              child: TextFormField(
+                readOnly: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintText: 'Search songs and artists',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  contentPadding: EdgeInsets.zero,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                onTap: () {
+                  // go to search page/open search area
+                  debugPrint('Search');
                 },
               ),
-            ),
-            title: TextField(
-              readOnly: true,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Search songs and artists',
-                prefixIcon: const Icon(Icons.search_rounded),
-                contentPadding: const EdgeInsets.all(0),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              onTap: () {
-                // go to search page/open search area
-                debugPrint('Search');
-              },
             ),
             bottom: TabBar(
               indicatorSize: TabBarIndicatorSize.label,
@@ -126,16 +105,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 Tab(child: Text('Songs')),
                 Tab(child: Text('Artists')),
               ],
-              labelPadding: EdgeInsets.zero,
             ),
           ),
           drawer: const ExtraMenu(),
           body: isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.black,
-                  ),
-                )
+              ? const Center(child: CircularProgressIndicator())
               : setOverscroll(
                   overscroll: false,
                   child: const TabBarView(

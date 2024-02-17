@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../globals/functions.dart';
 import '../globals/variables.dart';
 import '../music_track.dart';
 
@@ -71,11 +72,10 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
                       }
                       if (currentDuration <= 0) {
                         allMusicTracks[widget.songIndex].timeListened++;
-                        saveTracksToStorage(allMusicTracks);
+                        saveTracksToStorage();
                       }
                       isPlaying ? audioPlayer.pause() : audioPlayer.play();
-                      isPlaying = !isPlaying;
-                      stfSetState(() {});
+                      stfSetState(() => isPlaying = !isPlaying);
                     },
                     icon: Icon(isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
                   ),
@@ -88,14 +88,4 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
       },
     );
   }
-}
-
-extension DurationExtension on Duration {
-  /// Converts duration to MM:SS format
-  String toMMSS() => toString().split('.').first.padLeft(8, '0').substring(3);
-}
-
-String getTimeString(int milliseconds) {
-  int timeInSeconds = milliseconds ~/ 1000;
-  return Duration(seconds: timeInSeconds).toMMSS();
 }

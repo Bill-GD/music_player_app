@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:theme_provider/theme_provider.dart';
 
+import 'globals/variables.dart';
 import 'main_screen/main_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  packageInfo = await PackageInfo.fromPlatform();
   runApp(const MusicPlayerApp());
 }
 
@@ -47,7 +51,7 @@ class MusicPlayerApp extends StatelessWidget {
             home: MainScreen(),
             // setup route to use Navigator.pushNamed to wait page navigation (pause previous page until return)
             // routes: {
-            //   '/storage_permission': (context) => const StoragePermissionDialog(),
+            //   '/music_downloader': (context) => const MusicDownloader(),
             // },
           ),
         ),

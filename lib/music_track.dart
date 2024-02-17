@@ -53,7 +53,12 @@ class MusicTrack {
   }
 }
 
-Future<void> getTrackFromStorage() async {
+Future<void> getMusicData() async {
+  await _getTrackFromStorage(); // get songs
+  _groupMusicByArtist(); // get artists
+}
+
+Future<void> _getTrackFromStorage() async {
   final downloadPath = Directory('/storage/emulated/0/Download');
   debugPrint('Getting music files from: ${downloadPath.path}');
 
@@ -90,11 +95,33 @@ Future<void> getTrackFromStorage() async {
   } else {
     // save to local if has no save file
     debugPrint('No save file detected');
-    saveTracksToStorage(tracksFromStorage);
+    saveTracksToStorage();
   }
 
   allMusicTracks = tracksFromStorage;
-  _sortMusicByName();
+  sortAllTracks();
+}
+
+void saveTracksToStorage() async {
+  File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
+
+  debugPrint('Saving music data to: ${saveFile.path}');
+  saveFile.writeAsStringSync(jsonEncode(allMusicTracks));
+}
+
+void sortAllTracks({SortOptions? sortType}) {
+  currentSortOption = sortType ?? currentSortOption;
+  switch (currentSortOption) {
+    case SortOptions.name:
+      _sortMusicByName();
+      break;
+    case SortOptions.mostPlayed:
+      _sortMusicByTimesListened();
+      break;
+    case SortOptions.recentlyAdded:
+      _sortMusicByTimeAdded();
+      break;
+  }
 }
 
 void _sortMusicByName({bool ascending = true}) {
@@ -112,34 +139,12 @@ void _sortMusicByTimeAdded({bool ascending = false}) {
       .sort((track1, track2) => track1.timeAdded.compareTo(track2.timeAdded) * (ascending ? 1 : -1));
 }
 
-void sortAllTracks(SongSorting? sortType) {
-  if (sortType != null) currentSortType = sortType;
-  switch (currentSortType) {
-    case SongSorting.name:
-      _sortMusicByName();
-      break;
-    case SongSorting.mostPlayed:
-      _sortMusicByTimesListened();
-      break;
-    case SongSorting.recentlyAdded:
-      _sortMusicByTimeAdded();
-      break;
-    default:
-      _sortMusicByName();
-      break;
-  }
-}
-
-void groupMusicByArtist() {
-  artists = Map.fromEntries(allMusicTracks.groupListsBy((element) => element.artist).entries.toList()
-    ..sort((a, b) => a.key.compareTo(b.key)));
-}
-
-void saveTracksToStorage(List<MusicTrack> allTracks) async {
-  Directory? storagePath = await getExternalStorageDirectory();
-
-  File saveFile = File('${storagePath?.path}/tracks.json');
-
-  debugPrint('Saving music data to: ${saveFile.path}');
-  saveFile.writeAsStringSync(jsonEncode(allMusicTracks));
+void _groupMusicByArtist() {
+  artists = Map.fromEntries(
+    groupBy(
+      allMusicTracks,
+      (element) => element.artist,
+    ).entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key)),
+  );
 }

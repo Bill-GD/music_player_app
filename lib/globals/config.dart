@@ -1,18 +1,18 @@
-enum SongSorting {
+enum SortOptions {
   name,
   mostPlayed,
   recentlyAdded,
 }
 
-SongSorting currentSortType = SongSorting.name;
+SortOptions currentSortOption = SortOptions.name;
 
 String getSortOptionDisplayString() {
-  switch (currentSortType) {
-    case SongSorting.name:
+  switch (currentSortOption) {
+    case SortOptions.name:
       return 'Name';
-    case SongSorting.mostPlayed:
+    case SortOptions.mostPlayed:
       return 'Most played';
-    case SongSorting.recentlyAdded:
+    case SortOptions.recentlyAdded:
       return 'Recently added';
   }
 }

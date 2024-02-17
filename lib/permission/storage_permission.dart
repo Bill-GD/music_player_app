@@ -27,21 +27,17 @@ class StoragePermissionDialog extends StatelessWidget {
         ),
         TextButton(
           child: const Text('Yes'),
-          onPressed: () async {
-            PermissionStatus status = await Permission.manageExternalStorage.request();
-            if (status.isPermanentlyDenied) {
-              debugPrint('Opening app settings to request permission');
-              await openAppSettings();
-            }
-            // if (status.isDenied && context.mounted) {
-              // debugPrint('Storage permission denied, exiting app');
-              // SystemNavigator.pop();
-              // Navigator.pop(context);
-            // }
-            if (status.isGranted && context.mounted) {
-              Navigator.pop(context);
-            }
-          },
+          onPressed: () => Permission.manageExternalStorage.request().then(
+            (status) async {
+              if (status.isPermanentlyDenied) {
+                debugPrint('Opening app settings to request permission');
+                await openAppSettings();
+              }
+              if (status.isGranted && context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+          ),
         ),
       ],
     );

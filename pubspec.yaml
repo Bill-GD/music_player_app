@@ -33,6 +33,7 @@ dependencies:
   just_audio: <=0.9.36
   collection: <=1.18.0
   path_provider: <=2.1.2
+  package_info_plus: <=4.1.0
   flutter:
     sdk: flutter
 
