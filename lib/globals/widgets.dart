@@ -18,20 +18,6 @@ const Icon bottomSheetHandleIcon = Icon(
   size: 40,
 );
 
-ListTile sortingOptionTile({
-  required String title,
-  required void Function(void Function()) setState,
-  required SortOptions sortOption,
-  required BuildContext context,
-}) =>
-    ListTile(
-      title: Text(title, style: bottomSheetText),
-      onTap: () {
-        setState(() => sortAllTracks(sortType: sortOption));
-        Navigator.of(context).pop();
-      },
-    );
-
 Widget bottomSheet({
   required Widget title,
   required List<Widget> content,
@@ -61,6 +47,20 @@ Widget bottomSheet({
     ),
   );
 }
+
+ListTile sortingOptionTile({
+  required String title,
+  required void Function(void Function()) setState,
+  required SortOptions sortOption,
+  required BuildContext context,
+}) =>
+    ListTile(
+      title: Text(title, style: bottomSheetText),
+      onTap: () {
+        setState(() => sortAllTracks(sortOption));
+        Navigator.of(context).pop();
+      },
+    );
 
 void showSongOptionsMenu(
   BuildContext context,

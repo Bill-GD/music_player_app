@@ -62,11 +62,13 @@ Future<void> _getTrackFromStorage() async {
   final downloadPath = Directory('/storage/emulated/0/Download');
   debugPrint('Getting music files from: ${downloadPath.path}');
 
+  // get all mp3 files from storage
   List<MusicTrack> tracksFromStorage = downloadPath
       .listSync()
       .where((file) => file.path.endsWith('.mp3'))
       .map((file) => MusicTrack(file.path))
-      .toList();
+      .toList()
+    ..sort((track1, track2) => track1.trackName.compareTo(track2.trackName));
 
   // if has save file, update from save data
   File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
@@ -92,12 +94,9 @@ Future<void> _getTrackFromStorage() async {
         timeListened: matchingTrack.timeListened,
       );
     }
-  } else {
-    // save to local if has no save file
-    debugPrint('No save file detected');
-    saveTracksToStorage();
   }
 
+  saveTracksToStorage();
   allMusicTracks = tracksFromStorage;
   sortAllTracks();
 }
@@ -109,7 +108,7 @@ void saveTracksToStorage() async {
   saveFile.writeAsStringSync(jsonEncode(allMusicTracks));
 }
 
-void sortAllTracks({SortOptions? sortType}) {
+void sortAllTracks([SortOptions? sortType]) {
   currentSortOption = sortType ?? currentSortOption;
   switch (currentSortOption) {
     case SortOptions.name:
