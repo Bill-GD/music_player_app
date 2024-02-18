@@ -3,7 +3,9 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:music_player_app/music_downloader/soundcloud_downloader.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
@@ -19,6 +21,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   final _yt = YoutubeExplode();
   late final TextEditingController _textEditingController;
 
+  bool _isFromSoundCloud = false;
   bool _isGettingVideo = false, _isInternetConnected = true, _gotVideoData = false, _isDownloading = false;
   int _received = 0, _total = 0;
 
@@ -27,7 +30,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   late String _videoTitle;
   late String _channelName;
   late String _url;
-  late String _thumbnailUrl;
+  late String? _thumbnailUrl;
   late Duration _videoDuration;
 
   void _checkInternetConnection([ConnectivityResult? result]) async {
@@ -48,8 +51,10 @@ class _MusicDownloaderState extends State<MusicDownloader> {
     if (text.isEmpty) {
       _errorText = null;
     } else if (!RegExp(
-            r'^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$')
-        .hasMatch(text)) {
+                r'^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$')
+            .hasMatch(text) &&
+        !RegExp(r'^(?:https?:\/\/)?(?:www\.)?(?:soundcloud\.com)\/([a-zA-Z0-9_-]*)\/([a-zA-Z0-9_-])(?:\S+)?$')
+            .hasMatch(text)) {
       _errorText = 'Invalid URL';
     }
     setState(() {});
@@ -61,14 +66,24 @@ class _MusicDownloaderState extends State<MusicDownloader> {
       _total = 0;
     });
 
-    _url = _textEditingController.text;
+    if (_textEditingController.text.contains('soundcloud')) {
+      _isFromSoundCloud = true;
+      final scSongData = await getSongData(_textEditingController.text);
+      _url = scSongData['trackUrl'];
+      _thumbnailUrl = scSongData['artworkUrl'];
+      _videoTitle = scSongData['songTitle'];
+      _channelName = scSongData['authorUsername'];
+      _videoDuration = scSongData['duration'];
+    } else {
+      _url = _textEditingController.text;
 
-    Video video = await _yt.videos.get(_url);
+      Video video = await _yt.videos.get(_url);
 
-    _videoTitle = video.title;
-    _thumbnailUrl = video.thumbnails.lowResUrl;
-    _videoDuration = video.duration!;
-    _channelName = video.author;
+      _videoTitle = video.title;
+      _thumbnailUrl = video.thumbnails.lowResUrl;
+      _videoDuration = video.duration!;
+      _channelName = video.author;
+    }
 
     setState(() {
       _gotVideoData = true;
@@ -77,7 +92,11 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   }
 
   Future<void> _downloadYoutubeMP3() async {
-    await _getVideoData();
+    if (_isFromSoundCloud) {
+      await _downloadSoundCloudMP3();
+      return;
+    }
+
     final file = File('/storage/emulated/0/Download/$_videoTitle.mp3');
 
     if (file.existsSync() && file.lengthSync() > 0) {
@@ -88,10 +107,6 @@ class _MusicDownloaderState extends State<MusicDownloader> {
       }
       return;
     }
-
-    setState(() {
-      _received = 0;
-    });
 
     try {
       final manifest = await _yt.videos.streamsClient.getManifest(_url);
@@ -105,6 +120,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
       var fileStream = file.openWrite();
 
       setState(() {
+        _received = 0;
         _isDownloading = true;
       });
 
@@ -128,6 +144,44 @@ class _MusicDownloaderState extends State<MusicDownloader> {
     } on Exception catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  Future<void> _downloadSoundCloudMP3() async {
+    final dio = Dio();
+    final file = File('/storage/emulated/0/Download/$_videoTitle.mp3');
+
+    if (file.existsSync() && file.lengthSync() > 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File with the same name already exists')),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _received = 0;
+      _isDownloading = true;
+    });
+
+    debugPrint('Saving to: ${file.absolute.path}');
+    await dio.download(
+      _url,
+      file.absolute.path,
+      onReceiveProgress: (count, total) {
+        setState(() {
+          _received = count;
+          _total = total;
+        });
+      },
+    );
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Finished downloading')),
+      );
+    }
+    setState(() => _isDownloading = false);
   }
 
   @override
@@ -156,7 +210,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
           onPressed: () {
             if (_isDownloading) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('App is downloading music, please wait')),
+                const SnackBar(content: Text('App is downloading music, please wait')),
               );
             }
             Navigator.of(context).pop();
@@ -184,11 +238,14 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Text('Enter the video link into the text field.'),
-                        Text('Wait for the app to fetch the video.'),
+                        Text(
+                          'Enter YouTube or SoundCloud link into the text field.',
+                          textAlign: TextAlign.center,
+                        ),
+                        Text('Wait for the app to fetch the data.'),
                         Text('Press the download button.'),
                         Text(
-                          'Wait for the app to download the audio.',
+                          'Wait for the app to download the music.',
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -237,14 +294,14 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         children: [
                           Expanded(
                             child: TextField(
-                              enabled: _isInternetConnected,
+                              enabled: _isInternetConnected || _isDownloading,
                               controller: _textEditingController,
                               onChanged: _validateInput,
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
-                                hintText: 'Enter YouTube link',
-                                labelText: 'YouTube Link',
+                                hintText: 'Enter YouTube or SoundCloud link',
+                                labelText: 'Music Link',
                                 errorText: _errorText,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                                 border: OutlineInputBorder(
@@ -280,7 +337,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                             ),
                           ),
                         ),
-                        child: const Text('Get Video'),
+                        child: const Text('Get Music'),
                       ),
                     ),
                   ],
@@ -296,12 +353,19 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Image.network(_thumbnailUrl, fit: BoxFit.fitHeight),
-                            Flexible(
+                            _thumbnailUrl == null
+                                ? Container(
+                                    margin: EdgeInsets.zero,
+                                    decoration: BoxDecoration(border: Border.all()),
+                                    child: const Icon(Icons.music_note_rounded),
+                                  )
+                                : Image.network(_thumbnailUrl!, fit: BoxFit.fitHeight),
+                            Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 20),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
                                     Text(
                                       _videoTitle,

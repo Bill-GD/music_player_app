@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:music_player_app/globals/variables.dart';
 import 'package:music_player_app/scroll_configuration.dart';
 
-import 'globals/widgets.dart';
-import 'player/temp_player.dart';
+import '../globals/widgets.dart';
+import '../player/temp_player.dart';
 
 class ArtistSongsPage extends StatelessWidget {
   final String artistName;

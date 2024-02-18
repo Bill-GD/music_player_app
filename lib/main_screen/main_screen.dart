@@ -6,7 +6,7 @@ import '../globals/variables.dart';
 import '../music_track.dart';
 import '../permission/storage_permission.dart';
 import '../scroll_configuration.dart';
-import 'artists_list.dart';
+import '../artists/artists_list.dart';
 import 'extra_menu.dart';
 import 'songs_list.dart';
 
