@@ -19,7 +19,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   final _yt = YoutubeExplode();
   late final TextEditingController _textEditingController;
 
-  bool _isGettingVideo = false, _isInternetConnected = true, _gotVideoData = false;
+  bool _isGettingVideo = false, _isInternetConnected = true, _gotVideoData = false, _isDownloading = false;
   int _received = 0, _total = 0;
 
   String? _errorText;
@@ -56,7 +56,10 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   }
 
   Future<void> _getVideoData() async {
-    setState(() => _isGettingVideo = true);
+    setState(() {
+      _isGettingVideo = true;
+      _total = 0;
+    });
 
     _url = _textEditingController.text;
 
@@ -101,7 +104,9 @@ class _MusicDownloaderState extends State<MusicDownloader> {
       debugPrint('Saving to: ${file.absolute}');
       var fileStream = file.openWrite();
 
-      setState(() {});
+      setState(() {
+        _isDownloading = true;
+      });
 
       await stream.map((s) {
         _received += s.length;
@@ -117,7 +122,9 @@ class _MusicDownloaderState extends State<MusicDownloader> {
           const SnackBar(content: Text('Finished downloading')),
         );
       }
-      setState(() {});
+      setState(() {
+        _isDownloading = false;
+      });
     } on Exception catch (e) {
       debugPrint(e.toString());
     }
@@ -146,7 +153,14 @@ class _MusicDownloaderState extends State<MusicDownloader> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (_isDownloading) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('App is downloading music, please wait')),
+              );
+            }
+            Navigator.of(context).pop();
+          },
         ),
         centerTitle: true,
         title: const Text('YouTube Downloader'),
@@ -252,12 +266,13 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: ElevatedButton(
-                        onPressed: _textEditingController.text.isNotEmpty && _errorText == null
-                            ? () async {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                await _getVideoData();
-                              }
-                            : null,
+                        onPressed:
+                            _textEditingController.text.isNotEmpty && !_isDownloading && _errorText == null
+                                ? () async {
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    await _getVideoData();
+                                  }
+                                : null,
                         style: ButtonStyle(
                           shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
@@ -308,7 +323,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () async => await _downloadYoutubeMP3(),
+                        onPressed: _isDownloading ? null : () async => await _downloadYoutubeMP3(),
                         style: ButtonStyle(
                           shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
                             RoundedRectangleBorder(

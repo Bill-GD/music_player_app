@@ -74,24 +74,27 @@ Future<void> _getTrackFromStorage() async {
   File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
   if (saveFile.existsSync()) {
     debugPrint('Getting saved music data from: ${saveFile.path}');
-    List<MusicTrack> tracksFromSaved =
+    List<MusicTrack> savedTracks =
         (json.decode(saveFile.readAsStringSync()) as List).map((e) => MusicTrack.fromJson(e)).toList();
 
     debugPrint('Updating music data from saved');
     for (int i = 0; i < tracksFromStorage.length; i++) {
-      if (i >= tracksFromStorage.length || i >= tracksFromSaved.length) {
+      if (i >= tracksFromStorage.length || i >= savedTracks.length) {
         break;
       }
-      final matchingTrack = tracksFromSaved
-          .where(
-            (element) => element.absolutePath == tracksFromStorage[i].absolutePath,
-          )
-          .first;
+
+      final matchingTracks = savedTracks.where(
+        (element) => element.absolutePath == tracksFromStorage[i].absolutePath,
+      );
+
+      if (matchingTracks.isEmpty) {
+        continue;
+      }
 
       tracksFromStorage[i] = tracksFromStorage[i].copyWith(
-        trackName: matchingTrack.trackName,
-        artist: matchingTrack.artist,
-        timeListened: matchingTrack.timeListened,
+        trackName: matchingTracks.first.trackName,
+        artist: matchingTracks.first.artist,
+        timeListened: matchingTracks.first.timeListened,
       );
     }
   }
