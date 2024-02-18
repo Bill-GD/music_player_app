@@ -106,7 +106,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) => TempPlayerDialog(songIndex: songIndex),
+                        builder: (context) => TempPlayerDialog(song: allMusicTracks[songIndex]),
                       ).then((value) {
                         audioPlayer.stop();
                       });

@@ -35,7 +35,7 @@ class ArtistSongsPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(songIndex.toString().padLeft(2, '0')),
+                      Text((songIndex + 1).toString().padLeft(2, '0')),
                     ],
                   ),
                 ),
@@ -50,7 +50,7 @@ class ArtistSongsPage extends StatelessWidget {
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (context) => TempPlayerDialog(songIndex: songIndex),
+                    builder: (context) => TempPlayerDialog(song: artists[artistName]![songIndex]),
                   ).then((value) {
                     audioPlayer.stop();
                   });
