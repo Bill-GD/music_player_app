@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../artists/music_track.dart';
 import 'config.dart';
@@ -6,57 +7,135 @@ import 'variables.dart';
 
 const TextStyle bottomSheetTitle = TextStyle(
   fontSize: 18,
-  fontWeight: FontWeight.w600,
+  fontWeight: FontWeight.w700,
 );
 const TextStyle bottomSheetText = TextStyle(
   fontSize: 17,
-  fontWeight: FontWeight.w500,
+  fontWeight: FontWeight.w600,
 );
 
+Color? iconColor(BuildContext context) => Theme.of(context).iconTheme.color;
+
+InputDecoration textFieldDecoration(
+  BuildContext context, {
+  String? hintText,
+  String? labelText,
+  String? errorText,
+  Widget? prefixIcon,
+}) =>
+    InputDecoration(
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+      hintText: hintText,
+      hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+      labelText: labelText,
+      labelStyle: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+      errorText: errorText,
+      prefixIcon: prefixIcon,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
+        borderRadius: BorderRadius.circular(25),
+      ),
+    );
+
+ButtonStyle textButtonStyle(BuildContext context) => ButtonStyle(
+      textStyle: const MaterialStatePropertyAll<TextStyle>(
+        TextStyle(fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+        (states) {
+          if (states.contains(MaterialState.disabled)) {
+            return Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5);
+          }
+          return Theme.of(context).colorScheme.primaryContainer;
+        },
+      ),
+      shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+    );
+
 Widget bottomSheet({
+  required BuildContext context,
   required Widget title,
   required List<Widget> content,
 }) {
-  return Container(
-    margin: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(30),
-      color: Colors.white,
-    ),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
-            child: title,
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 15),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
+          child: title,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          child: ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: content,
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: ListView(
-                  shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), children: content),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }
 
-ListTile sortingOptionTile({
-  required String title,
+void showSongSortingOptionsMenu(
+  BuildContext context, {
   required void Function(void Function()) setState,
-  required SortOptions sortOption,
-  required BuildContext context,
 }) =>
-    ListTile(
-      title: Text(title, style: bottomSheetText),
-      onTap: () {
-        setState(() => sortAllTracks(sortOption));
-        Navigator.of(context).pop();
-      },
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+      constraints: BoxConstraints.loose(
+        Size.fromWidth(MediaQuery.of(context).size.width * 0.95),
+      ),
+      builder: (context) => bottomSheet(
+        context: context,
+        title: const Text(
+          'Sort Songs',
+          style: bottomSheetTitle,
+          textAlign: TextAlign.center,
+          softWrap: true,
+        ),
+        content: [
+          ListTile(
+            leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
+            title: const Text('By name', style: bottomSheetText),
+            onTap: () {
+              setState(() => sortAllTracks(SortOptions.name));
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: FaIcon(FontAwesomeIcons.arrowDown91, color: iconColor(context)),
+            title: const Text('By the number of times played', style: bottomSheetText),
+            onTap: () {
+              setState(() => sortAllTracks(SortOptions.mostPlayed));
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: FaIcon(FontAwesomeIcons.clock, color: iconColor(context)),
+            title: const Text('By adding time', style: bottomSheetText),
+            onTap: () {
+              setState(() => sortAllTracks(SortOptions.recentlyAdded));
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
     );
 
 void showSongOptionsMenu(
@@ -65,10 +144,16 @@ void showSongOptionsMenu(
 ) {
   showModalBottomSheet<void>(
     context: context,
-    backgroundColor: const Color(0x00000000),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
     useSafeArea: true,
     enableDrag: false,
+    constraints: BoxConstraints.loose(
+      Size.fromWidth(MediaQuery.of(context).size.width * 0.95),
+    ),
     builder: (context) => bottomSheet(
+      context: context,
       title: Text(
         allMusicTracks[songIndex].trackName,
         style: bottomSheetTitle,
@@ -77,19 +162,15 @@ void showSongOptionsMenu(
       ),
       content: [
         ListTile(
-          title: const Text(
-            'Delete',
-            style: bottomSheetText,
-          ),
-          onTap: () => debugPrint('Delete song'),
+          leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
+          title: const Text('Song Info', style: bottomSheetText),
+          onTap: () => debugPrint('Check song info'),
         ),
         ListTile(
-          title: const Text(
-            'Song Info',
-            style: bottomSheetText,
-          ),
-          onTap: () => debugPrint('Check song info'),
-        )
+          leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+          title: const Text('Delete', style: bottomSheetText),
+          onTap: () => debugPrint('Delete song'),
+        ),
       ],
     ),
   );

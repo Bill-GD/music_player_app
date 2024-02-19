@@ -2,10 +2,12 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dedent/dedent.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
+import '../globals/widgets.dart';
 import 'soundcloud_downloader.dart';
 import 'youtube_downloader.dart';
 
@@ -104,24 +106,25 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    title: const Text(
+                    title: Text(
                       'Instruction',
                       textAlign: TextAlign.center,
+                      style: bottomSheetTitle.copyWith(fontSize: 24),
                     ),
                     alignment: Alignment.center,
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
-                          'Enter YouTube or SoundCloud link into the text field.',
+                          dedent('''
+                          Enter YouTube or SoundCloud link into the text field.
+                          Wait for the app to fetch the data.
+                          Press the download button.
+                          Wait for the app to download the music.
+                          '''),
                           textAlign: TextAlign.center,
-                        ),
-                        Text('Wait for the app to fetch the data.'),
-                        Text('Press the download button.'),
-                        Text(
-                          'Wait for the app to download the music.',
-                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ],
                     ),
@@ -172,16 +175,11 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                               enabled: _isInternetConnected || _isDownloading,
                               controller: _textEditingController,
                               onChanged: _validateInput,
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
+                              decoration: textFieldDecoration(
+                                context,
                                 hintText: 'Enter YouTube or SoundCloud link',
                                 labelText: 'Music Link',
                                 errorText: _errorText,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
                               ),
                             ),
                           ),
@@ -215,13 +213,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                 setState(() => _isGettingData = false);
                               }
                             : null,
-                        style: ButtonStyle(
-                          shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
+                        style: textButtonStyle(context),
                         child: const Text('Get Music Data'),
                       ),
                     ),
@@ -311,13 +303,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                       );
                                 setState(() => _isDownloading = false);
                               },
-                        style: ButtonStyle(
-                          shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
+                        style: textButtonStyle(context),
                         child: const Text('Download Music'),
                       ),
                     ],

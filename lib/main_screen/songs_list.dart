@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../artists/music_track.dart';
 import '../globals/config.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../artists/music_track.dart';
 import '../player/temp_player.dart';
 
 class SongList extends StatefulWidget {
@@ -26,49 +26,36 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
-                child: Row(
-                  children: [
-                    Text(getSortOptionDisplayString()),
-                    const Icon(CupertinoIcons.sort_down, size: 30),
-                  ],
-                ),
-                onPressed: () {
-                  showModalBottomSheet<void>(
-                    context: context,
-                    backgroundColor: const Color(0x00000000),
-                    useSafeArea: true,
-                    enableDrag: false,
-                    builder: (context) => bottomSheet(
-                      title: const Text(
-                        'Sort Songs',
-                        style: bottomSheetTitle,
-                        textAlign: TextAlign.center,
-                        softWrap: true,
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: TextButton(
+                  style: const ButtonStyle(
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          getSortOptionDisplayString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: iconColor(context),
+                          ),
+                        ),
                       ),
-                      content: [
-                        sortingOptionTile(
-                          title: 'By name',
-                          sortOption: SortOptions.name,
-                          setState: setState,
-                          context: context,
-                        ),
-                        sortingOptionTile(
-                          title: 'By the number of times played',
-                          sortOption: SortOptions.mostPlayed,
-                          setState: setState,
-                          context: context,
-                        ),
-                        sortingOptionTile(
-                          title: 'By adding time',
-                          sortOption: SortOptions.recentlyAdded,
-                          setState: setState,
-                          context: context,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                      Icon(
+                        CupertinoIcons.sort_down,
+                        size: 30,
+                        color: iconColor(context),
+                      ),
+                    ],
+                  ),
+                  onPressed: () => showSongSortingOptionsMenu(
+                    context,
+                    setState: setState,
+                  ),
+                ),
               ),
             ],
           ),
@@ -87,42 +74,50 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
               child: ListView.builder(
                 itemCount: allMusicTracks.length,
                 itemBuilder: (context, songIndex) {
-                  return ListTile(
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.music_note_rounded),
-                      ],
-                    ),
-                    title: Text(
-                      allMusicTracks[songIndex].trackName,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(
-                      allMusicTracks[songIndex].artist,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => TempPlayerDialog(song: allMusicTracks[songIndex]),
-                      ).then((value) {
-                        audioPlayer.stop();
-                      });
-                    },
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Visibility(
-                          visible: currentSortOption == SortOptions.mostPlayed,
-                          child: Text('${allMusicTracks[songIndex].timeListened}'),
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: ListTile(
+                      leading: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.primary),
+                        ],
+                      ),
+                      title: Text(
+                        allMusicTracks[songIndex].trackName,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        allMusicTracks[songIndex].artist,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w400,
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.more_vert_rounded),
-                          onPressed: () => showSongOptionsMenu(context, songIndex),
-                        ),
-                      ],
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => TempPlayerDialog(song: allMusicTracks[songIndex]),
+                        ).then((value) {
+                          audioPlayer.stop();
+                        });
+                      },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Visibility(
+                            visible: currentSortOption == SortOptions.mostPlayed,
+                            child: Text('${allMusicTracks[songIndex].timeListened}'),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.more_vert_rounded),
+                            onPressed: () => showSongOptionsMenu(context, songIndex),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

@@ -3,9 +3,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../artists/artists_list.dart';
+import '../artists/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../artists/music_track.dart';
 import '../permission/storage_permission.dart';
 import 'extra_menu.dart';
 import 'songs_list.dart';
@@ -61,21 +61,18 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            elevation: 0,
+            backgroundColor: Theme.of(context).colorScheme.background,
             title: Container(
               height: AppBar().preferredSize.height * 0.65,
               margin: const EdgeInsets.only(right: 15),
               child: TextFormField(
                 readOnly: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
+                decoration: textFieldDecoration(
+                  context,
                   hintText: 'Search songs and artists',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  contentPadding: EdgeInsets.zero,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(25),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 onTap: () {
@@ -85,13 +82,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               ),
             ),
             bottom: TabBar(
+              enableFeedback: false,
+              splashFactory: NoSplash.splashFactory,
               indicatorSize: TabBarIndicatorSize.label,
               indicator: UnderlineTabIndicator(
                 borderRadius: BorderRadius.circular(10),
                 insets: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                borderSide: const BorderSide(
+                borderSide: BorderSide(
                   width: 3,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               labelStyle: const TextStyle(

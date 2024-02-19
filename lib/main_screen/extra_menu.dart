@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -36,14 +38,10 @@ class _ExtraMenuState extends State<ExtraMenu> {
               ),
             ),
           ),
-          // const Divider(
-          //   height: 1,
-          //   thickness: 1,
-          // ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: ListTile(
-              leading: const Icon(CupertinoIcons.gear_alt_fill),
+              leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
               title: const Text(
                 'Settings',
                 style: bottomSheetTitle,
@@ -56,12 +54,20 @@ class _ExtraMenuState extends State<ExtraMenu> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: ListTile(
-              leading: const Icon(Icons.download_rounded),
+              leading: Icon(Icons.download_rounded, color: iconColor(context)),
               title: const Text('Download Music', style: bottomSheetTitle),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const MusicDownloader()),
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ListTile(
+              leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
+              title: const Text('Change Theme', style: bottomSheetTitle),
+              onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
             ),
           ),
           Expanded(
@@ -77,7 +83,7 @@ class _ExtraMenuState extends State<ExtraMenu> {
                   onTap: () => showAboutDialog(
                     context: context,
                     applicationName: packageInfo.appName,
-                    applicationVersion: packageInfo.version,
+                    applicationVersion: 'v${packageInfo.version}',
                   ),
                 ),
               ),

@@ -38,6 +38,8 @@ dependencies:
   connectivity_plus: <=5.0.2
   http: ^0.13.6
   dio: <=5.4.1
+  font_awesome_flutter: <=10.4.0
+  dedent: ^1.0.2
   # audio_video_progress_bar: <=1.0.1
   # audio_service: <=0.18.12
   # audio_session: <=0.1.18
