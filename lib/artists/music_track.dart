@@ -5,8 +5,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'globals/config.dart';
-import 'globals/variables.dart';
+import '../globals/config.dart';
+import '../globals/variables.dart';
 
 class MusicTrack {
   String absolutePath;

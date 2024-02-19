@@ -5,7 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../artists/artists_list.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../music_track.dart';
+import '../artists/music_track.dart';
 import '../permission/storage_permission.dart';
 import 'extra_menu.dart';
 import 'songs_list.dart';

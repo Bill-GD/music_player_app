@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../globals/config.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../music_track.dart';
+import '../artists/music_track.dart';
 import '../player/temp_player.dart';
 
 class SongList extends StatefulWidget {

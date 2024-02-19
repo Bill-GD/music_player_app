@@ -3,7 +3,7 @@ import 'package:just_audio/just_audio.dart';
 
 import '../globals/functions.dart';
 import '../globals/variables.dart';
-import '../music_track.dart';
+import '../artists/music_track.dart';
 
 class TempPlayerDialog extends StatefulWidget {
   final MusicTrack song;

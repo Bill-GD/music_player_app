@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../music_track.dart';
+import '../artists/music_track.dart';
 import 'config.dart';
 import 'variables.dart';
 
