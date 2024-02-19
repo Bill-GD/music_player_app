@@ -39,6 +39,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     context: context,
                     backgroundColor: const Color(0x00000000),
                     useSafeArea: true,
+                    enableDrag: false,
                     builder: (context) => bottomSheet(
                       title: const Text(
                         'Sort Songs',

@@ -5,17 +5,12 @@ import 'config.dart';
 import 'variables.dart';
 
 const TextStyle bottomSheetTitle = TextStyle(
-  fontSize: 20,
-  fontWeight: FontWeight.w500,
+  fontSize: 18,
+  fontWeight: FontWeight.w600,
 );
 const TextStyle bottomSheetText = TextStyle(
-  fontSize: 16,
-  fontWeight: FontWeight.w400,
-);
-
-const Icon bottomSheetHandleIcon = Icon(
-  Icons.horizontal_rule_rounded,
-  size: 40,
+  fontSize: 17,
+  fontWeight: FontWeight.w500,
 );
 
 Widget bottomSheet({
@@ -33,8 +28,10 @@ Widget bottomSheet({
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          bottomSheetHandleIcon,
-          title,
+          Padding(
+            padding: const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
+            child: title,
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 10),
@@ -70,6 +67,7 @@ void showSongOptionsMenu(
     context: context,
     backgroundColor: const Color(0x00000000),
     useSafeArea: true,
+    enableDrag: false,
     builder: (context) => bottomSheet(
       title: Text(
         allMusicTracks[songIndex].trackName,
