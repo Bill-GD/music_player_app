@@ -53,16 +53,14 @@ class MusicTrack {
   }
 }
 
-Future<void> getMusicData() async {
-  await _getTrackFromStorage(); // get songs
-  _groupMusicByArtist(); // get artists
-}
+/// Get all songs (from storage & saved)
+Future<void> getMusicData() async => await _getTrackFromStorage();
 
 Future<void> _getTrackFromStorage() async {
   final downloadPath = Directory('/storage/emulated/0/Download');
   debugPrint('Getting music files from: ${downloadPath.path}');
 
-  // get all mp3 files from storage
+  // get all mp3 files from storage & sort by name
   List<MusicTrack> tracksFromStorage = downloadPath
       .listSync()
       .where((file) => file.path.endsWith('.mp3'))
@@ -99,15 +97,16 @@ Future<void> _getTrackFromStorage() async {
     }
   }
 
-  saveTracksToStorage();
   allMusicTracks = tracksFromStorage;
+  saveTracksToStorage();
+  _groupMusicByArtist(); // get artists
   sortAllTracks();
 }
 
 void saveTracksToStorage() async {
   File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
 
-  debugPrint('Saving music data to: ${saveFile.path}');
+  debugPrint('Saving updated music data to: ${saveFile.path}');
   saveFile.writeAsStringSync(jsonEncode(allMusicTracks));
 }
 

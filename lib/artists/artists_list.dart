@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../globals/variables.dart';
-import '../scroll_configuration.dart';
+import '../globals/widgets.dart';
 import 'songs_of_artist.dart';
 
 class ArtistList extends StatefulWidget {

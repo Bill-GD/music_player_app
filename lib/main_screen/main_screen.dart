@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../artists/artists_list.dart';
 import '../globals/variables.dart';
+import '../globals/widgets.dart';
 import '../music_track.dart';
 import '../permission/storage_permission.dart';
-import '../scroll_configuration.dart';
-import '../artists/artists_list.dart';
 import 'extra_menu.dart';
 import 'songs_list.dart';
 

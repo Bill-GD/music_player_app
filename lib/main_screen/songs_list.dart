@@ -6,7 +6,6 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_track.dart';
 import '../player/temp_player.dart';
-import '../scroll_configuration.dart';
 
 class SongList extends StatefulWidget {
   const SongList({super.key});
