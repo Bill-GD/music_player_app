@@ -98,12 +98,12 @@ Future<void> _getTrackFromStorage() async {
   }
 
   allMusicTracks = tracksFromStorage;
-  saveTracksToStorage();
+  await saveTracksToStorage();
   _groupMusicByArtist(); // get artists
   sortAllTracks();
 }
 
-void saveTracksToStorage() async {
+Future<void> saveTracksToStorage() async {
   File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
 
   debugPrint('Saving updated music data to: ${saveFile.path}');
@@ -111,6 +111,7 @@ void saveTracksToStorage() async {
 }
 
 void sortAllTracks([SortOptions? sortType]) {
+  debugPrint('Sorting all tracks: ${currentSortOption.name}');
   currentSortOption = sortType ?? currentSortOption;
   switch (currentSortOption) {
     case SortOptions.name:
@@ -141,6 +142,7 @@ void _sortMusicByTimeAdded({bool ascending = false}) {
 }
 
 void _groupMusicByArtist() {
+  debugPrint('Grouping music by artist');
   artists = Map.fromEntries(
     groupBy(
       allMusicTracks,

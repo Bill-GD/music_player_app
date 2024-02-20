@@ -19,6 +19,7 @@ class ArtistSongsPage extends StatelessWidget {
         centerTitle: true,
         title: Text(
           artistName,
+          style: const TextStyle(fontWeight: FontWeight.w700),
           textAlign: TextAlign.center,
         ),
       ),

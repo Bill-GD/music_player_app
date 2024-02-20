@@ -77,7 +77,8 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
                       isPlaying ? audioPlayer.pause() : audioPlayer.play();
                       stfSetState(() => isPlaying = !isPlaying);
                     },
-                    icon: Icon(isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                    icon: Icon(isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        color: Theme.of(context).colorScheme.primary),
                   ),
                   Text(getTimeString(maxDuration)),
                 ],

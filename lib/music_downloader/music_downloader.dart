@@ -219,12 +219,12 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                     ),
                   ],
                 ),
-                // video info
                 if (_metadata == null)
                   const SizedBox.shrink()
                 else
                   Column(
                     children: [
+                      // video info
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         child: Row(
@@ -239,12 +239,17 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                               padding: const EdgeInsets.all(10),
                               decoration: _metadata!['thumbnailUrl'] == null
                                   ? BoxDecoration(
-                                      border: Border.all(),
+                                      border: Border.all(
+                                        color: Theme.of(context).colorScheme.onBackground,
+                                      ),
                                       borderRadius: BorderRadius.circular(10),
                                     )
                                   : null,
                               child: _metadata!['thumbnailUrl'] == null
-                                  ? const Icon(Icons.music_note_rounded)
+                                  ? Icon(
+                                      Icons.music_note_rounded,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    )
                                   : Image.network(_metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
                             ),
                             Expanded(
@@ -273,6 +278,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                           ],
                         ),
                       ),
+                      // download button
                       ElevatedButton(
                         onPressed: _isDownloading
                             ? null
@@ -327,7 +333,10 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         ),
                         Text(
                           '${(_received * 100 / _total).toStringAsPrecision(3)}% (${getSizeString(_received)} / ${getSizeString(_total)})',
-                          style: const TextStyle(fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         ),
                       ],
                     ),
