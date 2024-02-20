@@ -8,7 +8,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../permission/storage_permission.dart';
 import 'extra_menu.dart';
-import 'songs_list.dart';
+import '../songs/songs_list.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

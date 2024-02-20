@@ -115,20 +115,17 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       style: bottomSheetTitle.copyWith(fontSize: 24),
                     ),
                     alignment: Alignment.center,
-                    contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 20),
-                    content: SizedBox(
-                      height: 150,
-                      child: Text(
-                        dedent('''
-                        Enter YouTube or SoundCloud link into the text field.
-                        Press the get data button.
-                        Wait for the app to fetch the data.
-                        Press the download button.
-                        Wait for the app to download the music.
-                        '''),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                    contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                    content: Text(
+                      dedent('''
+                      Enter YouTube or SoundCloud link into the text field.
+                      Press the get data button.
+                      Wait for the app to fetch the data.
+                      Press the download button.
+                      Wait for the app to download the music.
+                      '''),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
                     ),
                     actionsAlignment: MainAxisAlignment.spaceAround,
                     actions: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:music_player_app/songs/song_info.dart';
 
 import '../artists/music_track.dart';
 import 'config.dart';
@@ -178,7 +179,11 @@ void showSongOptionsMenu(
           ),
           leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
           title: const Text('Song Info', style: bottomSheetText),
-          onTap: () => debugPrint('Check song info'),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => SongInfo(songIndex: songIndex),
+            ),
+          ),
         ),
         ListTile(
           shape: RoundedRectangleBorder(

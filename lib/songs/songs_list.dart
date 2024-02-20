@@ -73,15 +73,6 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         color: iconColor(context),
                       ),
                     ),
-                    // onPressed: () => Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => songSortingOptionsMenu(
-                    //       context,
-                    //       setState: setState,
-                    //       ticker: this,
-                    //     ),
-                    //   ),
-                    // ),
                     onPressed: () => showSongSortingOptionsMenu(
                       context,
                       setState: setState,
