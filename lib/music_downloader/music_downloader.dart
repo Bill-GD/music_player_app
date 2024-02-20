@@ -94,7 +94,10 @@ class _MusicDownloaderState extends State<MusicDownloader> {
           },
         ),
         centerTitle: true,
-        title: const Text('Music Downloader'),
+        title: const Text(
+          'Music Downloader',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_rounded),
@@ -112,21 +115,20 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       style: bottomSheetTitle.copyWith(fontSize: 24),
                     ),
                     alignment: Alignment.center,
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          dedent('''
-                          Enter YouTube or SoundCloud link into the text field.
-                          Wait for the app to fetch the data.
-                          Press the download button.
-                          Wait for the app to download the music.
-                          '''),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
+                    contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+                    content: SizedBox(
+                      height: 150,
+                      child: Text(
+                        dedent('''
+                        Enter YouTube or SoundCloud link into the text field.
+                        Press the get data button.
+                        Wait for the app to fetch the data.
+                        Press the download button.
+                        Wait for the app to download the music.
+                        '''),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ),
                     actionsAlignment: MainAxisAlignment.spaceAround,
                     actions: [

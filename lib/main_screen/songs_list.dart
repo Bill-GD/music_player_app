@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../artists/music_track.dart';
 import '../globals/config.dart';
@@ -23,41 +26,70 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
         // sorting header
         SizedBox(
           width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: TextButton(
-                  style: const ButtonStyle(
-                    splashFactory: NoSplash.splashFactory,
-                  ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Text(
-                          getSortOptionDisplayString(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: iconColor(context),
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        CupertinoIcons.sort_down,
-                        size: 30,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                    style: const ButtonStyle(
+                      splashFactory: NoSplash.splashFactory,
+                      // backgroundColor: MaterialStatePropertyAll<Color>(
+                      //   Theme.of(context).buttonTheme.colorScheme!.primaryContainer,
+                      // ),
+                      // visualDensity: VisualDensity.compact,
+                      // padding: const MaterialStatePropertyAll<EdgeInsetsGeometry>(
+                      //   EdgeInsets.only(left: 10, right: 20, top: 10, bottom: 10),
+                      // ),
+                    ),
+                    icon: FaIcon(
+                      Icons.play_circle_filled_rounded,
+                      size: 30,
+                      color: iconColor(context),
+                    ),
+                    label: Text(
+                      'Shuffle playback',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
                         color: iconColor(context),
                       ),
-                    ],
-                  ),
-                  onPressed: () => showSongSortingOptionsMenu(
-                    context,
-                    setState: setState,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => TempPlayerDialog(
+                          song: allMusicTracks[Random().nextInt(allMusicTracks.length)],
+                        ),
+                      ).then((value) {
+                        audioPlayer.stop();
+                      });
+                    }),
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: TextButton.icon(
+                    style: const ButtonStyle(
+                      splashFactory: NoSplash.splashFactory,
+                    ),
+                    icon: Icon(
+                      CupertinoIcons.sort_down,
+                      size: 30,
+                      color: iconColor(context),
+                    ),
+                    label: Text(
+                      getSortOptionDisplayString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: iconColor(context),
+                      ),
+                    ),
+                    onPressed: () => showSongSortingOptionsMenu(
+                      context,
+                      setState: setState,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         // song list
