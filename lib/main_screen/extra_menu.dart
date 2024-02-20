@@ -18,67 +18,76 @@ class _ExtraMenuState extends State<ExtraMenu> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(30)),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: DrawerHeader(
-              decoration: BoxDecoration(
-                border: BorderDirectional(
-                  bottom: BorderSide(color: Colors.grey[400]!),
-                ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
+                    title: Text(
+                      packageInfo.appName,
+                      style: bottomSheetTitle.copyWith(fontSize: 24),
+                    ),
+                  ),
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
+                    title: const Text(
+                      'Settings',
+                      style: bottomSheetTitle,
+                    ),
+                    onTap: () {
+                      debugPrint('To app settings page');
+                    },
+                  ),
+                  listItemDivider(),
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    leading: Icon(Icons.download_rounded, color: iconColor(context)),
+                    title: const Text('Download Music', style: bottomSheetTitle),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MusicDownloader()),
+                    ),
+                  ),
+                  listItemDivider(),
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
+                    title: const Text('Change Theme', style: bottomSheetTitle),
+                    onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
+                  ),
+                ],
               ),
-              child: Text(
-                'Menu',
-                style: bottomSheetTitle.copyWith(fontSize: 35),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ListTile(
-              leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
-              title: const Text(
-                'Settings',
-                style: bottomSheetTitle,
-              ),
-              onTap: () {
-                debugPrint('To app settings page');
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ListTile(
-              leading: Icon(Icons.download_rounded, color: iconColor(context)),
-              title: const Text('Download Music', style: bottomSheetTitle),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MusicDownloader()),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ListTile(
-              leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
-              title: const Text('Change Theme', style: bottomSheetTitle),
-              onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left: 10, bottom: 4),
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: GestureDetector(
                   child: Text(
-                    '${packageInfo.appName} v${packageInfo.version}',
-                    style: const TextStyle(color: Colors.grey),
+                    'v${packageInfo.version}',
+                    style: TextStyle(color: Colors.grey.withOpacity(0.5)),
                   ),
                   onTap: () => showAboutDialog(
                     context: context,
@@ -88,9 +97,11 @@ class _ExtraMenuState extends State<ExtraMenu> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 }
+
+Divider listItemDivider() => const Divider(indent: 20, endIndent: 20);

@@ -32,16 +32,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton.icon(
-                    style: const ButtonStyle(
-                      splashFactory: NoSplash.splashFactory,
-                      // backgroundColor: MaterialStatePropertyAll<Color>(
-                      //   Theme.of(context).buttonTheme.colorScheme!.primaryContainer,
-                      // ),
-                      // visualDensity: VisualDensity.compact,
-                      // padding: const MaterialStatePropertyAll<EdgeInsetsGeometry>(
-                      //   EdgeInsets.only(left: 10, right: 20, top: 10, bottom: 10),
-                      // ),
-                    ),
+                    style: const ButtonStyle(splashFactory: NoSplash.splashFactory),
                     icon: FaIcon(
                       Icons.play_circle_filled_rounded,
                       size: 30,
@@ -82,9 +73,19 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         color: iconColor(context),
                       ),
                     ),
+                    // onPressed: () => Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //     builder: (context) => songSortingOptionsMenu(
+                    //       context,
+                    //       setState: setState,
+                    //       ticker: this,
+                    //     ),
+                    //   ),
+                    // ),
                     onPressed: () => showSongSortingOptionsMenu(
                       context,
                       setState: setState,
+                      ticker: this,
                     ),
                   ),
                 ),
@@ -101,55 +102,56 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                 setState(() {});
               }
             },
-            child: setOverscroll(
-              overscroll: false,
+            child: StretchingOverscrollIndicator(
+              axisDirection: AxisDirection.down,
               child: ListView.builder(
                 itemCount: allMusicTracks.length,
                 itemBuilder: (context, songIndex) {
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: ListTile(
-                      leading: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.primary),
-                        ],
-                      ),
-                      title: Text(
-                        allMusicTracks[songIndex].trackName,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: Text(
-                        allMusicTracks[songIndex].artist,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w400,
+                  return ListTile(
+                    contentPadding: const EdgeInsets.only(left: 30, right: 10),
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.music_note_rounded,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
+                      ],
+                    ),
+                    title: Text(
+                      allMusicTracks[songIndex].trackName,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      allMusicTracks[songIndex].artist,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
                       ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => TempPlayerDialog(song: allMusicTracks[songIndex]),
-                        ).then((value) {
-                          audioPlayer.stop();
-                        });
-                      },
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Visibility(
-                            visible: currentSortOption == SortOptions.mostPlayed,
-                            child: Text('${allMusicTracks[songIndex].timeListened}'),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.more_vert_rounded),
-                            onPressed: () => showSongOptionsMenu(context, songIndex),
-                          ),
-                        ],
-                      ),
+                    ),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => TempPlayerDialog(song: allMusicTracks[songIndex]),
+                      ).then((value) {
+                        audioPlayer.stop();
+                      });
+                    },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Visibility(
+                          visible: currentSortOption == SortOptions.mostPlayed,
+                          child: Text('${allMusicTracks[songIndex].timeListened}'),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.more_vert_rounded),
+                          onPressed: () => showSongOptionsMenu(context, songIndex),
+                        ),
+                      ],
                     ),
                   );
                 },

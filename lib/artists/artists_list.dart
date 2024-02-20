@@ -14,10 +14,10 @@ class ArtistList extends StatefulWidget {
 class _ArtistListState extends State<ArtistList> {
   @override
   Widget build(BuildContext context) {
-    return setOverscroll(
-      overscroll: false,
+    return StretchingOverscrollIndicator(
+      axisDirection: AxisDirection.down,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView.builder(
           itemCount: artists.length,
           itemBuilder: (context, artistIndex) {

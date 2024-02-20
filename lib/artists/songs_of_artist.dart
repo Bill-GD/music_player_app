@@ -23,45 +23,46 @@ class ArtistSongsPage extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ),
-      body: setOverscroll(
-          overscroll: false,
-          child: ListView.builder(
-            itemCount: artists[artistName]!.length,
-            itemBuilder: (context, songIndex) {
-              return ListTile(
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 15),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text((songIndex + 1).toString().padLeft(2, '0')),
-                    ],
-                  ),
+      body: StretchingOverscrollIndicator(
+        axisDirection: AxisDirection.down,
+        child: ListView.builder(
+          itemCount: artists[artistName]!.length,
+          itemBuilder: (context, songIndex) {
+            return ListTile(
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text((songIndex + 1).toString().padLeft(2, '0')),
+                  ],
                 ),
-                title: Text(
-                  artists[artistName]![songIndex].trackName,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  artists[artistName]![songIndex].artist,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => TempPlayerDialog(song: artists[artistName]![songIndex]),
-                  ).then((value) {
-                    audioPlayer.stop();
-                  });
-                },
-                trailing: IconButton(
-                  icon: const Icon(Icons.more_vert_rounded),
-                  onPressed: () => showSongOptionsMenu(context, songIndex),
-                ),
-              );
-            },
-          )),
+              ),
+              title: Text(
+                artists[artistName]![songIndex].trackName,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                artists[artistName]![songIndex].artist,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => TempPlayerDialog(song: artists[artistName]![songIndex]),
+                ).then((value) {
+                  audioPlayer.stop();
+                });
+              },
+              trailing: IconButton(
+                icon: const Icon(Icons.more_vert_rounded),
+                onPressed: () => showSongOptionsMenu(context, songIndex),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

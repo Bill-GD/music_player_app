@@ -90,53 +90,64 @@ Widget bottomSheet({
 void showSongSortingOptionsMenu(
   BuildContext context, {
   required void Function(void Function()) setState,
-}) =>
-    showModalBottomSheet<void>(
+  required TickerProvider ticker,
+}) {
+  showModalBottomSheet(
+    context: context,
+    useSafeArea: true,
+    enableDrag: false,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
+    constraints: BoxConstraints.loose(
+      Size.fromWidth(MediaQuery.of(context).size.width * 0.95),
+    ),
+    builder: (context) => bottomSheet(
       context: context,
-      useSafeArea: true,
-      enableDrag: false,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30),
+      title: const Text(
+        'Sort Songs',
+        style: bottomSheetTitle,
+        textAlign: TextAlign.center,
+        softWrap: true,
       ),
-      constraints: BoxConstraints.loose(
-        Size.fromWidth(MediaQuery.of(context).size.width * 0.95),
-      ),
-      builder: (context) => bottomSheet(
-        context: context,
-        title: const Text(
-          'Sort Songs',
-          style: bottomSheetTitle,
-          textAlign: TextAlign.center,
-          softWrap: true,
+      content: [
+        ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
+          title: const Text('By name', style: bottomSheetText),
+          onTap: () {
+            setState(() => sortAllTracks(SortOptions.name));
+            Navigator.of(context).pop();
+          },
         ),
-        content: [
-          ListTile(
-            leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
-            title: const Text('By name', style: bottomSheetText),
-            onTap: () {
-              setState(() => sortAllTracks(SortOptions.name));
-              Navigator.of(context).pop();
-            },
+        ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
           ),
-          ListTile(
-            leading: FaIcon(FontAwesomeIcons.arrowDown91, color: iconColor(context)),
-            title: const Text('By the number of times played', style: bottomSheetText),
-            onTap: () {
-              setState(() => sortAllTracks(SortOptions.mostPlayed));
-              Navigator.of(context).pop();
-            },
+          leading: FaIcon(FontAwesomeIcons.arrowDown91, color: iconColor(context)),
+          title: const Text('By the number of times played', style: bottomSheetText),
+          onTap: () {
+            setState(() => sortAllTracks(SortOptions.mostPlayed));
+            Navigator.of(context).pop();
+          },
+        ),
+        ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
           ),
-          ListTile(
-            leading: FaIcon(FontAwesomeIcons.clock, color: iconColor(context)),
-            title: const Text('By adding time', style: bottomSheetText),
-            onTap: () {
-              setState(() => sortAllTracks(SortOptions.recentlyAdded));
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
+          leading: FaIcon(FontAwesomeIcons.clock, color: iconColor(context)),
+          title: const Text('By adding time', style: bottomSheetText),
+          onTap: () {
+            setState(() => sortAllTracks(SortOptions.recentlyAdded));
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
 
 void showSongOptionsMenu(
   BuildContext context,
@@ -162,23 +173,22 @@ void showSongOptionsMenu(
       ),
       content: [
         ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
           leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
           title: const Text('Song Info', style: bottomSheetText),
           onTap: () => debugPrint('Check song info'),
         ),
         ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
           leading: Icon(Icons.delete_rounded, color: iconColor(context)),
           title: const Text('Delete', style: bottomSheetText),
           onTap: () => debugPrint('Delete song'),
         ),
       ],
     ),
-  );
-}
-
-ScrollConfiguration setOverscroll({required bool overscroll, required Widget child}) {
-  return ScrollConfiguration(
-    behavior: const ScrollBehavior().copyWith(overscroll: overscroll),
-    child: child,
   );
 }

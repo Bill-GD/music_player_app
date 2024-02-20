@@ -109,9 +109,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           drawer: const ExtraMenu(),
           body: isLoading
               ? const Center(child: CircularProgressIndicator())
-              : setOverscroll(
-                  overscroll: false,
-                  child: const TabBarView(
+              : const StretchingOverscrollIndicator(
+                  axisDirection: AxisDirection.right,
+                  child: TabBarView(
                     children: [
                       SongList(),
                       ArtistList(),
