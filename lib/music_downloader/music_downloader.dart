@@ -25,7 +25,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   Map<String, dynamic>? _metadata;
 
   bool _isFromSoundCloud = false;
-  bool _isGettingData = false, _isInternetConnected = true, _isDownloading = false;
+  bool _isGettingData = false, _isInternetConnected = true, _isDownloading = false, _hasDownloaded = false;
   int _received = 0, _total = 0;
 
   String? _errorText;
@@ -90,7 +90,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
               );
               return;
             }
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(_hasDownloaded);
           },
         ),
         centerTitle: true,
@@ -289,7 +289,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         onPressed: _isDownloading
                             ? null
                             : () async {
-                                setState(() => _isDownloading = true);
+                                setState(() { _isDownloading = true; _hasDownloaded = true;});
                                 _isFromSoundCloud
                                     ? await downloadSoundCloudMP3(
                                         context,

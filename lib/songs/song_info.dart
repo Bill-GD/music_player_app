@@ -48,7 +48,7 @@ class _SongInfoState extends State<SongInfo> {
                     ? 'Unknown' //
                     : _artistController.text;
 
-                await saveTracksToStorage();
+                await saveSongsToStorage();
               }
               if (context.mounted) {
                 Navigator.of(context).pop(needsUpdate);

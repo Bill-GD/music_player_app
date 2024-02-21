@@ -1,14 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 import '../artists/artists_list.dart';
+import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../music_downloader/music_downloader.dart';
 import '../permission/storage_permission.dart';
 import '../songs/songs_list.dart';
-import 'extra_menu.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -20,9 +24,15 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
   bool isLoading = true, isDarkTheme = false;
 
-  void _checkStoragePermission() async {
-    PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
+  int _childParam = 0;
 
+  void updateChildren() {
+    _childParam = _childParam == 0 ? 1 : 0;
+    setState(() {});
+  }
+
+  Future<PermissionStatus> _checkStoragePermission() async {
+    PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
     if (!storagePermissionStatus.isGranted && context.mounted) {
       debugPrint('Storage permission not granted, redirecting to request page');
 
@@ -34,17 +44,20 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
       storagePermissionStatus = await Permission.manageExternalStorage.status;
     }
-    if (storagePermissionStatus.isGranted) {
-      debugPrint('Storage permission is granted');
-      await getMusicData();
-      setState(() => isLoading = false);
-    }
+    return storagePermissionStatus;
   }
 
   @override
   void initState() {
     super.initState();
-    _checkStoragePermission();
+    _checkStoragePermission().then((storagePermissionStatus) async {
+      if (storagePermissionStatus.isGranted) {
+        debugPrint('Storage permission is granted');
+        await updateMusicData();
+        sortAllSongs(SortOptions.name);
+        setState(() => isLoading = false);
+      }
+    });
     audioPlayer = AudioPlayer();
   }
 
@@ -113,15 +126,109 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               ],
             ),
           ),
-          drawer: const ExtraMenu(),
+          drawer: Drawer(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(30)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          contentPadding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
+                          title: Text(
+                            packageInfo.appName,
+                            style: bottomSheetTitle.copyWith(fontSize: 24),
+                          ),
+                        ),
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
+                          title: const Text(
+                            'Settings',
+                            style: bottomSheetTitle,
+                          ),
+                          onTap: () {
+                            debugPrint('To app settings page');
+                          },
+                        ),
+                        listItemDivider(),
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          leading: Icon(Icons.download_rounded, color: iconColor(context)),
+                          title: const Text('Download Music', style: bottomSheetTitle),
+                          onTap: () async {
+                            bool hasChange = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MusicDownloader(),
+                              ),
+                            );
+                            if (hasChange) {
+                              await updateMusicData();
+                              sortAllSongs();
+                              updateChildren();
+                            }
+                          },
+                        ),
+                        listItemDivider(),
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
+                          title: const Text('Change Theme', style: bottomSheetTitle),
+                          onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, bottom: 4),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: GestureDetector(
+                        child: Text(
+                          'v${packageInfo.version}',
+                          style: TextStyle(
+                            color: Colors.grey.withOpacity(0.5),
+                          ),
+                        ),
+                        onTap: () => showAboutDialog(
+                          context: context,
+                          applicationName: packageInfo.appName,
+                          applicationVersion: 'v${packageInfo.version}',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           body: isLoading
               ? const Center(child: CircularProgressIndicator())
-              : const StretchingOverscrollIndicator(
+              : StretchingOverscrollIndicator(
                   axisDirection: AxisDirection.right,
                   child: TabBarView(
                     children: [
-                      SongList(),
-                      ArtistList(),
+                      SongList(param: _childParam),
+                      const ArtistList(),
                     ],
                   ),
                 ),
@@ -130,3 +237,5 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     );
   }
 }
+
+Divider listItemDivider() => const Divider(indent: 20, endIndent: 20);

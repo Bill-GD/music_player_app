@@ -88,12 +88,12 @@ Widget bottomSheet({
   );
 }
 
-void showSongSortingOptionsMenu(
+Future<void> showSongSortingOptionsMenu(
   BuildContext context, {
   required void Function(void Function()) setState,
   required TickerProvider ticker,
-}) {
-  showModalBottomSheet(
+}) async {
+  await showModalBottomSheet(
     context: context,
     useSafeArea: true,
     enableDrag: false,
@@ -119,7 +119,7 @@ void showSongSortingOptionsMenu(
           leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
           title: const Text('By name', style: bottomSheetText),
           onTap: () {
-            setState(() => sortAllTracks(SortOptions.name));
+            setState(() => sortAllSongs(SortOptions.name));
             Navigator.of(context).pop();
           },
         ),
@@ -130,7 +130,7 @@ void showSongSortingOptionsMenu(
           leading: FaIcon(FontAwesomeIcons.arrowDown91, color: iconColor(context)),
           title: const Text('By the number of times played', style: bottomSheetText),
           onTap: () {
-            setState(() => sortAllTracks(SortOptions.mostPlayed));
+            setState(() => sortAllSongs(SortOptions.mostPlayed));
             Navigator.of(context).pop();
           },
         ),
@@ -141,7 +141,7 @@ void showSongSortingOptionsMenu(
           leading: FaIcon(FontAwesomeIcons.clock, color: iconColor(context)),
           title: const Text('By adding time', style: bottomSheetText),
           onTap: () {
-            setState(() => sortAllTracks(SortOptions.recentlyAdded));
+            setState(() => sortAllSongs(SortOptions.recentlyAdded));
             Navigator.of(context).pop();
           },
         ),
@@ -150,12 +150,11 @@ void showSongSortingOptionsMenu(
   );
 }
 
-void showSongOptionsMenu(
+Future<void> showSongOptionsMenu(
   BuildContext context,
   MusicTrack song,
-  void Function(void Function()) setState,
-) {
-  showModalBottomSheet<void>(
+) async {
+  await showModalBottomSheet<void>(
     context: context,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(30),
@@ -191,8 +190,8 @@ void showSongOptionsMenu(
               ),
             );
             if (needsUpdate) {
-              await getMusicData();
-              setState(() {});
+              await updateMusicData();
+              sortAllSongs();
             }
           },
         ),

@@ -3,8 +3,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'music_track.dart';
 
+/// List of all songs, persistent
 List<MusicTrack> allMusicTracks = [];
-Map<String, List<MusicTrack>> artists = {};
+/// List of name and song count of artists
+Map<String, int> artists = {};
 late final AudioPlayer audioPlayer;
 
 late final PackageInfo packageInfo;

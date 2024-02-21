@@ -65,14 +65,14 @@ class _TempPlayerDialogState extends State<TempPlayerDialog> {
                 children: [
                   Text(getTimeString(currentDuration)),
                   IconButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (currentDuration >= maxDuration) {
                         audioPlayer.seek(Duration.zero);
                         currentDuration = 0;
                       }
                       if (currentDuration <= 0) {
                         widget.song.timeListened++;
-                        saveTracksToStorage();
+                        await saveSongsToStorage();
                       }
                       isPlaying ? audioPlayer.pause() : audioPlayer.play();
                       stfSetState(() => isPlaying = !isPlaying);

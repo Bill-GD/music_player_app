@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
@@ -41,112 +42,103 @@ class MusicTrack {
         'timeListened': timeListened,
         'timeAdded': timeAdded.toIso8601String(),
       };
-
-  MusicTrack copyWith({String? trackName, String? artist, int? timeListened}) {
-    var newTrack = MusicTrack(
-      absolutePath,
-      trackName: trackName ?? this.trackName,
-      artist: artist ?? this.artist,
-      timeListened: timeListened ?? this.timeListened,
-    )..timeAdded = timeAdded;
-    return newTrack;
-  }
 }
 
 /// Get all songs (from storage & saved)
-Future<void> getMusicData() async => await _getTrackFromStorage();
+Future<void> updateMusicData() async {
+  await updateListOfSongs();
+  updateListOfArtists();
+  await saveSongsToStorage();
+}
 
-Future<void> _getTrackFromStorage() async {
-  final downloadPath = Directory('/storage/emulated/0/Download');
-  debugPrint('Getting music files from: ${downloadPath.path}');
+/// Updates all songs with saved data
+Future<void> updateListOfSongs() async {
+  List<MusicTrack> tracksFromStorage = _getSongFromStorage();
+  List<MusicTrack>? savedTracks = await _getSavedMusicData();
 
-  // get all mp3 files from storage & sort by name
-  List<MusicTrack> tracksFromStorage = downloadPath
-      .listSync()
-      .where((file) => file.path.endsWith('.mp3'))
-      .map((file) => MusicTrack(file.path))
-      .toList()
-    ..sort((track1, track2) => track1.trackName.compareTo(track2.trackName));
-
-  // if has save file, update from save data
-  File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
-  if (saveFile.existsSync()) {
-    debugPrint('Getting saved music data from: ${saveFile.path}');
-    List<MusicTrack> savedTracks =
-        (json.decode(saveFile.readAsStringSync()) as List).map((e) => MusicTrack.fromJson(e)).toList();
-
+  if (savedTracks != null) {
     debugPrint('Updating music data from saved');
     for (int i = 0; i < tracksFromStorage.length; i++) {
       if (i >= savedTracks.length) break;
 
-      final matchingTracks = savedTracks.where(
+      final matchingTrack = savedTracks.firstWhereOrNull(
         (element) => element.absolutePath == tracksFromStorage[i].absolutePath,
       );
 
-      if (matchingTracks.isEmpty) continue;
+      if (matchingTrack == null) continue;
 
-      tracksFromStorage[i] = tracksFromStorage[i].copyWith(
-        trackName: matchingTracks.first.trackName,
-        artist: matchingTracks.first.artist,
-        timeListened: matchingTracks.first.timeListened,
-      );
+      tracksFromStorage[i]
+        ..trackName = matchingTrack.trackName
+        ..artist = matchingTrack.artist
+        ..timeListened = matchingTrack.timeListened;
     }
   }
 
   allMusicTracks = tracksFromStorage;
-  await saveTracksToStorage();
-  _groupMusicByArtist(); // get artists
-  sortAllTracks();
 }
 
-Future<void> saveTracksToStorage() async {
+List<MusicTrack> _getSongFromStorage() {
+  final downloadPath = Directory('/storage/emulated/0/Download');
+  debugPrint('Getting music files from: ${downloadPath.path}');
+  return downloadPath
+      .listSync()
+      .where((file) => file.absolute.path.endsWith('.mp3'))
+      .map((file) => MusicTrack(file.path))
+      .toList();
+}
+
+Future<List<MusicTrack>?> _getSavedMusicData() async {
+  File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
+
+  if (!saveFile.existsSync()) return null;
+
+  debugPrint('Getting saved music data from: ${saveFile.path}');
+  return (json.decode(saveFile.readAsStringSync()) as List).map((e) => MusicTrack.fromJson(e)).toList();
+}
+
+Future<void> saveSongsToStorage() async {
   File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
 
   debugPrint('Saving updated music data to: ${saveFile.path}');
   saveFile.writeAsStringSync(jsonEncode(allMusicTracks));
 }
 
-void sortAllTracks([SortOptions? sortType]) {
+void sortAllSongs([SortOptions? sortType]) {
   debugPrint('Sorting all tracks: ${currentSortOption.name}');
   currentSortOption = sortType ?? currentSortOption;
   switch (currentSortOption) {
     case SortOptions.name:
-      _sortMusicByName();
+      allMusicTracks.sort((track1, track2) {
+        return track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase());
+      });
       break;
     case SortOptions.mostPlayed:
-      _sortMusicByTimesListened();
+      allMusicTracks.sort((track1, track2) {
+        return track2.timeListened.compareTo(track1.timeListened);
+      });
       break;
     case SortOptions.recentlyAdded:
-      _sortMusicByTimeAdded();
+      allMusicTracks.sort((track1, track2) {
+        return track2.timeAdded.compareTo(track1.timeAdded);
+      });
       break;
   }
 }
 
-void _sortMusicByName({bool ascending = true}) {
-  allMusicTracks
-      .sort((track1, track2) => track1.trackName.compareTo(track2.trackName) * (ascending ? 1 : -1));
-}
+void updateListOfArtists() {
+  debugPrint('Getting list of artists');
+  Set<String> uniqueArtists = <String>{};
 
-void _sortMusicByTimesListened({bool ascending = false}) {
-  allMusicTracks
-      .sort((track1, track2) => track1.timeListened.compareTo(track2.timeListened) * (ascending ? 1 : -1));
-}
+  for (var element in allMusicTracks) {
+    uniqueArtists.add(element.artist);
+  }
 
-void _sortMusicByTimeAdded({bool ascending = false}) {
-  allMusicTracks
-      .sort((track1, track2) => track1.timeAdded.compareTo(track2.timeAdded) * (ascending ? 1 : -1));
-}
-
-void _groupMusicByArtist() {
-  debugPrint('Grouping music by artist');
-  artists = Map.fromEntries(
-    groupBy(
-      allMusicTracks,
-      (element) => element.artist,
-    ).entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key))
-      ..forEach(
-        (element) => element.value.sort((track1, track2) => track1.trackName.compareTo(track2.trackName)),
-      ),
+  uniqueArtists = SplayTreeSet.from(
+    uniqueArtists,
+    (key1, key2) => key1.compareTo(key2),
   );
+
+  artists = {
+    for (var element in uniqueArtists) element: allMusicTracks.where((song) => song.artist == element).length
+  };
 }

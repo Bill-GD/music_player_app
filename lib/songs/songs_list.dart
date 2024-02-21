@@ -11,7 +11,8 @@ import '../globals/widgets.dart';
 import '../player/temp_player.dart';
 
 class SongList extends StatefulWidget {
-  const SongList({super.key});
+  final int param;
+  const SongList({super.key, required this.param});
 
   @override
   State<SongList> createState() => _SongListState();
@@ -88,7 +89,8 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
         Expanded(
           child: RefreshIndicator(
             onRefresh: () async {
-              await getMusicData();
+              await updateMusicData();
+              sortAllSongs();
               if (context.mounted) {
                 setState(() {});
               }
@@ -140,11 +142,13 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         ),
                         IconButton(
                           icon: const Icon(Icons.more_vert_rounded),
-                          onPressed: () => showSongOptionsMenu(
-                            context,
-                            allMusicTracks[songIndex],
-                            setState,
-                          ),
+                          onPressed: () async {
+                            await showSongOptionsMenu(
+                              context,
+                              allMusicTracks[songIndex],
+                            );
+                            setState(() {});
+                          },
                         ),
                       ],
                     ),

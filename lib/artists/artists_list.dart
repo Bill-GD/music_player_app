@@ -19,7 +19,6 @@ class _ArtistListState extends State<ArtistList> {
         itemCount: artists.length,
         itemBuilder: (context, artistIndex) {
           String artistName = artists.keys.elementAt(artistIndex);
-          int songCount = artists[artistName]?.length ?? 0;
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 20),
             title: Text(
@@ -27,7 +26,7 @@ class _ArtistListState extends State<ArtistList> {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             subtitle: Text(
-              '$songCount song${songCount > 1 ? "s" : ""}',
+              '${artists[artistName]} song${artists[artistName]! > 1 ? "s" : ""}',
               style: TextStyle(
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w400,

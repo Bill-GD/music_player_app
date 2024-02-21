@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/temp_player.dart';
@@ -13,6 +14,21 @@ class ArtistSongsPage extends StatefulWidget {
 }
 
 class _ArtistSongsPageState extends State<ArtistSongsPage> {
+  late List<MusicTrack> songs;
+
+  void getSongs() {
+    songs = allMusicTracks.where((song) => song.artist == widget.artistName).toList()
+      ..sort(
+        (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
+      );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getSongs();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +47,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
       body: StretchingOverscrollIndicator(
         axisDirection: AxisDirection.down,
         child: ListView.builder(
-          itemCount: artists[widget.artistName]!.length,
+          itemCount: songs.length,
           itemBuilder: (context, songIndex) {
             return ListTile(
               leading: Padding(
@@ -45,25 +61,35 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                 ),
               ),
               title: Text(
-                artists[widget.artistName]![songIndex].trackName,
+                songs[songIndex].trackName,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
-                artists[widget.artistName]![songIndex].artist,
+                songs[songIndex].artist,
                 overflow: TextOverflow.ellipsis,
               ),
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => TempPlayerDialog(song: artists[widget.artistName]![songIndex]),
+                  builder: (context) => TempPlayerDialog(song: songs[songIndex]),
                 ).then((value) {
                   audioPlayer.stop();
                 });
               },
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert_rounded),
-                onPressed: () =>
-                    showSongOptionsMenu(context, artists[widget.artistName]![songIndex], setState),
+                onPressed: () async {
+                  await showSongOptionsMenu(
+                    context,
+                    songs[songIndex],
+                  );
+                  getSongs();
+                  if (songs.isEmpty && context.mounted) {
+                    Navigator.of(context).pop();
+                  } else {
+                    setState(() {});
+                  }
+                },
               ),
             );
           },
