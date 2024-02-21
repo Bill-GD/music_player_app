@@ -19,12 +19,13 @@ Color? iconColor(BuildContext context) => Theme.of(context).iconTheme.color;
 
 InputDecoration textFieldDecoration(
   BuildContext context, {
+  Color? fillColor,
   String? hintText,
   String? labelText,
   String? errorText,
-  Widget? prefixIcon,
   InputBorder? border,
-  Color? fillColor,
+  Widget? prefixIcon,
+  Widget? suffixIcon,
 }) =>
     InputDecoration(
       filled: true,
@@ -35,6 +36,8 @@ InputDecoration textFieldDecoration(
       labelStyle: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
       errorText: errorText,
       prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      suffixIconConstraints: const BoxConstraints(minHeight: 2, minWidth: 2),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
       border: border,
     );
@@ -178,7 +181,7 @@ void showSongOptionsMenu(
           leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
           title: const Text('Song Info', style: bottomSheetText),
           onTap: () async {
-            await Navigator.of(context).push(
+            bool needsUpdate = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => SongInfo(
                   songIndex: allMusicTracks.indexWhere(
@@ -187,8 +190,10 @@ void showSongOptionsMenu(
                 ),
               ),
             );
-            await getMusicData();
-            setState(() {});
+            if (needsUpdate) {
+              await getMusicData();
+              setState(() {});
+            }
           },
         ),
         ListTile(
