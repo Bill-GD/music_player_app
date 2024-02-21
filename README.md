@@ -7,9 +7,9 @@
 - Listen to song (single song, can replay when ended)
 - Sort songs by: name, most played, add time (keeps track of these data)
 - Download music from YouTube and SoundCloud using URL (has some limitations)
+- Change song info
 
 ## Planned features
-- Change song info
 - Search songs
 - User settings
 - Player screen (seek, prev/next song, play mode)
