@@ -3,12 +3,12 @@ import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../artists/artists_list.dart';
-import '../artists/music_track.dart';
+import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../permission/storage_permission.dart';
-import 'extra_menu.dart';
 import '../songs/songs_list.dart';
+import 'extra_menu.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -74,6 +74,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     Icons.search_rounded,
                     color: Theme.of(context).colorScheme.primary,
                   ),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
                 ),
                 onTap: () {
                   // go to search page/open search area

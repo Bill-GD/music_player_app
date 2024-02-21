@@ -176,9 +176,16 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                               onChanged: _validateInput,
                               decoration: textFieldDecoration(
                                 context,
+                                fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
                                 hintText: 'Enter YouTube or SoundCloud link',
                                 labelText: 'Music Link',
                                 errorText: _errorText,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).colorScheme.onBackground,
+                                  ),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
                               ),
                             ),
                           ),

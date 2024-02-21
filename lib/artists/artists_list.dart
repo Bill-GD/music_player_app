@@ -33,12 +33,13 @@ class _ArtistListState extends State<ArtistList> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            onTap: () {
-              Navigator.of(context).push(
+            onTap: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ArtistSongsPage(artistName: artistName),
                 ),
               );
+              setState(() {});
             },
           );
         },

@@ -4,10 +4,15 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/temp_player.dart';
 
-class ArtistSongsPage extends StatelessWidget {
+class ArtistSongsPage extends StatefulWidget {
   final String artistName;
   const ArtistSongsPage({super.key, required this.artistName});
 
+  @override
+  State<ArtistSongsPage> createState() => _ArtistSongsPageState();
+}
+
+class _ArtistSongsPageState extends State<ArtistSongsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +23,7 @@ class ArtistSongsPage extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          artistName,
+          widget.artistName,
           style: const TextStyle(fontWeight: FontWeight.w700),
           textAlign: TextAlign.center,
         ),
@@ -26,7 +31,7 @@ class ArtistSongsPage extends StatelessWidget {
       body: StretchingOverscrollIndicator(
         axisDirection: AxisDirection.down,
         child: ListView.builder(
-          itemCount: artists[artistName]!.length,
+          itemCount: artists[widget.artistName]!.length,
           itemBuilder: (context, songIndex) {
             return ListTile(
               leading: Padding(
@@ -40,24 +45,25 @@ class ArtistSongsPage extends StatelessWidget {
                 ),
               ),
               title: Text(
-                artists[artistName]![songIndex].trackName,
+                artists[widget.artistName]![songIndex].trackName,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
-                artists[artistName]![songIndex].artist,
+                artists[widget.artistName]![songIndex].artist,
                 overflow: TextOverflow.ellipsis,
               ),
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => TempPlayerDialog(song: artists[artistName]![songIndex]),
+                  builder: (context) => TempPlayerDialog(song: artists[widget.artistName]![songIndex]),
                 ).then((value) {
                   audioPlayer.stop();
                 });
               },
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert_rounded),
-                onPressed: () => showSongOptionsMenu(context, songIndex),
+                onPressed: () =>
+                    showSongOptionsMenu(context, artists[widget.artistName]![songIndex], setState),
               ),
             );
           },

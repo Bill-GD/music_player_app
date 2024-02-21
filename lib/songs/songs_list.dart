@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../artists/music_track.dart';
 import '../globals/config.dart';
+import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/temp_player.dart';
@@ -140,7 +140,11 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         ),
                         IconButton(
                           icon: const Icon(Icons.more_vert_rounded),
-                          onPressed: () => showSongOptionsMenu(context, songIndex),
+                          onPressed: () => showSongOptionsMenu(
+                            context,
+                            allMusicTracks[songIndex],
+                            setState,
+                          ),
                         ),
                       ],
                     ),

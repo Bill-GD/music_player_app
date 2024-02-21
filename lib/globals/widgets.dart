@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:music_player_app/songs/song_info.dart';
 
-import '../artists/music_track.dart';
+import '../songs/song_info.dart';
 import 'config.dart';
+import 'music_track.dart';
 import 'variables.dart';
 
 const TextStyle bottomSheetTitle = TextStyle(
@@ -23,10 +23,12 @@ InputDecoration textFieldDecoration(
   String? labelText,
   String? errorText,
   Widget? prefixIcon,
+  InputBorder? border,
+  Color? fillColor,
 }) =>
     InputDecoration(
       filled: true,
-      fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+      fillColor: fillColor,
       hintText: hintText,
       hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
       labelText: labelText,
@@ -34,12 +36,7 @@ InputDecoration textFieldDecoration(
       errorText: errorText,
       prefixIcon: prefixIcon,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-      border: OutlineInputBorder(
-        borderSide: BorderSide(
-          color: Theme.of(context).colorScheme.onBackground,
-        ),
-        borderRadius: BorderRadius.circular(25),
-      ),
+      border: border,
     );
 
 ButtonStyle textButtonStyle(BuildContext context) => ButtonStyle(
@@ -152,7 +149,8 @@ void showSongSortingOptionsMenu(
 
 void showSongOptionsMenu(
   BuildContext context,
-  int songIndex,
+  MusicTrack song,
+  void Function(void Function()) setState,
 ) {
   showModalBottomSheet<void>(
     context: context,
@@ -167,7 +165,7 @@ void showSongOptionsMenu(
     builder: (context) => bottomSheet(
       context: context,
       title: Text(
-        allMusicTracks[songIndex].trackName,
+        song.trackName,
         style: bottomSheetTitle,
         textAlign: TextAlign.center,
         softWrap: true,
@@ -179,11 +177,19 @@ void showSongOptionsMenu(
           ),
           leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
           title: const Text('Song Info', style: bottomSheetText),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => SongInfo(songIndex: songIndex),
-            ),
-          ),
+          onTap: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => SongInfo(
+                  songIndex: allMusicTracks.indexWhere(
+                    (element) => element.absolutePath == song.absolutePath,
+                  ),
+                ),
+              ),
+            );
+            await getMusicData();
+            setState(() {});
+          },
         ),
         ListTile(
           shape: RoundedRectangleBorder(

@@ -5,8 +5,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../globals/config.dart';
-import '../globals/variables.dart';
+import 'config.dart';
+import 'variables.dart';
 
 class MusicTrack {
   String absolutePath;
@@ -16,11 +16,11 @@ class MusicTrack {
 
   MusicTrack(
     this.absolutePath, {
-    this.trackName = 'filename',
+    this.trackName = '',
     this.artist = 'Unknown',
     this.timeListened = 0,
   }) {
-    trackName = absolutePath.split('/').last.split('.mp3').first;
+    trackName = trackName.isEmpty ? absolutePath.split('/').last.split('.mp3').first : trackName;
     timeAdded = File(absolutePath).statSync().modified;
   }
 
@@ -77,17 +77,13 @@ Future<void> _getTrackFromStorage() async {
 
     debugPrint('Updating music data from saved');
     for (int i = 0; i < tracksFromStorage.length; i++) {
-      if (i >= tracksFromStorage.length || i >= savedTracks.length) {
-        break;
-      }
+      if (i >= savedTracks.length) break;
 
       final matchingTracks = savedTracks.where(
         (element) => element.absolutePath == tracksFromStorage[i].absolutePath,
       );
 
-      if (matchingTracks.isEmpty) {
-        continue;
-      }
+      if (matchingTracks.isEmpty) continue;
 
       tracksFromStorage[i] = tracksFromStorage[i].copyWith(
         trackName: matchingTracks.first.trackName,
@@ -148,6 +144,9 @@ void _groupMusicByArtist() {
       allMusicTracks,
       (element) => element.artist,
     ).entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key)),
+      ..sort((a, b) => a.key.compareTo(b.key))
+      ..forEach(
+        (element) => element.value.sort((track1, track2) => track1.trackName.compareTo(track2.trackName)),
+      ),
   );
 }
