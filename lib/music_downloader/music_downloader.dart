@@ -274,7 +274,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                     ),
                                     Text(_metadata!['author']),
                                     Text(
-                                      (_metadata!['duration'] as Duration).toMMSS(),
+                                      (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
                                       style: const TextStyle(color: Colors.grey),
                                     )
                                   ],
@@ -289,7 +289,10 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         onPressed: _isDownloading
                             ? null
                             : () async {
-                                setState(() { _isDownloading = true; _hasDownloaded = true;});
+                                setState(() {
+                                  _isDownloading = true;
+                                  _hasDownloaded = true;
+                                });
                                 _isFromSoundCloud
                                     ? await downloadSoundCloudMP3(
                                         context,

@@ -11,10 +11,19 @@ class StoragePermissionDialog extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      title: const Center(child: Text('Storage Permission')),
+      title: const Center(
+        child: Text(
+          'Storage Permission',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
       content: const Text(
         'Allow Music Hub to access storage?\nMusic Hub will only access the Download folder.',
         textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 16),
       ),
       actionsAlignment: MainAxisAlignment.spaceAround,
       actions: [

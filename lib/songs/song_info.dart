@@ -36,10 +36,13 @@ class _SongInfoState extends State<SongInfo> {
             onPressed: () async {
               bool needsUpdate = false;
               FocusManager.instance.primaryFocus?.unfocus();
+              _songController.text = _songController.text.trim();
+              _artistController.text = _artistController.text.trim();
               // only update if changed
               if (_songController.text != allMusicTracks[widget.songIndex].trackName ||
                   _artistController.text != allMusicTracks[widget.songIndex].artist) {
                 needsUpdate = true;
+
                 allMusicTracks[widget.songIndex].trackName = _songController.text.isEmpty
                     ? allMusicTracks[widget.songIndex].absolutePath.split('/').last.split('.mp3').first
                     : _songController.text;

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'config.dart';
@@ -53,7 +54,8 @@ Future<void> updateMusicData() async {
 
 /// Updates all songs with saved data
 Future<void> updateListOfSongs() async {
-  List<MusicTrack> tracksFromStorage = _getSongFromStorage();
+  List<MusicTrack> tracksFromStorage = await _getSongsFromStorage();
+
   List<MusicTrack>? savedTracks = await _getSavedMusicData();
 
   if (savedTracks != null) {
@@ -77,14 +79,22 @@ Future<void> updateListOfSongs() async {
   allMusicTracks = tracksFromStorage;
 }
 
-List<MusicTrack> _getSongFromStorage() {
+Future<List<MusicTrack>> _getSongsFromStorage() async {
   final downloadPath = Directory('/storage/emulated/0/Download');
   debugPrint('Getting music files from: ${downloadPath.path}');
-  return downloadPath
-      .listSync()
-      .where((file) => file.absolute.path.endsWith('.mp3'))
-      .map((file) => MusicTrack(file.path))
-      .toList();
+
+  final allMp3 = downloadPath.listSync().where((file) => file.absolute.path.endsWith('.mp3'));
+  List<FileSystemEntity> filteredList = [];
+
+  debugPrint('Filtering out song with length < ${lengthLimitMilliseconds / 1000}s');
+  for (var element in allMp3) {
+    Metadata info = await MetadataRetriever.fromFile(File(element.absolute.path));
+    if (info.trackDuration! > lengthLimitMilliseconds) {
+      filteredList.add(element);
+    }
+  }
+
+  return filteredList.map((file) => MusicTrack(file.path)).toList();
 }
 
 Future<List<MusicTrack>?> _getSavedMusicData() async {
@@ -135,7 +145,7 @@ void updateListOfArtists() {
 
   uniqueArtists = SplayTreeSet.from(
     uniqueArtists,
-    (key1, key2) => key1.compareTo(key2),
+    (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
   );
 
   artists = {

@@ -1,3 +1,5 @@
+// Save these in config.json or something
+
 enum SortOptions {
   name,
   mostPlayed,
@@ -16,3 +18,6 @@ String getSortOptionDisplayString() {
       return 'Recently added';
   }
 }
+
+/// Set this from user settings, default 30s
+int lengthLimitMilliseconds = 30000;
