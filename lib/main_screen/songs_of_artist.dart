@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../player/temp_player.dart';
+import '../player/music_player.dart';
 
 class ArtistSongsPage extends StatefulWidget {
   final String artistName;
@@ -68,21 +68,18 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                 songs[songIndex].artist,
                 overflow: TextOverflow.ellipsis,
               ),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => TempPlayerDialog(song: songs[songIndex]),
-                ).then((value) {
-                  audioPlayer.stop();
-                });
+              onTap: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MusicPlayerPage(song: songs[songIndex]),
+                  ),
+                );
+                setState(() {});
               },
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert_rounded),
                 onPressed: () async {
-                  await showSongOptionsMenu(
-                    context,
-                    songs[songIndex],
-                  );
+                  await showSongOptionsMenu(context, songs[songIndex]);
                   getSongs();
                   if (songs.isEmpty && context.mounted) {
                     Navigator.of(context).pop();

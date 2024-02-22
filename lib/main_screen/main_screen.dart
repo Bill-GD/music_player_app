@@ -5,14 +5,15 @@ import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
 
-import '../artists/artists_list.dart';
 import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../permission/storage_permission.dart';
+import '../player/music_player.dart';
 import '../songs/songs_list.dart';
+import 'songs_of_artist.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -47,6 +48,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return storagePermissionStatus;
   }
 
+  Divider listItemDivider() => const Divider(indent: 20, endIndent: 20);
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +62,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       }
     });
     audioPlayer = AudioPlayer();
+    audioPlayer.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -227,15 +235,131 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   axisDirection: AxisDirection.right,
                   child: TabBarView(
                     children: [
-                      SongList(param: _childParam),
-                      const ArtistList(),
+                      // song list
+                      SongList(param: _childParam, updateParent: setState),
+                      // artist list
+                      StretchingOverscrollIndicator(
+                        axisDirection: AxisDirection.down,
+                        child: ListView.builder(
+                          itemCount: artists.length,
+                          itemBuilder: (context, artistIndex) {
+                            String artistName = artists.keys.elementAt(artistIndex);
+                            return ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                              title: Text(
+                                artistName,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: Text(
+                                '${artists[artistName]} song${artists[artistName]! > 1 ? "s" : ""}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              onTap: () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ArtistSongsPage(artistName: artistName),
+                                  ),
+                                );
+                                setState(() {});
+                              },
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
+          bottomNavigationBar: Visibility(
+            visible: showMinimizedPlayer && currentSong != null,
+            child: Container(
+              margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity.compact,
+                        leading: Icon(
+                          Icons.music_note_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        title: Text(
+                          currentSong?.trackName ?? 'None',
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                        subtitle: Text(currentSong?.artist ?? 'None'),
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => MusicPlayerPage(song: currentSong!),
+                            ),
+                          );
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      debugPrint('Previous song');
+                    },
+                    icon: Icon(
+                      Icons.skip_previous_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                    ),
+                    child: IconButton(
+                      onPressed: () async {
+                        audioPlayer.playing ? audioPlayer.pause() : audioPlayer.play();
+                        setState(() {});
+                      },
+                      icon: Icon(
+                        audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      debugPrint('Next song');
+                    },
+                    icon: Icon(
+                      Icons.skip_next_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
-
-Divider listItemDivider() => const Divider(indent: 20, endIndent: 20);

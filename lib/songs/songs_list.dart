@@ -8,17 +8,18 @@ import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../player/temp_player.dart';
+import '../player/music_player.dart';
 
 class SongList extends StatefulWidget {
   final int param;
-  const SongList({super.key, required this.param});
+  final void Function(void Function()) updateParent;
+  const SongList({super.key, required this.param, required this.updateParent});
 
   @override
   State<SongList> createState() => _SongListState();
 }
 
-class _SongListState extends State<SongList> with TickerProviderStateMixin {
+class _SongListState extends State<SongList> {
   @override
   Widget build(BuildContext context) {
     setState(() {});
@@ -46,15 +47,15 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         color: iconColor(context),
                       ),
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => TempPlayerDialog(
-                          song: allMusicTracks[Random().nextInt(allMusicTracks.length)],
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MusicPlayerPage(
+                            song: allMusicTracks[Random().nextInt(allMusicTracks.length)],
+                          ),
                         ),
-                      ).then((value) {
-                        audioPlayer.stop();
-                      });
+                      );
+                      setState(() {});
                     }),
                 Directionality(
                   textDirection: TextDirection.rtl,
@@ -74,11 +75,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         color: iconColor(context),
                       ),
                     ),
-                    onPressed: () => showSongSortingOptionsMenu(
-                      context,
-                      setState: setState,
-                      ticker: this,
-                    ),
+                    onPressed: () => showSongSortingOptionsMenu(context, setState),
                   ),
                 ),
               ],
@@ -125,13 +122,14 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => TempPlayerDialog(song: allMusicTracks[songIndex]),
-                      ).then((value) {
-                        audioPlayer.stop();
-                      });
+                    onTap: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MusicPlayerPage(song: allMusicTracks[songIndex]),
+                        ),
+                      );
+                      setState(() {});
+                      widget.updateParent(() {});
                     },
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -146,6 +144,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             await showSongOptionsMenu(
                               context,
                               allMusicTracks[songIndex],
+                              showDeleteOption: true,
                             );
                             setState(() {});
                           },

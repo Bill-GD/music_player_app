@@ -5,8 +5,13 @@ import 'music_track.dart';
 
 /// List of all songs, persistent
 List<MusicTrack> allMusicTracks = [];
+
 /// List of name and song count of artists
 Map<String, int> artists = {};
 late final AudioPlayer audioPlayer;
 
 late final PackageInfo packageInfo;
+
+bool showMinimizedPlayer = false;
+
+MusicTrack? currentSong;

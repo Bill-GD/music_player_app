@@ -89,10 +89,9 @@ Widget bottomSheet({
 }
 
 Future<void> showSongSortingOptionsMenu(
-  BuildContext context, {
-  required void Function(void Function()) setState,
-  required TickerProvider ticker,
-}) async {
+  BuildContext context, 
+   void Function(void Function()) setState,
+) async {
   await showModalBottomSheet(
     context: context,
     useSafeArea: true,
@@ -152,8 +151,9 @@ Future<void> showSongSortingOptionsMenu(
 
 Future<void> showSongOptionsMenu(
   BuildContext context,
-  MusicTrack song,
-) async {
+  MusicTrack song, {
+  bool showDeleteOption = false,
+}) async {
   await showModalBottomSheet<void>(
     context: context,
     shape: RoundedRectangleBorder(
@@ -195,14 +195,15 @@ Future<void> showSongOptionsMenu(
             }
           },
         ),
-        ListTile(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+        if (showDeleteOption)
+          ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+            title: const Text('Delete', style: bottomSheetText),
+            onTap: () => debugPrint('Delete song'),
           ),
-          leading: Icon(Icons.delete_rounded, color: iconColor(context)),
-          title: const Text('Delete', style: bottomSheetText),
-          onTap: () => debugPrint('Delete song'),
-        ),
       ],
     ),
   );
