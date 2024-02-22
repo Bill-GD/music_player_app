@@ -12,6 +12,7 @@ import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../permission/storage_permission.dart';
 import '../player/music_player.dart';
+import '../player/player_utils.dart';
 import '../songs/songs_list.dart';
 import 'songs_of_artist.dart';
 
@@ -64,8 +65,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     audioPlayer = AudioPlayer();
     audioPlayer.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
-        setState(() {});
+        pausePlayer();
       }
+      setState(() {});
+    });
+    audioPlayer.positionStream.listen((current) {
+      setState(() {});
     });
   }
 
@@ -277,7 +282,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: Theme.of(context).colorScheme.tertiaryContainer,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
@@ -318,36 +323,35 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      debugPrint('Previous song');
-                    },
+                    onPressed: () => toPreviousSong(),
                     icon: Icon(
                       Icons.skip_previous_rounded,
                       color: Theme.of(context).colorScheme.primary,
                       size: 20,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                    ),
-                    child: IconButton(
-                      onPressed: () async {
-                        audioPlayer.playing ? audioPlayer.pause() : audioPlayer.play();
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 30,
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        strokeWidth: 2,
+                        value: getCurrentDuration() / getTotalDuration(),
                       ),
-                    ),
+                      IconButton(
+                        onPressed: () {
+                          audioPlayer.playing ? pausePlayer() : playPlayer();
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 30,
+                        ),
+                      ),
+                    ],
                   ),
                   IconButton(
-                    onPressed: () {
-                      debugPrint('Next song');
-                    },
+                    onPressed: () => toNextSong(),
                     icon: Icon(
                       Icons.skip_next_rounded,
                       color: Theme.of(context).colorScheme.primary,

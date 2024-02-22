@@ -4,11 +4,11 @@ import 'dart:math';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import 'player_utils.dart';
 
 class MusicPlayerPage extends StatefulWidget {
   final MusicTrack song;
@@ -20,30 +20,20 @@ class MusicPlayerPage extends StatefulWidget {
 
 class _MusicPlayerPageState extends State<MusicPlayerPage> {
   int currentDuration = 0, maxDuration = 0;
-  bool isShuffle = false;
+  // bool isShuffle = true;
   late StreamSubscription<Duration> posStream;
 
   @override
   void initState() {
     super.initState();
 
-    currentDuration = currentSong == null ? 0 : audioPlayer.position.inMilliseconds;
-    maxDuration = currentSong == null ? 0 : audioPlayer.duration!.inMilliseconds;
-    if (currentSong == null || currentSong != widget.song) {
-      audioPlayer
-          .setAudioSource(
-        audioPlayer.audioSource ?? AudioSource.uri(Uri.parse(Uri.encodeComponent(widget.song.absolutePath))),
-        initialPosition: Duration.zero,
-        preload: true,
-      )
-          .then((value) {
-        maxDuration = value!.inMilliseconds;
-        setState(() {});
-      });
-    }
+    currentDuration = widget.song != currentSong ? 0 : getCurrentDuration();
+    setPlayerSong(widget.song).then((value) => setState(() => maxDuration = value));
 
     showMinimizedPlayer = true;
     currentSong = widget.song;
+
+    setState(() {});
 
     posStream = audioPlayer.positionStream.listen((current) {
       currentDuration = current.inMilliseconds;
@@ -89,14 +79,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                   children: [
                     Text(
                       widget.song.trackName,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 40),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 30),
                     ),
                     Text(
                       widget.song.artist,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w400, fontSize: 20),
                     ),
                   ],
                 ),
@@ -131,9 +121,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        debugPrint('Previous song');
-                      },
+                      onPressed: () => toPreviousSong(),
                       icon: Icon(
                         Icons.skip_previous_rounded,
                         color: Theme.of(context).colorScheme.primary,
@@ -146,15 +134,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                       child: IconButton(
                         onPressed: () async {
-                          if (currentDuration >= maxDuration) {
-                            audioPlayer.seek(Duration.zero);
-                            currentDuration = 0;
-                          }
                           if (currentDuration <= 0) {
                             widget.song.timeListened++;
                             await saveSongsToStorage();
                           }
-                          audioPlayer.playing ? audioPlayer.pause() : audioPlayer.play();
+                          audioPlayer.playing ? pausePlayer() : playPlayer();
                           setState(() {});
                         },
                         icon: Icon(
@@ -165,9 +149,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        debugPrint('Next song');
-                      },
+                      onPressed: () => toNextSong(),
                       icon: Icon(
                         Icons.skip_next_rounded,
                         color: Theme.of(context).colorScheme.primary,

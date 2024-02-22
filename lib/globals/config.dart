@@ -21,3 +21,6 @@ String getSortOptionDisplayString() {
 
 /// Set this from user settings, default 30s
 int lengthLimitMilliseconds = 30000;
+
+/// Get this from user settings, default `false`
+bool autoPlayNewSong = false;
