@@ -16,6 +16,13 @@ class _SongInfoState extends State<SongInfo> {
   final _songController = TextEditingController(), _artistController = TextEditingController();
 
   @override
+  void dispose() {
+    super.dispose();
+    _songController.dispose();
+    _artistController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

@@ -31,65 +31,67 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios_rounded),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.arrow_back_ios_rounded),
+          ),
+          centerTitle: true,
+          title: Text(
+            widget.artistName,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
         ),
-        centerTitle: true,
-        title: Text(
-          widget.artistName,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      body: StretchingOverscrollIndicator(
-        axisDirection: AxisDirection.down,
-        child: ListView.builder(
-          itemCount: songs.length,
-          itemBuilder: (context, songIndex) {
-            return ListTile(
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text((songIndex + 1).toString().padLeft(2, '0')),
-                  ],
-                ),
-              ),
-              title: Text(
-                songs[songIndex].trackName,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                songs[songIndex].artist,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onTap: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MusicPlayerPage(song: songs[songIndex]),
+        body: StretchingOverscrollIndicator(
+          axisDirection: AxisDirection.down,
+          child: ListView.builder(
+            itemCount: songs.length,
+            itemBuilder: (context, songIndex) {
+              return ListTile(
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 15),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text((songIndex + 1).toString().padLeft(2, '0')),
+                    ],
                   ),
-                );
-                setState(() {});
-              },
-              trailing: IconButton(
-                icon: const Icon(Icons.more_vert_rounded),
-                onPressed: () async {
-                  await showSongOptionsMenu(context, songs[songIndex]);
-                  getSongs();
-                  if (songs.isEmpty && context.mounted) {
-                    Navigator.of(context).pop();
-                  } else {
-                    setState(() {});
-                  }
+                ),
+                title: Text(
+                  songs[songIndex].trackName,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  songs[songIndex].artist,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MusicPlayerPage(song: songs[songIndex]),
+                    ),
+                  );
+                  setState(() {});
                 },
-              ),
-            );
-          },
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_vert_rounded),
+                  onPressed: () async {
+                    await showSongOptionsMenu(context, songs[songIndex]);
+                    getSongs();
+                    if (songs.isEmpty && context.mounted) {
+                      Navigator.of(context).pop();
+                    } else {
+                      setState(() {});
+                    }
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

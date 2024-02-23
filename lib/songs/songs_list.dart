@@ -144,7 +144,6 @@ class _SongListState extends State<SongList> {
                             await showSongOptionsMenu(
                               context,
                               allMusicTracks[songIndex],
-                              showDeleteOption: true,
                             );
                             setState(() {});
                           },

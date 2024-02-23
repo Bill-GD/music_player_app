@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dedent/dedent.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -89,8 +92,8 @@ Widget bottomSheet({
 }
 
 Future<void> showSongSortingOptionsMenu(
-  BuildContext context, 
-   void Function(void Function()) setState,
+  BuildContext context,
+  void Function(void Function()) setState,
 ) async {
   await showModalBottomSheet(
     context: context,
@@ -152,7 +155,7 @@ Future<void> showSongSortingOptionsMenu(
 Future<void> showSongOptionsMenu(
   BuildContext context,
   MusicTrack song, {
-  bool showDeleteOption = false,
+  bool showDeleteOption = true,
 }) async {
   await showModalBottomSheet<void>(
     context: context,
@@ -202,7 +205,67 @@ Future<void> showSongOptionsMenu(
             ),
             leading: Icon(Icons.delete_rounded, color: iconColor(context)),
             title: const Text('Delete', style: bottomSheetText),
-            onTap: () => debugPrint('Delete song'),
+            onTap: () async {
+              bool songDeleted = false;
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    icon: Icon(
+                      Icons.warning_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 30,
+                    ),
+                    title: const Center(
+                      child: Text(
+                        'Delete Song',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    content: Text(
+                      dedent('''
+                      This CANNOT be undone.
+                      Are you sure you want to delete
+
+                      ${song.trackName}
+                      '''),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    actionsAlignment: MainAxisAlignment.spaceAround,
+                    actions: [
+                      TextButton(
+                        child: const Text('No'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      TextButton(
+                        child: const Text('Yes'),
+                        onPressed: () async {
+                          File(song.absolutePath).deleteSync();
+                          songDeleted = true;
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+              if (songDeleted) {
+                await updateMusicData();
+                sortAllSongs();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              }
+            },
           ),
       ],
     ),

@@ -79,281 +79,283 @@ class _MusicDownloaderState extends State<MusicDownloader> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded),
-          onPressed: () {
-            if (_isDownloading) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('App is downloading music, please wait')),
-              );
-              return;
-            }
-            Navigator.of(context).pop(_hasDownloaded);
-          },
-        ),
-        centerTitle: true,
-        title: const Text(
-          'Music Downloader',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_rounded),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    title: Text(
-                      'Instruction',
-                      textAlign: TextAlign.center,
-                      style: bottomSheetTitle.copyWith(fontSize: 24),
-                    ),
-                    alignment: Alignment.center,
-                    contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-                    content: Text(
-                      dedent('''
-                      Enter YouTube or SoundCloud link into the text field.
-                      Press the get data button.
-                      Wait for the app to fetch the data.
-                      Press the download button.
-                      Wait for the app to download the music.
-                      '''),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    actionsAlignment: MainAxisAlignment.spaceAround,
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
+              if (_isDownloading) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('App is downloading music, please wait')),
+                );
+                return;
+              }
+              Navigator.of(context).pop(_hasDownloaded);
             },
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // no connectivity
-          Visibility(
-            visible: !_isInternetConnected,
-            child: Container(
-              width: double.infinity,
-              color: Colors.red,
-              padding: const EdgeInsets.symmetric(vertical: 3),
-              child: const Text(
-                'No Internet Connection',
-                textAlign: TextAlign.center,
+          centerTitle: true,
+          title: const Text(
+            'Music Downloader',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.help_rounded),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      title: Text(
+                        'Instruction',
+                        textAlign: TextAlign.center,
+                        style: bottomSheetTitle.copyWith(fontSize: 24),
+                      ),
+                      alignment: Alignment.center,
+                      contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                      content: Text(
+                        dedent('''
+                        Enter YouTube or SoundCloud link into the text field.
+                        Press the get data button.
+                        Wait for the app to fetch the data.
+                        Press the download button.
+                        Wait for the app to download the music.
+                        '''),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      actionsAlignment: MainAxisAlignment.spaceAround,
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // no connectivity
+            Visibility(
+              visible: !_isInternetConnected,
+              child: Container(
+                width: double.infinity,
+                color: Colors.red,
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: const Text(
+                  'No Internet Connection',
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // link input
-                    SizedBox(
-                      height: AppBar().preferredSize.height * 1.3,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              enabled: _isInternetConnected || _isDownloading,
-                              controller: _textEditingController,
-                              onChanged: _validateInput,
-                              decoration: textFieldDecoration(
-                                context,
-                                fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
-                                hintText: 'Enter YouTube or SoundCloud link',
-                                labelText: 'Music Link',
-                                errorText: _errorText,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Theme.of(context).colorScheme.onBackground,
+            Padding(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // link input
+                      SizedBox(
+                        height: AppBar().preferredSize.height * 1.3,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                enabled: _isInternetConnected || _isDownloading,
+                                controller: _textEditingController,
+                                onChanged: _validateInput,
+                                decoration: textFieldDecoration(
+                                  context,
+                                  fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+                                  hintText: 'Enter YouTube or SoundCloud link',
+                                  labelText: 'Music Link',
+                                  errorText: _errorText,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).colorScheme.onBackground,
+                                    ),
+                                    borderRadius: BorderRadius.circular(25),
                                   ),
-                                  borderRadius: BorderRadius.circular(25),
                                 ),
                               ),
                             ),
-                          ),
-                          Visibility(
-                            visible: _isGettingData,
-                            child: const Padding(
-                              padding: EdgeInsets.only(left: 20),
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    // get data button
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: ElevatedButton(
-                        onPressed: _textEditingController.text.isNotEmpty &&
-                                !_isDownloading &&
-                                _errorText == null
-                            ? () async {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                _isFromSoundCloud = _textEditingController.text.contains('soundcloud.com');
-                                setState(() {
-                                  _isGettingData = true;
-                                  _metadata = null;
-                                });
-                                _metadata = _isFromSoundCloud
-                                    ? await getSoundCloudSongData(context, _textEditingController.text)
-                                    : await getYouTubeVideoData(context, _textEditingController.text);
-                                setState(() => _isGettingData = false);
-                              }
-                            : null,
-                        style: textButtonStyle(context),
-                        child: const Text('Get Music Data'),
-                      ),
-                    ),
-                  ],
-                ),
-                if (_metadata == null)
-                  const SizedBox.shrink()
-                else
-                  Column(
-                    children: [
-                      // video info
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                              margin: _isFromSoundCloud
-                                  ? const EdgeInsets.only(left: 40, right: 30)
-                                  // : _metadata!['thumbnailUrl'] == null
-                                  //     ? const EdgeInsets.only(left: 70, right: 40)
-                                  : const EdgeInsets.only(left: 10),
-                              padding: const EdgeInsets.all(10),
-                              decoration: _metadata!['thumbnailUrl'] == null
-                                  ? BoxDecoration(
-                                      border: Border.all(
-                                        color: Theme.of(context).colorScheme.onBackground,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    )
-                                  : null,
-                              child: _metadata!['thumbnailUrl'] == null
-                                  ? Icon(
-                                      Icons.music_note_rounded,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    )
-                                  : Image.network(_metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Text(
-                                      _metadata!['title'],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    Text(_metadata!['author']),
-                                    Text(
-                                      (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
-                                      style: const TextStyle(color: Colors.grey),
-                                    )
-                                  ],
-                                ),
+                            Visibility(
+                              visible: _isGettingData,
+                              child: const Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: CircularProgressIndicator(),
                               ),
                             )
                           ],
                         ),
                       ),
-                      // download button
-                      ElevatedButton(
-                        onPressed: _isDownloading
-                            ? null
-                            : () async {
-                                setState(() {
-                                  _isDownloading = true;
-                                  _hasDownloaded = true;
-                                });
-                                _isFromSoundCloud
-                                    ? await downloadSoundCloudMP3(
-                                        context,
-                                        _metadata!['trackUrl'],
-                                        _metadata!['title'],
-                                        (received, total) {
-                                          setState(() {
-                                            _received = received;
-                                            _total = total;
-                                          });
-                                        },
-                                      )
-                                    : await downloadYoutubeMP3(
-                                        context,
-                                        _textEditingController.text,
-                                        _metadata!['title'],
-                                        (received, total) {
-                                          setState(() {
-                                            _received = received;
-                                            _total = total;
-                                          });
-                                        },
-                                      );
-                                setState(() => _isDownloading = false);
-                              },
-                        style: textButtonStyle(context),
-                        child: const Text('Download Music'),
+                      // get data button
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ElevatedButton(
+                          onPressed: _textEditingController.text.isNotEmpty &&
+                                  !_isDownloading &&
+                                  _errorText == null
+                              ? () async {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  _isFromSoundCloud = _textEditingController.text.contains('soundcloud.com');
+                                  setState(() {
+                                    _isGettingData = true;
+                                    _metadata = null;
+                                  });
+                                  _metadata = _isFromSoundCloud
+                                      ? await getSoundCloudSongData(context, _textEditingController.text)
+                                      : await getYouTubeVideoData(context, _textEditingController.text);
+                                  setState(() => _isGettingData = false);
+                                }
+                              : null,
+                          style: textButtonStyle(context),
+                          child: const Text('Get Music Data'),
+                        ),
                       ),
                     ],
                   ),
-                // download progress
-                if (_total == 0)
-                  const SizedBox.shrink()
-                else
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Stack(
-                      alignment: Alignment.center,
+                  if (_metadata == null)
+                    const SizedBox.shrink()
+                  else
+                    Column(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: LinearProgressIndicator(
-                            value: clampDouble(_received / _total, 0, 1),
-                            minHeight: 30,
-                            semanticsLabel: '${getSizeString(_received)} / ${getSizeString(_total)}',
+                        // video info
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Container(
+                                margin: _isFromSoundCloud
+                                    ? const EdgeInsets.only(left: 40, right: 30)
+                                    // : _metadata!['thumbnailUrl'] == null
+                                    //     ? const EdgeInsets.only(left: 70, right: 40)
+                                    : const EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.all(10),
+                                decoration: _metadata!['thumbnailUrl'] == null
+                                    ? BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.onBackground,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      )
+                                    : null,
+                                child: _metadata!['thumbnailUrl'] == null
+                                    ? Icon(
+                                        Icons.music_note_rounded,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      )
+                                    : Image.network(_metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Text(
+                                        _metadata!['title'],
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      Text(_metadata!['author']),
+                                      Text(
+                                        (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
+                                        style: const TextStyle(color: Colors.grey),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        Text(
-                          '${(_received * 100 / _total).toStringAsPrecision(3)}% (${getSizeString(_received)} / ${getSizeString(_total)})',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
+                        // download button
+                        ElevatedButton(
+                          onPressed: _isDownloading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _isDownloading = true;
+                                    _hasDownloaded = true;
+                                  });
+                                  _isFromSoundCloud
+                                      ? await downloadSoundCloudMP3(
+                                          context,
+                                          _metadata!['trackUrl'],
+                                          _metadata!['title'],
+                                          (received, total) {
+                                            setState(() {
+                                              _received = received;
+                                              _total = total;
+                                            });
+                                          },
+                                        )
+                                      : await downloadYoutubeMP3(
+                                          context,
+                                          _textEditingController.text,
+                                          _metadata!['title'],
+                                          (received, total) {
+                                            setState(() {
+                                              _received = received;
+                                              _total = total;
+                                            });
+                                          },
+                                        );
+                                  setState(() => _isDownloading = false);
+                                },
+                          style: textButtonStyle(context),
+                          child: const Text('Download Music'),
                         ),
                       ],
                     ),
-                  ),
-              ],
+                  // download progress
+                  if (_total == 0)
+                    const SizedBox.shrink()
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: LinearProgressIndicator(
+                              value: clampDouble(_received / _total, 0, 1),
+                              minHeight: 30,
+                              semanticsLabel: '${getSizeString(_received)} / ${getSizeString(_total)}',
+                            ),
+                          ),
+                          Text(
+                            '${(_received * 100 / _total).toStringAsPrecision(3)}% (${getSizeString(_received)} / ${getSizeString(_total)})',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

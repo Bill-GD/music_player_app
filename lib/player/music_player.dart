@@ -61,7 +61,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
             IconButton(
               icon: const Icon(Icons.more_vert_rounded),
               onPressed: () async {
-                await showSongOptionsMenu(context, widget.song);
+                await showSongOptionsMenu(context, widget.song, showDeleteOption: false);
                 setState(() {});
               },
             ),

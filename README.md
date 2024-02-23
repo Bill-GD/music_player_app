@@ -1,6 +1,6 @@
-![GitHub Release](https://img.shields.io/github/v/release/Bill-GD/music_player_app?include_prereleases&style=plastic) ![GitHub repo size](https://img.shields.io/github/repo-size/Bill-GD/music_player_app?style=plastic) ![GitHub repo size](https://img.shields.io/github/languages/code-size/Bill-GD/music_player_app?style=plastic)
-
 # music_player_app
+
+![GitHub Release](https://img.shields.io/github/v/release/Bill-GD/music_player_app?include_prereleases&style=plastic) ![GitHub repo size](https://img.shields.io/github/repo-size/Bill-GD/music_player_app?style=plastic) ![GitHub repo size](https://img.shields.io/github/languages/code-size/Bill-GD/music_player_app?style=plastic)
 
 A __*simple*__ music player app made in Flutter
 
