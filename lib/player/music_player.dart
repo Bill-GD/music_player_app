@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
@@ -18,7 +19,7 @@ class MusicPlayerPage extends StatefulWidget {
   State<MusicPlayerPage> createState() => _MusicPlayerPageState();
 }
 
-class _MusicPlayerPageState extends State<MusicPlayerPage> {
+class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderStateMixin {
   int currentDuration = 0, maxDuration = 0;
   // bool isShuffle = true;
   late StreamSubscription<Duration> posStream;
@@ -48,20 +49,19 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: IconButton(
+            padding: const EdgeInsets.only(left: 10),
+            icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
             onPressed: () async {
               await posStream.cancel();
               if (context.mounted) Navigator.of(context).pop();
             },
-            icon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 40,
-            ),
           ),
           actions: [
             IconButton(
+              padding: const EdgeInsets.only(right: 10),
               icon: const Icon(Icons.more_vert_rounded),
               onPressed: () async {
-                await showSongOptionsMenu(context, widget.song, showDeleteOption: false);
+                await showSongOptionsMenu(context, widget.song, showDeleteOption: false, this);
                 setState(() {});
               },
             ),
@@ -92,8 +92,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                 ),
               ),
               ProgressBar(
-                progress: Duration(milliseconds: min(maxDuration, currentDuration)),
-                total: Duration(milliseconds: maxDuration),
+                progress: min(maxDuration, currentDuration).ms,
+                total: maxDuration.ms,
                 timeLabelPadding: 20,
                 timeLabelLocation: TimeLabelLocation.below,
                 timeLabelType: TimeLabelType.totalTime,

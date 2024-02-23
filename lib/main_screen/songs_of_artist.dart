@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
@@ -13,7 +14,7 @@ class ArtistSongsPage extends StatefulWidget {
   State<ArtistSongsPage> createState() => _ArtistSongsPageState();
 }
 
-class _ArtistSongsPageState extends State<ArtistSongsPage> {
+class _ArtistSongsPageState extends State<ArtistSongsPage> with TickerProviderStateMixin {
   late List<MusicTrack> songs;
 
   void getSongs() {
@@ -49,48 +50,44 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
           axisDirection: AxisDirection.down,
           child: ListView.builder(
             itemCount: songs.length,
-            itemBuilder: (context, songIndex) {
-              return ListTile(
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 15),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text((songIndex + 1).toString().padLeft(2, '0')),
-                    ],
-                  ),
+            itemBuilder: (context, songIndex) => ListTile(
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text((songIndex + 1).toString().padLeft(2, '0')),
+                  ],
                 ),
-                title: Text(
-                  songs[songIndex].trackName,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  songs[songIndex].artist,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => MusicPlayerPage(song: songs[songIndex]),
-                    ),
-                  );
-                  setState(() {});
+              ),
+              title: Text(
+                songs[songIndex].trackName,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                songs[songIndex].artist,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () async {
+                await Navigator.of(context).push(
+                  getMusicPlayerRoute(context, songs[songIndex]),
+                );
+                setState(() {});
+              },
+              trailing: IconButton(
+                icon: const Icon(Icons.more_vert_rounded),
+                onPressed: () async {
+                  await showSongOptionsMenu(context, songs[songIndex], this);
+                  getSongs();
+                  if (songs.isEmpty && context.mounted) {
+                    Navigator.of(context).pop();
+                  } else {
+                    setState(() {});
+                  }
                 },
-                trailing: IconButton(
-                  icon: const Icon(Icons.more_vert_rounded),
-                  onPressed: () async {
-                    await showSongOptionsMenu(context, songs[songIndex]);
-                    getSongs();
-                    if (songs.isEmpty && context.mounted) {
-                      Navigator.of(context).pop();
-                    } else {
-                      setState(() {});
-                    }
-                  },
-                ),
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),

@@ -1,5 +1,7 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -185,8 +187,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           onTap: () async {
                             bool hasChange = await Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const MusicDownloader(),
+                              PageRouteBuilder(
+                                pageBuilder: (context, _, __) => const MusicDownloader(),
+                                transitionsBuilder: (context, anim1, _, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(-1, 0),
+                                      end: const Offset(0, 0),
+                                    ).animate(anim1.drive(CurveTween(curve: Curves.decelerate))),
+                                    child: child,
+                                  );
+                                },
                               ),
                             );
                             if (hasChange) {
@@ -222,10 +233,19 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                             color: Colors.grey.withOpacity(0.5),
                           ),
                         ),
-                        onTap: () => showAboutDialog(
+                        onTap: () => showGeneralDialog(
                           context: context,
-                          applicationName: packageInfo.appName,
-                          applicationVersion: 'v${packageInfo.version}',
+                          transitionBuilder: (_, anim1, __, child) {
+                            return ScaleTransition(
+                              scale: anim1,
+                              alignment: Alignment.bottomLeft,
+                              child: child,
+                            );
+                          },
+                          pageBuilder: (context, _, __) => AboutDialog(
+                            applicationName: packageInfo.appName,
+                            applicationVersion: 'v${packageInfo.version}',
+                          ),
                         ),
                       ),
                     ),
@@ -249,27 +269,28 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           itemCount: artists.length,
                           itemBuilder: (context, artistIndex) {
                             String artistName = artists.keys.elementAt(artistIndex);
-                            return ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                              title: Text(
-                                artistName,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              subtitle: Text(
-                                '${artists[artistName]} song${artists[artistName]! > 1 ? "s" : ""}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w400,
+                            return OpenContainer(
+                              closedElevation: 0,
+                              closedColor: Theme.of(context).colorScheme.background,
+                              openColor: Colors.transparent,
+                              transitionDuration: 400.ms,
+                              onClosed: (_) => setState(() {}),
+                              openBuilder: (context, action) => ArtistSongsPage(artistName: artistName),
+                              closedBuilder: (context, action) => ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                title: Text(
+                                  artistName,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
-                              ),
-                              onTap: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ArtistSongsPage(artistName: artistName),
+                                subtitle: Text(
+                                  '${artists[artistName]} song${artists[artistName]! > 1 ? "s" : ""}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w400,
                                   ),
-                                );
-                                setState(() {});
-                              },
+                                ),
+                                onTap: action,
+                              ),
                             );
                           },
                         ),
@@ -277,6 +298,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ],
                   ),
                 ),
+          // mini player
           bottomNavigationBar: Visibility(
             visible: showMinimizedPlayer && currentSong != null,
             child: Container(
@@ -313,9 +335,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         subtitle: Text(currentSong?.artist ?? 'None'),
                         onTap: () async {
                           await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MusicPlayerPage(song: currentSong!),
-                            ),
+                            getMusicPlayerRoute(context, currentSong!),
                           );
                           setState(() {});
                         },

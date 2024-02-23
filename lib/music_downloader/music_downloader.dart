@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dedent/dedent.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
@@ -30,6 +32,8 @@ class _MusicDownloaderState extends State<MusicDownloader> {
 
   String? _errorText;
 
+  late StreamSubscription<ConnectivityResult> connectStream;
+
   void _checkInternetConnection([ConnectivityResult? result]) async {
     final connectivityResult = result ?? await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.mobile ||
@@ -39,7 +43,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
     } else if (connectivityResult == ConnectivityResult.none) {
       _isInternetConnected = false;
     }
-    if (context.mounted) {
+    if (mounted) {
       setState(() {});
     }
   }
@@ -64,7 +68,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   void initState() {
     super.initState();
     _checkInternetConnection();
-    Connectivity().onConnectivityChanged.listen((newResult) {
+    connectStream = Connectivity().onConnectivityChanged.listen((newResult) {
       _checkInternetConnection(newResult);
     });
     _textEditingController = TextEditingController();
@@ -72,6 +76,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
 
   @override
   void dispose() {
+    connectStream.cancel();
     super.dispose();
     _yt.close();
     _textEditingController.dispose();
@@ -103,9 +108,19 @@ class _MusicDownloaderState extends State<MusicDownloader> {
             IconButton(
               icon: const Icon(Icons.help_rounded),
               onPressed: () {
-                showDialog(
+                showGeneralDialog(
                   context: context,
-                  builder: (context) {
+                  transitionDuration: 300.ms,
+                  transitionBuilder: (_, anim1, __, child) {
+                    return ScaleTransition(
+                      scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                      alignment: Alignment.topRight,
+                      child: child,
+                    );
+                  },
+                  barrierDismissible: true,
+                  barrierLabel: '',
+                  pageBuilder: (context, _, __) {
                     return AlertDialog(
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -177,7 +192,8 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                 onChanged: _validateInput,
                                 decoration: textFieldDecoration(
                                   context,
-                                  fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+                                  fillColor:
+                                      Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
                                   hintText: 'Enter YouTube or SoundCloud link',
                                   labelText: 'Music Link',
                                   errorText: _errorText,
@@ -229,100 +245,101 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                   if (_metadata == null)
                     const SizedBox.shrink()
                   else
-                    Column(
-                      children: [
-                        // video info
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                margin: _isFromSoundCloud
-                                    ? const EdgeInsets.only(left: 40, right: 30)
-                                    // : _metadata!['thumbnailUrl'] == null
-                                    //     ? const EdgeInsets.only(left: 70, right: 40)
-                                    : const EdgeInsets.only(left: 10),
-                                padding: const EdgeInsets.all(10),
-                                decoration: _metadata!['thumbnailUrl'] == null
-                                    ? BoxDecoration(
-                                        border: Border.all(
-                                          color: Theme.of(context).colorScheme.onBackground,
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      )
-                                    : null,
-                                child: _metadata!['thumbnailUrl'] == null
-                                    ? Icon(
-                                        Icons.music_note_rounded,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      )
-                                    : Image.network(_metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Text(
-                                        _metadata!['title'],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      Text(_metadata!['author']),
-                                      Text(
-                                        (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
-                                        style: const TextStyle(color: Colors.grey),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        // download button
-                        ElevatedButton(
-                          onPressed: _isDownloading
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    _isDownloading = true;
-                                    _hasDownloaded = true;
-                                  });
-                                  _isFromSoundCloud
-                                      ? await downloadSoundCloudMP3(
-                                          context,
-                                          _metadata!['trackUrl'],
-                                          _metadata!['title'],
-                                          (received, total) {
-                                            setState(() {
-                                              _received = received;
-                                              _total = total;
-                                            });
-                                          },
+                    Animate(
+                      effects: const [FadeEffect()],
+                      child: Column(
+                        children: [
+                          // video info
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  margin: _isFromSoundCloud
+                                      ? const EdgeInsets.only(left: 40, right: 30)
+                                      : const EdgeInsets.only(left: 10),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: _metadata!['thumbnailUrl'] == null
+                                      ? BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(context).colorScheme.onBackground,
+                                          ),
+                                          borderRadius: BorderRadius.circular(10),
                                         )
-                                      : await downloadYoutubeMP3(
-                                          context,
-                                          _textEditingController.text,
+                                      : null,
+                                  child: _metadata!['thumbnailUrl'] == null
+                                      ? Icon(
+                                          Icons.music_note_rounded,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        )
+                                      : Image.network(_metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text(
                                           _metadata!['title'],
-                                          (received, total) {
-                                            setState(() {
-                                              _received = received;
-                                              _total = total;
-                                            });
-                                          },
-                                        );
-                                  setState(() => _isDownloading = false);
-                                },
-                          style: textButtonStyle(context),
-                          child: const Text('Download Music'),
-                        ),
-                      ],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        Text(_metadata!['author']),
+                                        Text(
+                                          (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
+                                          style: const TextStyle(color: Colors.grey),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          // download button
+                          ElevatedButton(
+                            onPressed: _isDownloading
+                                ? null
+                                : () async {
+                                    setState(() {
+                                      _isDownloading = true;
+                                      _hasDownloaded = true;
+                                    });
+                                    _isFromSoundCloud
+                                        ? await downloadSoundCloudMP3(
+                                            context,
+                                            _metadata!['trackUrl'],
+                                            _metadata!['title'],
+                                            (received, total) {
+                                              setState(() {
+                                                _received = received;
+                                                _total = total;
+                                              });
+                                            },
+                                          )
+                                        : await downloadYoutubeMP3(
+                                            context,
+                                            _textEditingController.text,
+                                            _metadata!['title'],
+                                            (received, total) {
+                                              setState(() {
+                                                _received = received;
+                                                _total = total;
+                                              });
+                                            },
+                                          );
+                                    setState(() => _isDownloading = false);
+                                  },
+                            style: textButtonStyle(context),
+                            child: const Text('Download Music'),
+                          ),
+                        ],
+                      ),
                     ),
                   // download progress
                   if (_total == 0)
