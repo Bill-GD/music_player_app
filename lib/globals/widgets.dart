@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dedent/dedent.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -100,13 +101,8 @@ Future<void> getBottomSheet(
   Widget title,
   List<Widget> content,
 ) async {
-  await showModalBottomSheet(
+  await showCupertinoModalPopup(
     context: context,
-    useSafeArea: true,
-    enableDrag: false,
-    transitionAnimationController: getBottomSheetAnimator(ticker),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-    constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.95)),
     builder: (context) => bottomSheet(
       context: context,
       title: title,
@@ -120,24 +116,30 @@ Widget bottomSheet({
   required Widget title,
   required List<Widget> content,
 }) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 15),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
-          child: title,
+  return Material(
+    borderRadius: BorderRadius.circular(30),
+    child: Container(
+      constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+              child: title,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
+              child: ListView(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: content,
+              ),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: content,
-          ),
-        ),
-      ],
+      ),
     ),
   );
 }
@@ -165,8 +167,8 @@ Future<void> showSongOptionsMenu(
         leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
         title: const Text('Song Info', style: bottomSheetText),
         onTap: () async {
-          bool needsUpdate = await Navigator.of(context).push(
-            PageRouteBuilder(
+          bool? needsUpdate = await Navigator.of(context).push(
+            PageRouteBuilder<bool>(
               transitionDuration: 400.ms,
               transitionsBuilder: (_, anim, __, child) {
                 return ScaleTransition(
@@ -185,7 +187,7 @@ Future<void> showSongOptionsMenu(
               ),
             ),
           );
-          if (needsUpdate) {
+          if (needsUpdate == true) {
             await updateMusicData();
             sortAllSongs();
           }
@@ -236,7 +238,7 @@ Future<void> showSongOptionsMenu(
                     dedent('''
                       This CANNOT be undone.
                       Are you sure you want to delete
-
+        
                       ${song.trackName}
                       '''),
                     textAlign: TextAlign.center,
