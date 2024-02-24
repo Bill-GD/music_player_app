@@ -13,7 +13,6 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../permission/storage_permission.dart';
-import '../player/music_player.dart';
 import '../player/player_utils.dart';
 import '../songs/songs_list.dart';
 import 'songs_of_artist.dart';
@@ -235,9 +234,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         ),
                         onTap: () => showGeneralDialog(
                           context: context,
+                          barrierDismissible: true,
+                          barrierLabel: '',
+                          transitionDuration: 300.ms,
                           transitionBuilder: (_, anim1, __, child) {
                             return ScaleTransition(
-                              scale: anim1,
+                              scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
                               alignment: Alignment.bottomLeft,
                               child: child,
                             );

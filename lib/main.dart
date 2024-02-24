@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -19,6 +20,7 @@ class MusicPlayerApp extends StatelessWidget {
     return ThemeProvider(
       saveThemesOnChange: true,
       loadThemeOnInit: true,
+      defaultThemeId: '${SchedulerBinding.instance.platformDispatcher.platformBrightness.name}_theme',
       themes: [
         AppTheme(
           id: 'light_theme',

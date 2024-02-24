@@ -74,7 +74,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 80),
+                padding: const EdgeInsets.only(bottom: 40),
                 child: Column(
                   children: [
                     Text(
@@ -89,6 +89,31 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w400, fontSize: 20),
                     ),
                   ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 60),
+                padding: const EdgeInsets.all(50),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primaryContainer,
+                      Colors.white60,
+                      Theme.of(context).colorScheme.primaryContainer,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  border: Border.all(
+                    width: 0,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.music_note_rounded,
+                  color: Colors.grey[850],
+                  size: 180,
                 ),
               ),
               ProgressBar(
@@ -108,7 +133,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                 },
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 50),
+                padding: const EdgeInsets.only(top: 40, bottom: 70),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -134,10 +159,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                       child: IconButton(
                         onPressed: () async {
-                          if (currentDuration <= 0) {
-                            widget.song.timeListened++;
-                            await saveSongsToStorage();
-                          }
                           audioPlayer.playing ? pausePlayer() : playPlayer();
                           setState(() {});
                         },

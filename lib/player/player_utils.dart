@@ -17,19 +17,29 @@ int getTotalDuration() => currentSong != null ? audioPlayer.duration?.inMillisec
 Future<int> setPlayerSong(MusicTrack song) async {
   Duration? duration = audioPlayer.duration;
 
-  if (song != currentSong) {
-    if (!autoPlayNewSong) audioPlayer.stop();
+  if (song != currentSong || currentSong == null) {
     duration = await audioPlayer.setAudioSource(
       AudioSource.uri(Uri.parse(Uri.encodeComponent(song.absolutePath))),
     );
+    await _incrementTimePlayed();
+    if (autoPlayNewSong) {
+      playPlayer();
+    }
   }
   return duration?.inMilliseconds ?? 0;
 }
 
-void playPlayer() {
+Future<void> _incrementTimePlayed() async {
+  allMusicTracks[allMusicTracks.indexWhere((e) => e.absolutePath == currentSong!.absolutePath)]
+      .timeListened++;
+  await saveSongsToStorage();
+}
+
+void playPlayer() async {
   if (currentSong == null) return;
 
   if (audioPlayer.processingState == ProcessingState.completed) {
+    await _incrementTimePlayed();
     audioPlayer.seek(Duration.zero);
   }
   audioPlayer.play();

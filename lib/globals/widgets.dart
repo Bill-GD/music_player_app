@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../player/music_player.dart';
+import '../player/player_utils.dart';
 import '../songs/song_info.dart';
 import 'music_track.dart';
 import 'variables.dart';
@@ -35,7 +36,7 @@ InputDecoration textFieldDecoration(
       filled: true,
       fillColor: fillColor,
       hintText: hintText,
-      hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+      hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
       labelText: labelText,
       labelStyle: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
       errorText: errorText,
@@ -103,41 +104,30 @@ Future<void> getBottomSheet(
 ) async {
   await showCupertinoModalPopup(
     context: context,
-    builder: (context) => bottomSheet(
-      context: context,
-      title: title,
-      content: content,
-    ),
-  );
-}
-
-Widget bottomSheet({
-  required BuildContext context,
-  required Widget title,
-  required List<Widget> content,
-}) {
-  return Material(
-    borderRadius: BorderRadius.circular(30),
-    child: Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
-              child: title,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: content,
+    builder: (context) => Material(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: title,
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: content,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -253,6 +243,11 @@ Future<void> showSongOptionsMenu(
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () async {
+                        if (currentSong?.absolutePath == song.absolutePath) {
+                          currentSong = null;
+                          showMinimizedPlayer = false;
+                        }
+                        pausePlayer();
                         File(song.absolutePath).deleteSync();
                         songDeleted = true;
                         if (context.mounted) {

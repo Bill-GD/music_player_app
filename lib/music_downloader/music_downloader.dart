@@ -181,39 +181,37 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       // link input
-                      SizedBox(
-                        height: AppBar().preferredSize.height * 1.3,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                enabled: _isInternetConnected || _isDownloading,
-                                controller: _textEditingController,
-                                onChanged: _validateInput,
-                                decoration: textFieldDecoration(
-                                  context,
-                                  fillColor:
-                                      Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
-                                  hintText: 'Enter YouTube or SoundCloud link',
-                                  labelText: 'Music Link',
-                                  errorText: _errorText,
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).colorScheme.onBackground,
-                                    ),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                ),
-                              ),
+                      TextField(
+                        enabled: _isInternetConnected || _isDownloading,
+                        controller: _textEditingController,
+                        onChanged: _validateInput,
+                        decoration: textFieldDecoration(
+                          context,
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
-                            Visibility(
-                              visible: _isGettingData,
-                              child: const Padding(
-                                padding: EdgeInsets.only(left: 20),
-                                child: CircularProgressIndicator(),
-                              ),
-                            )
-                          ],
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+                          hintText: 'Enter YouTube or SoundCloud link',
+                          labelText: 'Music Link',
+                          errorText: _errorText,
+                          suffixIcon: _isGettingData
+                              ? Container(
+                                  width: 20,
+                                  height: 20,
+                                  margin: const EdgeInsets.only(right: 20),
+                                  child: Center(
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                    ).animate(
+                                      effects: const [FadeEffect()],
+                                      onComplete: (controller) {},
+                                    ),
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
                       // get data button
@@ -257,7 +255,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                               children: [
                                 Container(
                                   margin: _isFromSoundCloud
-                                      ? const EdgeInsets.only(left: 40, right: 30)
+                                      ? const EdgeInsets.only(left: 60, right: 30)
                                       : const EdgeInsets.only(left: 10),
                                   padding: const EdgeInsets.all(10),
                                   decoration: _metadata!['thumbnailUrl'] == null
@@ -293,7 +291,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                         Text(
                                           (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
                                           style: const TextStyle(color: Colors.grey),
-                                        )
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -350,12 +348,19 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: LinearProgressIndicator(
-                              value: clampDouble(_received / _total, 0, 1),
-                              minHeight: 30,
-                              semanticsLabel: '${getSizeString(_received)} / ${getSizeString(_total)}',
+                          TweenAnimationBuilder<double>(
+                            duration: 100.ms,
+                            curve: Curves.easeOut,
+                            tween: Tween<double>(
+                              begin: 0,
+                              end: clampDouble(_received / _total, 0, 1),
+                            ),
+                            builder: (context, value, child) => ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: LinearProgressIndicator(
+                                value: value,
+                                minHeight: 30,
+                              ),
                             ),
                           ),
                           Text(

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../player/music_player.dart';
 
 class ArtistSongsPage extends StatefulWidget {
   final String artistName;
@@ -37,7 +35,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> with TickerProviderSt
         appBar: AppBar(
           leading: IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_ios_rounded),
+            icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
           ),
           centerTitle: true,
           title: Text(

@@ -2,14 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../player/music_player.dart';
 
 class SongList extends StatefulWidget {
   final int param;
@@ -88,6 +86,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         ),
                         [
                           ListTile(
+                            visualDensity: VisualDensity.compact,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -99,6 +98,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             },
                           ),
                           ListTile(
+                            visualDensity: VisualDensity.compact,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -110,6 +110,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             },
                           ),
                           ListTile(
+                            visualDensity: VisualDensity.compact,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -190,6 +191,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             this,
                           );
                           setState(() {});
+                          widget.updateParent(() {});
                         },
                       ),
                     ],
