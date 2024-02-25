@@ -6,20 +6,20 @@ import '../globals/music_track.dart';
 import '../globals/variables.dart';
 
 /// Returns the current song duration in milliseconds
-int getCurrentDuration() => currentSong != null ? audioPlayer.position.inMilliseconds : 0;
+int getCurrentDuration() => currentSongPath.isNotEmpty ? audioPlayer.position.inMilliseconds : 0;
 
 /// Returns the current song duration in milliseconds
-int getTotalDuration() => currentSong != null ? audioPlayer.duration?.inMilliseconds ?? 1 : 1;
+int getTotalDuration() => currentSongPath.isNotEmpty ? audioPlayer.duration?.inMilliseconds ?? 1 : 1;
 
 /// Returns the song duration in millisecond, or 0 if `null`.
 ///
 /// Shouldn't expect it to return 0.
-Future<int> setPlayerSong(MusicTrack song) async {
+Future<int> setPlayerSong(String songPath) async {
   Duration? duration = audioPlayer.duration;
 
-  if (song != currentSong || currentSong == null) {
+  if (songPath != currentSongPath || currentSongPath.isEmpty) {
     duration = await audioPlayer.setAudioSource(
-      AudioSource.uri(Uri.parse(Uri.encodeComponent(song.absolutePath))),
+      AudioSource.uri(Uri.parse(Uri.encodeComponent(songPath))),
     );
     await _incrementTimePlayed();
     if (autoPlayNewSong) {
@@ -30,13 +30,12 @@ Future<int> setPlayerSong(MusicTrack song) async {
 }
 
 Future<void> _incrementTimePlayed() async {
-  allMusicTracks[allMusicTracks.indexWhere((e) => e.absolutePath == currentSong!.absolutePath)]
-      .timeListened++;
+  allMusicTracks[allMusicTracks.indexWhere((e) => e.absolutePath == currentSongPath)].timeListened++;
   await saveSongsToStorage();
 }
 
 void playPlayer() async {
-  if (currentSong == null) return;
+  if (currentSongPath.isEmpty) return;
 
   if (audioPlayer.processingState == ProcessingState.completed) {
     await _incrementTimePlayed();

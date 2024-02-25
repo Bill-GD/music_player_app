@@ -70,10 +70,10 @@ ButtonStyle textButtonStyle(BuildContext context) {
 
 Route getMusicPlayerRoute(
   BuildContext context,
-  MusicTrack song,
+  String songPath,
 ) {
   return PageRouteBuilder(
-    pageBuilder: (context, _, __) => MusicPlayerPage(song: song),
+    pageBuilder: (context, _, __) => MusicPlayerPage(songPath: songPath),
     transitionDuration: 400.ms,
     transitionsBuilder: (_, anim, __, child) {
       return SlideTransition(
@@ -87,18 +87,8 @@ Route getMusicPlayerRoute(
   );
 }
 
-AnimationController getBottomSheetAnimator(TickerProvider vsync) {
-  final animationController = AnimationController(vsync: vsync, duration: 200.ms);
-  CurvedAnimation(
-    parent: Tween<double>(begin: 1, end: 0).animate(animationController),
-    curve: Curves.easeInOutQuart,
-  );
-  return animationController;
-}
-
 Future<void> getBottomSheet(
   BuildContext context,
-  TickerProvider ticker,
   Widget title,
   List<Widget> content,
 ) async {
@@ -136,13 +126,12 @@ Future<void> getBottomSheet(
 
 Future<void> showSongOptionsMenu(
   BuildContext context,
-  MusicTrack song,
-  TickerProvider ticker, {
+  String songPath, {
   bool showDeleteOption = true,
 }) async {
+  MusicTrack song = allMusicTracks.firstWhere((e) => e.absolutePath == songPath);
   await getBottomSheet(
     context,
-    ticker,
     Text(
       song.trackName,
       style: bottomSheetTitle,
@@ -157,7 +146,7 @@ Future<void> showSongOptionsMenu(
         leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
         title: const Text('Song Info', style: bottomSheetText),
         onTap: () async {
-          bool? needsUpdate = await Navigator.of(context).push(
+          bool needsUpdate = (await Navigator.of(context).push(
             PageRouteBuilder<bool>(
               transitionDuration: 400.ms,
               transitionsBuilder: (_, anim, __, child) {
@@ -170,16 +159,13 @@ Future<void> showSongOptionsMenu(
                   child: child,
                 );
               },
-              pageBuilder: (context, _, __) => SongInfo(
-                songIndex: allMusicTracks.indexWhere(
-                  (element) => element.absolutePath == song.absolutePath,
-                ),
-              ),
+              pageBuilder: (_, __, ___) => SongInfo(songPath: songPath),
             ),
-          );
+          ))!;
           if (needsUpdate == true) {
             await updateMusicData();
             sortAllSongs();
+            if (context.mounted) Navigator.of(context).pop();
           }
         },
       ),
@@ -243,16 +229,14 @@ Future<void> showSongOptionsMenu(
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () async {
-                        if (currentSong?.absolutePath == song.absolutePath) {
-                          currentSong = null;
+                        if (currentSongPath == songPath) {
+                          currentSongPath = '';
                           showMinimizedPlayer = false;
                         }
                         pausePlayer();
-                        File(song.absolutePath).deleteSync();
+                        File(songPath).deleteSync();
                         songDeleted = true;
-                        if (context.mounted) {
-                          Navigator.of(context).pop();
-                        }
+                        if (context.mounted) Navigator.of(context).pop();
                       },
                     ),
                   ],
@@ -262,9 +246,7 @@ Future<void> showSongOptionsMenu(
             if (songDeleted) {
               await updateMusicData();
               sortAllSongs();
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
+              if (context.mounted) Navigator.of(context).pop();
             }
           },
         ),

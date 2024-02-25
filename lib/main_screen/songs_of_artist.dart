@@ -12,7 +12,7 @@ class ArtistSongsPage extends StatefulWidget {
   State<ArtistSongsPage> createState() => _ArtistSongsPageState();
 }
 
-class _ArtistSongsPageState extends State<ArtistSongsPage> with TickerProviderStateMixin {
+class _ArtistSongsPageState extends State<ArtistSongsPage> {
   late List<MusicTrack> songs;
 
   void getSongs() {
@@ -69,14 +69,17 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> with TickerProviderSt
               ),
               onTap: () async {
                 await Navigator.of(context).push(
-                  getMusicPlayerRoute(context, songs[songIndex]),
+                  getMusicPlayerRoute(context, songs[songIndex].absolutePath),
                 );
                 setState(() {});
               },
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert_rounded),
                 onPressed: () async {
-                  await showSongOptionsMenu(context, songs[songIndex], this);
+                  await showSongOptionsMenu(
+                    context,
+                    songs[songIndex].absolutePath,
+                  );
                   getSongs();
                   if (songs.isEmpty && context.mounted) {
                     Navigator.of(context).pop();

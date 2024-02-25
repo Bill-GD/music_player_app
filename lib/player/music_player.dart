@@ -12,27 +12,30 @@ import '../globals/widgets.dart';
 import 'player_utils.dart';
 
 class MusicPlayerPage extends StatefulWidget {
-  final MusicTrack song;
-  const MusicPlayerPage({super.key, required this.song});
+  final String songPath;
+  const MusicPlayerPage({super.key, required this.songPath});
 
   @override
   State<MusicPlayerPage> createState() => _MusicPlayerPageState();
 }
 
-class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderStateMixin {
+class _MusicPlayerPageState extends State<MusicPlayerPage> {
   int currentDuration = 0, maxDuration = 0;
   // bool isShuffle = true;
   late StreamSubscription<Duration> posStream;
+  late MusicTrack song;
 
   @override
   void initState() {
     super.initState();
 
-    currentDuration = widget.song != currentSong ? 0 : getCurrentDuration();
-    setPlayerSong(widget.song).then((value) => setState(() => maxDuration = value));
+    song = allMusicTracks.firstWhere((e) => e.absolutePath == widget.songPath);
+
+    currentDuration = widget.songPath != currentSongPath ? 0 : getCurrentDuration();
+    setPlayerSong(widget.songPath).then((value) => setState(() => maxDuration = value));
 
     showMinimizedPlayer = true;
-    currentSong = widget.song;
+    currentSongPath = widget.songPath;
 
     setState(() {});
 
@@ -49,7 +52,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            padding: const EdgeInsets.only(left: 10),
             icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
             onPressed: () async {
               await posStream.cancel();
@@ -58,137 +60,143 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
           ),
           actions: [
             IconButton(
-              padding: const EdgeInsets.only(right: 10),
               icon: const Icon(Icons.more_vert_rounded),
               onPressed: () async {
-                await showSongOptionsMenu(context, widget.song, showDeleteOption: false, this);
-                setState(() {});
+                await showSongOptionsMenu(
+                  context,
+                  widget.songPath,
+                  showDeleteOption: false,
+                );
+                setState(() {
+                  song = allMusicTracks.firstWhere((e) => e.absolutePath == widget.songPath);
+                });
               },
             ),
           ],
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 40),
-                child: Column(
-                  children: [
-                    Text(
-                      widget.song.trackName,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 30),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 25, bottom: 20),
+                  padding: const EdgeInsets.all(65),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primaryContainer,
+                        Colors.white60,
+                        Theme.of(context).colorScheme.primaryContainer,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
-                    Text(
-                      widget.song.artist,
-                      style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w400, fontSize: 20),
+                    border: Border.all(
+                      width: 0,
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
-                  ],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.music_note_rounded,
+                    color: Colors.grey[850],
+                    size: 180,
+                  ),
                 ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 60),
-                padding: const EdgeInsets.all(50),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primaryContainer,
-                      Colors.white60,
-                      Theme.of(context).colorScheme.primaryContainer,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Column(
+                    children: [
+                      Text(
+                        song.trackName,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+                      ),
+                      Text(
+                        song.artist,
+                        style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w400, fontSize: 16),
+                      ),
                     ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
                   ),
-                  border: Border.all(
-                    width: 0,
+                ),
+                ProgressBar(
+                  progress: min(maxDuration, currentDuration).ms,
+                  total: maxDuration.ms,
+                  thumbCanPaintOutsideBar: false,
+                  timeLabelPadding: 5,
+                  timeLabelLocation: TimeLabelLocation.below,
+                  timeLabelType: TimeLabelType.totalTime,
+                  timeLabelTextStyle: TextStyle(
                     color: Theme.of(context).colorScheme.onBackground,
+                    fontWeight: FontWeight.bold,
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  onSeek: (seekDuration) async {
+                    currentDuration = min(maxDuration, seekDuration.inMilliseconds);
+                    await audioPlayer.seek(seekDuration);
+                    setState(() {});
+                  },
                 ),
-                child: Icon(
-                  Icons.music_note_rounded,
-                  color: Colors.grey[850],
-                  size: 180,
-                ),
-              ),
-              ProgressBar(
-                progress: min(maxDuration, currentDuration).ms,
-                total: maxDuration.ms,
-                timeLabelPadding: 20,
-                timeLabelLocation: TimeLabelLocation.below,
-                timeLabelType: TimeLabelType.totalTime,
-                timeLabelTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onBackground,
-                  fontWeight: FontWeight.bold,
-                ),
-                onSeek: (seekDuration) async {
-                  currentDuration = min(maxDuration, seekDuration.inMilliseconds);
-                  await audioPlayer.seek(seekDuration);
-                  setState(() {});
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 40, bottom: 70),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        CupertinoIcons.shuffle,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 30,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => toPreviousSong(),
-                      icon: Icon(
-                        Icons.skip_previous_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 45,
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
-                      child: IconButton(
-                        onPressed: () async {
-                          audioPlayer.playing ? pausePlayer() : playPlayer();
-                          setState(() {});
-                        },
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 70),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {},
                         icon: Icon(
-                          audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          CupertinoIcons.shuffle,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 70,
+                          size: 30,
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () => toNextSong(),
-                      icon: Icon(
-                        Icons.skip_next_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 45,
+                      IconButton(
+                        onPressed: () => toPreviousSong(),
+                        icon: Icon(
+                          Icons.skip_previous_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 45,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        CupertinoIcons.repeat,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 35,
+                      Container(
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
+                        child: IconButton(
+                          onPressed: () async {
+                            audioPlayer.playing ? pausePlayer() : playPlayer();
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 70,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      IconButton(
+                        onPressed: () => toNextSong(),
+                        icon: Icon(
+                          Icons.skip_next_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 45,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          CupertinoIcons.repeat,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 35,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

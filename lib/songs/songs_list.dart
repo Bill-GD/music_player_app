@@ -21,7 +21,6 @@ class SongList extends StatefulWidget {
 class _SongListState extends State<SongList> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    setState(() {});
     return Column(
       children: [
         SizedBox(
@@ -50,7 +49,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       await Navigator.of(context).push(
                         getMusicPlayerRoute(
                           context,
-                          allMusicTracks[Random().nextInt(allMusicTracks.length)],
+                          allMusicTracks[Random().nextInt(allMusicTracks.length)].absolutePath,
                         ),
                       );
                       setState(() {});
@@ -77,7 +76,6 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     onPressed: () async {
                       await getBottomSheet(
                         context,
-                        this,
                         const Text(
                           'Sort Songs',
                           style: bottomSheetTitle,
@@ -170,7 +168,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                   ),
                   onTap: () async {
                     await Navigator.of(context).push(
-                      getMusicPlayerRoute(context, allMusicTracks[songIndex]),
+                      getMusicPlayerRoute(context, allMusicTracks[songIndex].absolutePath),
                     );
                     setState(() {});
                     widget.updateParent(() {});
@@ -187,8 +185,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         onPressed: () async {
                           await showSongOptionsMenu(
                             context,
-                            allMusicTracks[songIndex],
-                            this,
+                            allMusicTracks[songIndex].absolutePath,
                           );
                           setState(() {});
                           widget.updateParent(() {});

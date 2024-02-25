@@ -5,8 +5,8 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
 class SongInfo extends StatefulWidget {
-  final int songIndex;
-  const SongInfo({super.key, required this.songIndex});
+  final String songPath;
+  const SongInfo({super.key, required this.songPath});
 
   @override
   State<SongInfo> createState() => _SongInfoState();
@@ -14,6 +14,14 @@ class SongInfo extends StatefulWidget {
 
 class _SongInfoState extends State<SongInfo> {
   final _songController = TextEditingController(), _artistController = TextEditingController();
+
+  late MusicTrack song;
+
+  @override
+  void initState() {
+    super.initState();
+    song = allMusicTracks.firstWhere((e) => e.absolutePath == widget.songPath);
+  }
 
   @override
   void dispose() {
@@ -28,11 +36,8 @@ class _SongInfoState extends State<SongInfo> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            padding: const EdgeInsets.only(left: 10),
             icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => Navigator.of(context).pop(false),
           ),
           title: const Text(
             'Edit song info',
@@ -41,7 +46,6 @@ class _SongInfoState extends State<SongInfo> {
           centerTitle: true,
           actions: [
             IconButton(
-              padding: const EdgeInsets.only(right: 10),
               icon: const Icon(Icons.check_rounded, size: 30),
               onPressed: () async {
                 bool needsUpdate = false;
@@ -49,15 +53,14 @@ class _SongInfoState extends State<SongInfo> {
                 _songController.text = _songController.text.trim();
                 _artistController.text = _artistController.text.trim();
                 // only update if changed
-                if (_songController.text != allMusicTracks[widget.songIndex].trackName ||
-                    _artistController.text != allMusicTracks[widget.songIndex].artist) {
+                if (_songController.text != song.trackName || _artistController.text != song.artist) {
                   needsUpdate = true;
 
-                  allMusicTracks[widget.songIndex].trackName = _songController.text.isEmpty
-                      ? allMusicTracks[widget.songIndex].absolutePath.split('/').last.split('.mp3').first
+                  song.trackName = _songController.text.isEmpty
+                      ? song.absolutePath.split('/').last.split('.mp3').first
                       : _songController.text;
 
-                  allMusicTracks[widget.songIndex].artist = _artistController.text.isEmpty
+                  song.artist = _artistController.text.isEmpty
                       ? 'Unknown' //
                       : _artistController.text;
 
@@ -88,7 +91,7 @@ class _SongInfoState extends State<SongInfo> {
                     leadingText(context, 'Song'),
                     Expanded(
                       child: TextField(
-                        controller: _songController..text = allMusicTracks[widget.songIndex].trackName,
+                        controller: _songController..text = song.trackName,
                         decoration: textFieldDecoration(
                           context,
                           fillColor: Theme.of(context).colorScheme.background,
@@ -114,7 +117,7 @@ class _SongInfoState extends State<SongInfo> {
                     leadingText(context, 'Artist'),
                     Expanded(
                       child: TextField(
-                        controller: _artistController..text = allMusicTracks[widget.songIndex].artist,
+                        controller: _artistController..text = song.artist,
                         decoration: textFieldDecoration(
                           context,
                           fillColor: Theme.of(context).colorScheme.background,
@@ -139,7 +142,7 @@ class _SongInfoState extends State<SongInfo> {
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
-                      initialValue: allMusicTracks[widget.songIndex].timeListened.toString(),
+                      initialValue: song.timeListened.toString(),
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,
@@ -155,7 +158,7 @@ class _SongInfoState extends State<SongInfo> {
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
-                      initialValue: allMusicTracks[widget.songIndex].timeAdded.toDateString(),
+                      initialValue: song.timeAdded.toDateString(),
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,
@@ -171,7 +174,7 @@ class _SongInfoState extends State<SongInfo> {
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
-                      initialValue: allMusicTracks[widget.songIndex].absolutePath,
+                      initialValue: widget.songPath,
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,
@@ -200,7 +203,13 @@ Text leadingText(BuildContext context, String text) => Text(
 
 extension DateString on DateTime {
   String toDateString() {
-    return '${formatDay(day)} ${_monthNames[month - 1]} $year, $hour:$minute:$second';
+    return '${formatDay(day)} ${_monthNames[month - 1]} $year, ${hour.padIntLeft(2, '0')}:${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}';
+  }
+}
+
+extension PadInt on int {
+  String padIntLeft(int count, [String padding = ' ']) {
+    return toString().padLeft(count, padding);
   }
 }
 

@@ -14,4 +14,4 @@ late final PackageInfo packageInfo;
 
 bool showMinimizedPlayer = false;
 
-MusicTrack? currentSong;
+String currentSongPath = '';

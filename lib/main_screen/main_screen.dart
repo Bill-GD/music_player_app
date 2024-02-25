@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -83,6 +84,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    if (currentSongPath.isEmpty) {
+      showMinimizedPlayer = false;
+    }
+
     return SafeArea(
       child: DefaultTabController(
         length: 2,
@@ -302,7 +307,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 ),
           // mini player
           bottomNavigationBar: Visibility(
-            visible: showMinimizedPlayer && currentSong != null,
+            visible: showMinimizedPlayer && currentSongPath.isNotEmpty,
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
@@ -320,24 +325,38 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         highlightColor: Colors.transparent,
                       ),
                       child: ListTile(
+                        contentPadding: EdgeInsets.zero,
                         dense: true,
                         visualDensity: VisualDensity.compact,
-                        leading: Icon(
-                          Icons.music_note_rounded,
-                          color: Theme.of(context).colorScheme.primary,
+                        leading: Padding(
+                          padding: const EdgeInsets.only(left: 14),
+                          child: Icon(
+                            Icons.music_note_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                         title: Text(
-                          currentSong?.trackName ?? 'None',
+                          currentSongPath.isNotEmpty
+                              ? allMusicTracks
+                                  .firstWhereOrNull((e) => e.absolutePath == currentSongPath)!
+                                  .trackName
+                              : 'None',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
-                            fontSize: 15,
+                            fontSize: 14,
                           ),
                         ),
-                        subtitle: Text(currentSong?.artist ?? 'None'),
+                        subtitle: Text(
+                          currentSongPath.isNotEmpty
+                              ? allMusicTracks
+                                  .firstWhereOrNull((e) => e.absolutePath == currentSongPath)!
+                                  .artist
+                              : 'None',
+                        ),
                         onTap: () async {
                           await Navigator.of(context).push(
-                            getMusicPlayerRoute(context, currentSong!),
+                            getMusicPlayerRoute(context, currentSongPath),
                           );
                           setState(() {});
                         },
