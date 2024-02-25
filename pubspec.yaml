@@ -44,7 +44,7 @@ dependencies:
   audio_video_progress_bar: <=1.0.1
   animations: <=2.0.8
   flutter_animate: <=4.5.0
-  # audio_service: <=0.18.12
+  audio_service: <=0.18.12
   # audio_session: <=0.1.18
   # shared_preferences: <=2.2.2
   # animations: <=2.0.8
@@ -58,6 +58,7 @@ dependencies:
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
+  flutter_launcher_icons: <=0.13.1
   flutter_test:
     sdk: flutter
 
@@ -67,6 +68,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+
+flutter_icons:
+  image_path: 'assets/images/icon.png'
+  android: true
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
