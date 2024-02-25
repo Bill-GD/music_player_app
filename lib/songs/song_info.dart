@@ -20,7 +20,7 @@ class _SongInfoState extends State<SongInfo> {
   @override
   void initState() {
     super.initState();
-    song = allMusicTracks.firstWhere((e) => e.absolutePath == widget.songPath);
+    song = Globals.allSongs.firstWhere((e) => e.absolutePath == widget.songPath);
   }
 
   @override

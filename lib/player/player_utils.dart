@@ -2,70 +2,47 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
-import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 
 /// Returns the current song duration in milliseconds
-int getCurrentDuration() => currentSongPath.isNotEmpty ? audioPlayer.position.inMilliseconds : 0;
+int getCurrentDuration() =>
+    Globals.currentSongPath.isNotEmpty ? Globals.audioHandler.player.position.inMilliseconds : 0;
 
 /// Returns the current song duration in milliseconds
-int getTotalDuration() => currentSongPath.isNotEmpty ? audioPlayer.duration?.inMilliseconds ?? 1 : 1;
-
-/// Returns the song duration in millisecond, or 0 if `null`.
-///
-/// Shouldn't expect it to return 0.
-Future<int> setPlayerSong(String songPath) async {
-  Duration? duration = audioPlayer.duration;
-
-  if (songPath != currentSongPath || currentSongPath.isEmpty) {
-    duration = await audioPlayer.setAudioSource(
-      AudioSource.uri(Uri.parse(Uri.encodeComponent(songPath))),
-    );
-
-    MusicTrack item = allMusicTracks.firstWhere((e) => e.absolutePath == songPath);
-
-    audioHandler.addMediaItem(MediaItem(
-      id: songPath,
-      title: item.trackName,
-      artist: item.artist,
-      duration: duration,
-    ));
-
-    await _incrementTimePlayed();
-    if (autoPlayNewSong) {
-      audioHandler.play();
-    }
-  }
-  return duration?.inMilliseconds ?? 0;
-}
+int getTotalDuration() =>
+    Globals.currentSongPath.isNotEmpty ? Globals.audioHandler.player.duration?.inMilliseconds ?? 1 : 1;
 
 Future<void> _incrementTimePlayed() async {
-  allMusicTracks[allMusicTracks.indexWhere((e) => e.absolutePath == currentSongPath)].timeListened++;
+  Globals
+      .allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
   await saveSongsToStorage();
 }
 
 Future<AudioHandler> initAudioHandler() async {
   final handler = await AudioService.init(
-    builder: () => MyAudioHandler(),
+    builder: () => AudioPlayerHandler(),
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.billgd.music_hub.channel.audio',
-      androidNotificationChannelName: 'Music Playback',
+      androidNotificationChannelName: 'Music Hub',
     ),
   );
   return handler;
 }
 
-class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
-  MyAudioHandler() {
-    audioPlayer.playbackEventStream.map(_transformEvent).pipe(playbackState);
+class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
+  late final AudioPlayer player;
+
+  AudioPlayerHandler() {
+    player = AudioPlayer();
+    player.playbackEventStream.map(_transformEvent).pipe(playbackState);
   }
 
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
-        if (audioPlayer.playing) MediaControl.pause else MediaControl.play,
+        if (player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToNext,
       ],
       systemActions: const {
@@ -78,45 +55,70 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         ProcessingState.buffering: AudioProcessingState.buffering,
         ProcessingState.ready: AudioProcessingState.ready,
         ProcessingState.completed: AudioProcessingState.completed,
-      }[audioPlayer.processingState]!,
-      playing: audioPlayer.playing,
-      updatePosition: audioPlayer.position,
-      speed: audioPlayer.speed,
+      }[player.processingState]!,
+      playing: player.playing,
+      updatePosition: player.position,
+      speed: player.speed,
       queueIndex: event.currentIndex,
     );
+  }
+
+  /// Returns the song duration in millisecond, or 0 if `null`.
+  ///
+  /// Shouldn't expect it to return 0.
+  Future<int> setPlayerSong(String songPath) async {
+    Duration? duration = player.duration;
+
+    if (songPath != Globals.currentSongPath || Globals.currentSongPath.isEmpty) {
+      duration = await player.setAudioSource(
+        AudioSource.uri(Uri.parse(Uri.encodeComponent(songPath))),
+      );
+
+      MusicTrack item = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
+
+      addMediaItem(MediaItem(
+        id: songPath,
+        title: item.trackName,
+        artist: item.artist,
+        duration: duration,
+      ));
+
+      await _incrementTimePlayed();
+      if (Config.autoPlayNewSong) {
+        play();
+      }
+    }
+    return duration?.inMilliseconds ?? 0;
   }
 
   Future<void> addMediaItem(MediaItem item) async {
     mediaItem.add(item);
   }
 
-  // The most common callbacks:
   @override
   Future<void> play() async {
-    // All 'play' requests from all origins route to here. Implement this
-    // callback to start playing audio appropriate to your app. e.g. music.
-    if (currentSongPath.isEmpty) return;
+    if (Globals.currentSongPath.isEmpty) return;
 
-    if (audioPlayer.processingState == ProcessingState.completed) {
+    if (player.processingState == ProcessingState.completed) {
       await _incrementTimePlayed();
-      audioHandler.seek(Duration.zero);
+      Globals.audioHandler.seek(Duration.zero);
     }
-    audioPlayer.play();
+    player.play();
   }
 
   @override
   Future<void> pause() async {
-    audioPlayer.pause();
+    player.pause();
   }
 
   @override
   Future<void> stop() async {
-    audioPlayer.stop();
+    player.stop();
   }
 
   @override
   Future<void> seek(Duration position) async {
-    audioPlayer.seek(position);
+    player.seek(position);
   }
 
   @override
@@ -131,6 +133,6 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> onTaskRemoved() async {
-    audioPlayer.stop();
+    player.stop();
   }
 }

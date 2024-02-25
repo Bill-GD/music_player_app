@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -10,10 +9,9 @@ import 'player/player_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  packageInfo = await PackageInfo.fromPlatform();
+  Globals.packageInfo = await PackageInfo.fromPlatform();
 
-  audioPlayer = AudioPlayer();
-  audioHandler = (await initAudioHandler()) as MyAudioHandler;
+  Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
 
   runApp(const MusicPlayerApp());
 }
@@ -57,7 +55,7 @@ class MusicPlayerApp extends StatelessWidget {
         child: Builder(
           builder: (context) => MaterialApp(
             theme: ThemeProvider.themeOf(context).data,
-            title: 'Music Player',
+            title: 'Music Hub',
             home: const MainScreen(),
             // setup route to use Navigator.pushNamed to wait page navigation (pause previous page until return)
             // routes: {

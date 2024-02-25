@@ -29,17 +29,17 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
   void initState() {
     super.initState();
 
-    song = allMusicTracks.firstWhere((e) => e.absolutePath == widget.songPath);
+    song = Globals.allSongs.firstWhere((e) => e.absolutePath == widget.songPath);
 
-    currentDuration = widget.songPath != currentSongPath ? 0 : getCurrentDuration();
-    setPlayerSong(widget.songPath).then((value) => setState(() => maxDuration = value));
+    currentDuration = widget.songPath != Globals.currentSongPath ? 0 : getCurrentDuration();
+    Globals.audioHandler.setPlayerSong(widget.songPath).then((value) => setState(() => maxDuration = value));
 
-    showMinimizedPlayer = true;
-    currentSongPath = widget.songPath;
+    Globals.showMinimizedPlayer = true;
+    Globals.currentSongPath = widget.songPath;
 
     setState(() {});
 
-    posStream = audioPlayer.positionStream.listen((current) {
+    posStream = Globals.audioHandler.player.positionStream.listen((current) {
       currentDuration = current.inMilliseconds;
       setState(() {});
     });
@@ -68,7 +68,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                   showDeleteOption: false,
                 );
                 setState(() {
-                  song = allMusicTracks.firstWhere((e) => e.absolutePath == widget.songPath);
+                  song = Globals.allSongs.firstWhere((e) => e.absolutePath == widget.songPath);
                 });
               },
             ),
@@ -135,7 +135,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                   ),
                   onSeek: (seekDuration) async {
                     currentDuration = min(maxDuration, seekDuration.inMilliseconds);
-                    await audioHandler.seek(seekDuration);
+                    await Globals.audioHandler.seek(seekDuration);
                     setState(() {});
                   },
                 ),
@@ -153,7 +153,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => audioHandler.skipToPrevious(),
+                        onPressed: () => Globals.audioHandler.skipToPrevious(),
                         icon: Icon(
                           Icons.skip_previous_rounded,
                           color: Theme.of(context).colorScheme.primary,
@@ -166,18 +166,22 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                         child: IconButton(
                           onPressed: () async {
-                            audioPlayer.playing ? audioHandler.pause() : audioHandler.play();
+                            Globals.audioHandler.player.playing
+                                ? Globals.audioHandler.pause()
+                                : Globals.audioHandler.play();
                             setState(() {});
                           },
                           icon: Icon(
-                            audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            Globals.audioHandler.player.playing
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
                             color: Theme.of(context).colorScheme.primary,
                             size: 70,
                           ),
                         ),
                       ),
                       IconButton(
-                        onPressed: () => audioHandler.skipToPrevious(),
+                        onPressed: () => Globals.audioHandler.skipToPrevious(),
                         icon: Icon(
                           Icons.skip_next_rounded,
                           color: Theme.of(context).colorScheme.primary,

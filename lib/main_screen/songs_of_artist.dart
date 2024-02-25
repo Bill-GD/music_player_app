@@ -16,7 +16,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
   late List<MusicTrack> songs;
 
   void getSongs() {
-    songs = allMusicTracks.where((song) => song.artist == widget.artistName).toList()
+    songs = Globals.allSongs.where((song) => song.artist == widget.artistName).toList()
       ..sort(
         (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
       );

@@ -128,7 +128,7 @@ Future<void> showSongOptionsMenu(
   String songPath, {
   bool showDeleteOption = true,
 }) async {
-  MusicTrack song = allMusicTracks.firstWhere((e) => e.absolutePath == songPath);
+  MusicTrack song = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
   await getBottomSheet(
     context,
     Text(
@@ -228,11 +228,11 @@ Future<void> showSongOptionsMenu(
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () async {
-                        if (currentSongPath == songPath) {
-                          currentSongPath = '';
-                          showMinimizedPlayer = false;
+                        if (Globals.currentSongPath == songPath) {
+                          Globals.currentSongPath = '';
+                          Globals.showMinimizedPlayer = false;
                         }
-                        audioHandler.pause();
+                        Globals.audioHandler.pause();
                         File(songPath).deleteSync();
                         songDeleted = true;
                         if (context.mounted) Navigator.of(context).pop();

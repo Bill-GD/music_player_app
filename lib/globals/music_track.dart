@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'config.dart';
 import 'variables.dart';
 
 class MusicTrack {
@@ -76,7 +75,7 @@ Future<void> updateListOfSongs() async {
     }
   }
 
-  allMusicTracks = tracksFromStorage;
+  Globals.allSongs = tracksFromStorage;
 }
 
 Future<List<MusicTrack>> _getSongsFromStorage() async {
@@ -86,10 +85,10 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
   final allMp3 = downloadPath.listSync().where((file) => file.absolute.path.endsWith('.mp3'));
   List<FileSystemEntity> filteredList = [];
 
-  debugPrint('Filtering out song with length < ${lengthLimitMilliseconds / 1000}s');
+  debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds / 1000}s');
   for (var element in allMp3) {
     Metadata info = await MetadataRetriever.fromFile(File(element.absolute.path));
-    if (info.trackDuration! > lengthLimitMilliseconds) {
+    if (info.trackDuration! > Config.lengthLimitMilliseconds) {
       filteredList.add(element);
     }
   }
@@ -110,25 +109,25 @@ Future<void> saveSongsToStorage() async {
   File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
 
   debugPrint('Saving updated music data to: ${saveFile.path}');
-  saveFile.writeAsStringSync(jsonEncode(allMusicTracks));
+  saveFile.writeAsStringSync(jsonEncode(Globals.allSongs));
 }
 
 void sortAllSongs([SortOptions? sortType]) {
-  debugPrint('Sorting all tracks: ${currentSortOption.name}');
-  currentSortOption = sortType ?? currentSortOption;
-  switch (currentSortOption) {
+  debugPrint('Sorting all tracks: ${Config.currentSortOption.name}');
+  Config.currentSortOption = sortType ?? Config.currentSortOption;
+  switch (Config.currentSortOption) {
     case SortOptions.name:
-      allMusicTracks.sort((track1, track2) {
+      Globals.allSongs.sort((track1, track2) {
         return track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase());
       });
       break;
     case SortOptions.mostPlayed:
-      allMusicTracks.sort((track1, track2) {
+      Globals.allSongs.sort((track1, track2) {
         return track2.timeListened.compareTo(track1.timeListened);
       });
       break;
     case SortOptions.recentlyAdded:
-      allMusicTracks.sort((track1, track2) {
+      Globals.allSongs.sort((track1, track2) {
         return track2.timeAdded.compareTo(track1.timeAdded);
       });
       break;
@@ -139,7 +138,7 @@ void updateListOfArtists() {
   debugPrint('Getting list of artists');
   Set<String> uniqueArtists = <String>{};
 
-  for (var element in allMusicTracks) {
+  for (var element in Globals.allSongs) {
     uniqueArtists.add(element.artist);
   }
 
@@ -148,7 +147,8 @@ void updateListOfArtists() {
     (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
   );
 
-  artists = {
-    for (var element in uniqueArtists) element: allMusicTracks.where((song) => song.artist == element).length
+  Globals.artists = {
+    for (var element in uniqueArtists)
+      element: Globals.allSongs.where((song) => song.artist == element).length
   };
 }

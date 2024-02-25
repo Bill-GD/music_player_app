@@ -1,5 +1,4 @@
 import 'package:animations/animations.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
 
-import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -65,13 +63,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         setState(() => isLoading = false);
       }
     });
-    audioPlayer.processingStateStream.listen((state) {
+    Globals.audioHandler.player.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
-        audioHandler.pause();
+        Globals.audioHandler.pause();
       }
       setState(() {});
     });
-    audioPlayer.positionStream.listen((current) {
+    Globals.audioHandler.player.positionStream.listen((current) {
       setState(() {});
     });
   }
@@ -79,13 +77,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     super.dispose();
-    audioPlayer.dispose();
+    Globals.audioHandler.player.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (currentSongPath.isEmpty) {
-      showMinimizedPlayer = false;
+    if (Globals.currentSongPath.isEmpty) {
+      Globals.showMinimizedPlayer = false;
     }
 
     return SafeArea(
@@ -162,7 +160,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         ListTile(
                           contentPadding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
                           title: Text(
-                            packageInfo.appName,
+                            Globals.packageInfo.appName,
                             style: bottomSheetTitle.copyWith(fontSize: 24),
                           ),
                         ),
@@ -232,7 +230,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       alignment: Alignment.bottomLeft,
                       child: GestureDetector(
                         child: Text(
-                          'v${packageInfo.version}',
+                          'v${Globals.packageInfo.version}',
                           style: TextStyle(
                             color: Colors.grey.withOpacity(0.5),
                           ),
@@ -250,8 +248,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                             );
                           },
                           pageBuilder: (context, _, __) => AboutDialog(
-                            applicationName: packageInfo.appName,
-                            applicationVersion: 'v${packageInfo.version}',
+                            applicationName: Globals.packageInfo.appName,
+                            applicationVersion: 'v${Globals.packageInfo.version}',
                           ),
                         ),
                       ),
@@ -273,9 +271,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       StretchingOverscrollIndicator(
                         axisDirection: AxisDirection.down,
                         child: ListView.builder(
-                          itemCount: artists.length,
+                          itemCount: Globals.artists.length,
                           itemBuilder: (context, artistIndex) {
-                            String artistName = artists.keys.elementAt(artistIndex);
+                            String artistName = Globals.artists.keys.elementAt(artistIndex);
                             return OpenContainer(
                               closedElevation: 0,
                               closedColor: Theme.of(context).colorScheme.background,
@@ -290,7 +288,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 subtitle: Text(
-                                  '${artists[artistName]} song${artists[artistName]! > 1 ? "s" : ""}',
+                                  '${Globals.artists[artistName]} song${Globals.artists[artistName]! > 1 ? "s" : ""}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.w400,
@@ -307,7 +305,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 ),
           // mini player
           bottomNavigationBar: Visibility(
-            visible: showMinimizedPlayer && currentSongPath.isNotEmpty,
+            visible: Globals.showMinimizedPlayer && Globals.currentSongPath.isNotEmpty,
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
@@ -336,9 +334,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           ),
                         ),
                         title: Text(
-                          currentSongPath.isNotEmpty
-                              ? allMusicTracks
-                                  .firstWhereOrNull((e) => e.absolutePath == currentSongPath)!
+                          Globals.currentSongPath.isNotEmpty
+                              ? Globals.allSongs
+                                  .firstWhereOrNull((e) => e.absolutePath == Globals.currentSongPath)!
                                   .trackName
                               : 'None',
                           overflow: TextOverflow.ellipsis,
@@ -348,15 +346,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           ),
                         ),
                         subtitle: Text(
-                          currentSongPath.isNotEmpty
-                              ? allMusicTracks
-                                  .firstWhereOrNull((e) => e.absolutePath == currentSongPath)!
+                          Globals.currentSongPath.isNotEmpty
+                              ? Globals.allSongs
+                                  .firstWhereOrNull((e) => e.absolutePath == Globals.currentSongPath)!
                                   .artist
                               : 'None',
                         ),
                         onTap: () async {
                           await Navigator.of(context).push(
-                            getMusicPlayerRoute(context, currentSongPath),
+                            getMusicPlayerRoute(context, Globals.currentSongPath),
                           );
                           setState(() {});
                         },
@@ -364,7 +362,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   IconButton(
-                    onPressed: () => audioHandler.skipToPrevious(),
+                    onPressed: () => Globals.audioHandler.skipToPrevious(),
                     icon: Icon(
                       Icons.skip_previous_rounded,
                       color: Theme.of(context).colorScheme.primary,
@@ -380,11 +378,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       ),
                       IconButton(
                         onPressed: () {
-                          audioPlayer.playing ? audioHandler.pause() : audioHandler.play();
+                          Globals.audioHandler.player.playing
+                              ? Globals.audioHandler.pause()
+                              : Globals.audioHandler.play();
                           setState(() {});
                         },
                         icon: Icon(
-                          audioPlayer.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          Globals.audioHandler.player.playing
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
                           color: Theme.of(context).colorScheme.primary,
                           size: 30,
                         ),
@@ -392,7 +394,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ],
                   ),
                   IconButton(
-                    onPressed: () => audioHandler.skipToNext(),
+                    onPressed: () => Globals.audioHandler.skipToNext(),
                     icon: Icon(
                       Icons.skip_next_rounded,
                       color: Theme.of(context).colorScheme.primary,

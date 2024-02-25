@@ -13,6 +13,7 @@ A __*simple*__ music player app made in Flutter
 - Download music from YouTube and SoundCloud using URL (has some limitations)
 - Change song info
 - Player screen (seek, play/pause, minimize)
+- Controls from lock screen & notification
 
 ## Planned features
 
@@ -20,4 +21,3 @@ A __*simple*__ music player app made in Flutter
 - User settings
 - Prev/next song
 - Play mode (repeat all, shuffle, repeat one)
-- Controls from lock screen & notification

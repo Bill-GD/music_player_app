@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../globals/config.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -49,7 +48,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       await Navigator.of(context).push(
                         getMusicPlayerRoute(
                           context,
-                          allMusicTracks[Random().nextInt(allMusicTracks.length)].absolutePath,
+                          Globals.allSongs[Random().nextInt(Globals.allSongs.length)].absolutePath,
                         ),
                       );
                       setState(() {});
@@ -67,7 +66,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       color: iconColor(context),
                     ),
                     label: Text(
-                      getSortOptionDisplayString(),
+                      Config.getSortOptionString(),
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: iconColor(context),
@@ -141,7 +140,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
             child: StretchingOverscrollIndicator(
               axisDirection: AxisDirection.down,
               child: ListView.builder(
-                itemCount: allMusicTracks.length,
+                itemCount: Globals.allSongs.length,
                 itemBuilder: (context, songIndex) => ListTile(
                   contentPadding: const EdgeInsets.only(left: 30, right: 10),
                   leading: Column(
@@ -154,12 +153,12 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     ],
                   ),
                   title: Text(
-                    allMusicTracks[songIndex].trackName,
+                    Globals.allSongs[songIndex].trackName,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    allMusicTracks[songIndex].artist,
+                    Globals.allSongs[songIndex].artist,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.grey[600],
@@ -168,7 +167,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                   ),
                   onTap: () async {
                     await Navigator.of(context).push(
-                      getMusicPlayerRoute(context, allMusicTracks[songIndex].absolutePath),
+                      getMusicPlayerRoute(context, Globals.allSongs[songIndex].absolutePath),
                     );
                     setState(() {});
                     widget.updateParent(() {});
@@ -177,15 +176,15 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Visibility(
-                        visible: currentSortOption == SortOptions.mostPlayed,
-                        child: Text('${allMusicTracks[songIndex].timeListened}'),
+                        visible: Config.currentSortOption == SortOptions.mostPlayed,
+                        child: Text('${Globals.allSongs[songIndex].timeListened}'),
                       ),
                       IconButton(
                         icon: const Icon(Icons.more_vert_rounded),
                         onPressed: () async {
                           await showSongOptionsMenu(
                             context,
-                            allMusicTracks[songIndex].absolutePath,
+                            Globals.allSongs[songIndex].absolutePath,
                           );
                           setState(() {});
                           widget.updateParent(() {});
