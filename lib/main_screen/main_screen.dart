@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,10 +65,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         setState(() => isLoading = false);
       }
     });
-    audioPlayer = AudioPlayer();
     audioPlayer.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
-        pausePlayer();
+        audioHandler.pause();
       }
       setState(() {});
     });
@@ -364,7 +364,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   IconButton(
-                    onPressed: () => toPreviousSong(),
+                    onPressed: () => audioHandler.skipToPrevious(),
                     icon: Icon(
                       Icons.skip_previous_rounded,
                       color: Theme.of(context).colorScheme.primary,
@@ -380,7 +380,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       ),
                       IconButton(
                         onPressed: () {
-                          audioPlayer.playing ? pausePlayer() : playPlayer();
+                          audioPlayer.playing ? audioHandler.pause() : audioHandler.play();
                           setState(() {});
                         },
                         icon: Icon(
@@ -392,7 +392,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ],
                   ),
                   IconButton(
-                    onPressed: () => toNextSong(),
+                    onPressed: () => audioHandler.skipToNext(),
                     icon: Icon(
                       Icons.skip_next_rounded,
                       color: Theme.of(context).colorScheme.primary,

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 import 'globals/variables.dart';
 import 'main_screen/main_screen.dart';
+import 'player/player_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   packageInfo = await PackageInfo.fromPlatform();
+
+  audioPlayer = AudioPlayer();
+  audioHandler = (await initAudioHandler()) as MyAudioHandler;
+
   runApp(const MusicPlayerApp());
 }
 

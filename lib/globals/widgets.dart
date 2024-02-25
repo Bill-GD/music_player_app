@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../player/music_player.dart';
-import '../player/player_utils.dart';
 import '../songs/song_info.dart';
 import 'music_track.dart';
 import 'variables.dart';
@@ -233,7 +232,7 @@ Future<void> showSongOptionsMenu(
                           currentSongPath = '';
                           showMinimizedPlayer = false;
                         }
-                        pausePlayer();
+                        audioHandler.pause();
                         File(songPath).deleteSync();
                         songDeleted = true;
                         if (context.mounted) Navigator.of(context).pop();

@@ -135,7 +135,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                   ),
                   onSeek: (seekDuration) async {
                     currentDuration = min(maxDuration, seekDuration.inMilliseconds);
-                    await audioPlayer.seek(seekDuration);
+                    await audioHandler.seek(seekDuration);
                     setState(() {});
                   },
                 ),
@@ -153,7 +153,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => toPreviousSong(),
+                        onPressed: () => audioHandler.skipToPrevious(),
                         icon: Icon(
                           Icons.skip_previous_rounded,
                           color: Theme.of(context).colorScheme.primary,
@@ -166,7 +166,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                         child: IconButton(
                           onPressed: () async {
-                            audioPlayer.playing ? pausePlayer() : playPlayer();
+                            audioPlayer.playing ? audioHandler.pause() : audioHandler.play();
                             setState(() {});
                           },
                           icon: Icon(
@@ -177,7 +177,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => toNextSong(),
+                        onPressed: () => audioHandler.skipToPrevious(),
                         icon: Icon(
                           Icons.skip_next_rounded,
                           color: Theme.of(context).colorScheme.primary,
