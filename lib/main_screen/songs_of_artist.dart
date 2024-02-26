@@ -79,6 +79,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                   await showSongOptionsMenu(
                     context,
                     songs[songIndex].absolutePath,
+                    setState,
                   );
                   getSongs();
                   if (songs.isEmpty && context.mounted) {

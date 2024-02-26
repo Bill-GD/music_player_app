@@ -4,10 +4,10 @@ import '../player/player_utils.dart';
 import 'music_track.dart';
 
 class Globals {
-  /// List of all songs, persistent
+  /// List of all songs, persistent.
   static List<MusicTrack> allSongs = [];
 
-  /// List of name and song count of artists
+  /// List of name and song count of artists.
   static Map<String, int> artists = {};
 
   static late final AudioPlayerHandler audioHandler;
@@ -17,22 +17,25 @@ class Globals {
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;
 
-  /// Path of the currently selected/playing song
+  /// Path of the currently selected/playing song.
   static String currentSongPath = '';
 }
 
 // Configs
 // Save these in config.json or something
-/// All user configurations, expose in setting page
+/// All user configurations, expose to user in setting page.
 class Config {
-  /// Current sorting order of the song list, default [SortOptions.name]
+  /// Current sorting order of the song list, default [SortOptions.name].
   static SortOptions currentSortOption = SortOptions.name;
 
-  /// Set this from user settings, default `30` seconds
+  /// Filters out all files shorter than this, default `30` seconds.
   static int lengthLimitMilliseconds = 30000;
 
-  /// Get this from user settings, default `true`
+  /// Should the player start when choosing a new song, default `true`.
   static bool autoPlayNewSong = true;
+
+  /// The base volume of the player, default `1`. Range `[0.5, 5]`
+  static double volume = 1;
 
   static String getSortOptionString() {
     switch (currentSortOption) {

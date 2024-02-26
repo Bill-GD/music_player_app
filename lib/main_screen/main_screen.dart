@@ -378,14 +378,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       ),
                       IconButton(
                         onPressed: () {
-                          Globals.audioHandler.player.playing
+                          Globals.audioHandler.playing
                               ? Globals.audioHandler.pause()
                               : Globals.audioHandler.play();
                           setState(() {});
                         },
                         icon: Icon(
-                          Globals.audioHandler.player.playing
-                              ? Icons.pause_rounded
+                          Globals.audioHandler.playing
+                              ? Icons.pause_rounded //
                               : Icons.play_arrow_rounded,
                           color: Theme.of(context).colorScheme.primary,
                           size: 30,

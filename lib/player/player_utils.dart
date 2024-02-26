@@ -30,17 +30,25 @@ Future<AudioHandler> initAudioHandler() async {
   return handler;
 }
 
-class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
+class AudioPlayerHandler extends BaseAudioHandler {
   late final AudioPlayer player;
+
+  bool get playing => player.playing;
 
   AudioPlayerHandler() {
     player = AudioPlayer();
     player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    setVolume(Config.volume);
   }
 
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [
+        MediaControl.custom(
+          androidIcon: 'drawable/ic_shuffle',
+          label: 'Shuffle',
+          name: 'shuffle',
+        ),
         MediaControl.skipToPrevious,
         if (player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToNext,
@@ -48,7 +56,7 @@ class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler
       systemActions: const {
         MediaAction.seek,
       },
-      androidCompactActionIndices: const [0, 1, 2],
+      androidCompactActionIndices: const [1, 2, 3],
       processingState: const {
         ProcessingState.idle: AudioProcessingState.idle,
         ProcessingState.loading: AudioProcessingState.loading,
@@ -91,9 +99,42 @@ class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler
     return duration?.inMilliseconds ?? 0;
   }
 
-  Future<void> addMediaItem(MediaItem item) async {
+  @override
+  Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
+    switch (name) {
+      case 'shuffle':
+        changeShuffleMode();
+        break;
+      case 'repeat':
+        changeRepeatMode();
+        break;
+    }
+  }
+
+  Future<void> addMediaItem(MediaItem item) async => mediaItem.add(item);
+
+  Future<void> updateNotificationInfo({
+    required String songPath,
+    required String trackName,
+    String? artist,
+    Duration? duration,
+  }) async {
+    if (mediaItem.value == null) return;
+
+    MediaItem item = MediaItem(
+      id: songPath,
+      title: trackName,
+    );
+    
+    if (artist != null) item = item.copyWith(artist: artist);
+    item = duration != null
+        ? item.copyWith(duration: duration)
+        : item.copyWith(duration: mediaItem.value!.duration);
+
     mediaItem.add(item);
   }
+
+  Future<void> setVolume(double volume) async => player.setVolume(volume);
 
   @override
   Future<void> play() async {
@@ -101,25 +142,27 @@ class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler
 
     if (player.processingState == ProcessingState.completed) {
       await _incrementTimePlayed();
-      Globals.audioHandler.seek(Duration.zero);
+      seek(Duration.zero);
     }
     player.play();
   }
 
-  @override
-  Future<void> pause() async {
-    player.pause();
+  Future<void> changeShuffleMode() async {
+    debugPrint('Shuffle');
+  }
+
+  Future<void> changeRepeatMode() async {
+    debugPrint('Change repeat');
   }
 
   @override
-  Future<void> stop() async {
-    player.stop();
-  }
+  Future<void> pause() async => player.pause();
 
   @override
-  Future<void> seek(Duration position) async {
-    player.seek(position);
-  }
+  Future<void> stop() async => player.stop();
+
+  @override
+  Future<void> seek(Duration position) async => player.seek(position);
 
   @override
   Future<void> skipToNext() async {
@@ -133,6 +176,6 @@ class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler
 
   @override
   Future<void> onTaskRemoved() async {
-    player.stop();
+    if (!playbackState.value.playing) stop();
   }
 }

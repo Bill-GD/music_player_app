@@ -125,7 +125,8 @@ Future<void> getBottomSheet(
 
 Future<void> showSongOptionsMenu(
   BuildContext context,
-  String songPath, {
+  String songPath,
+  void Function(void Function()) setState, {
   bool showDeleteOption = true,
 }) async {
   MusicTrack song = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
@@ -145,7 +146,7 @@ Future<void> showSongOptionsMenu(
         leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
         title: const Text('Song Info', style: bottomSheetText),
         onTap: () async {
-          bool needsUpdate = (await Navigator.of(context).push(
+          bool? needsUpdate = await Navigator.of(context).push(
             PageRouteBuilder<bool>(
               transitionDuration: 400.ms,
               transitionsBuilder: (_, anim, __, child) {
@@ -160,10 +161,12 @@ Future<void> showSongOptionsMenu(
               },
               pageBuilder: (_, __, ___) => SongInfo(songPath: songPath),
             ),
-          ))!;
+          );
           if (needsUpdate == true) {
-            await updateMusicData();
-            sortAllSongs();
+            updateMusicData().then((_) {
+              sortAllSongs();
+              setState(() {});
+            });
             if (context.mounted) Navigator.of(context).pop();
           }
         },

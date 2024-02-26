@@ -37,7 +37,7 @@ class _SongInfoState extends State<SongInfo> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(context).pop(),
           ),
           title: const Text(
             'Edit song info',
@@ -63,6 +63,12 @@ class _SongInfoState extends State<SongInfo> {
                   song.artist = _artistController.text.isEmpty
                       ? 'Unknown' //
                       : _artistController.text;
+
+                  Globals.audioHandler.updateNotificationInfo(
+                    songPath: widget.songPath,
+                    trackName: _songController.text,
+                    artist: _artistController.text,
+                  );
 
                   await saveSongsToStorage();
                 }

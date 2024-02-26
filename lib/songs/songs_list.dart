@@ -185,6 +185,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                           await showSongOptionsMenu(
                             context,
                             Globals.allSongs[songIndex].absolutePath,
+                            setState,
                           );
                           setState(() {});
                           widget.updateParent(() {});
