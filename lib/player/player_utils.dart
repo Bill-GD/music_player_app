@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -17,6 +19,7 @@ int getTotalDuration() =>
 Future<void> _incrementTimePlayed() async {
   Globals
       .allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
+  debugPrint('Incremented play count');
   await saveSongsToStorage();
 }
 
@@ -33,17 +36,32 @@ Future<AudioHandler> initAudioHandler() async {
 
 class AudioPlayerHandler extends BaseAudioHandler {
   late final AudioPlayer player;
+  late List<String> playlist; // Only keep track of paths
 
   bool get playing => player.playing;
+  String playlistName = '';
 
   Duration _prevPos = 0.ms, _totalDuration = 0.ms;
   int _listenedDuration = 0;
   bool _listened = false;
 
+  final _onSongChangeController = StreamController<bool>.broadcast();
+  late Stream<bool> onSongChange;
+
   AudioPlayerHandler() {
+    onSongChange = _onSongChangeController.stream;
+
+    playlist = [];
+
     player = AudioPlayer();
     player.playbackEventStream.map(_transformEvent).pipe(playbackState);
     setVolume(Config.volume);
+
+    player.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        skipToNext();
+      }
+    });
 
     player.positionStream.listen((position) {
       int totalMilliseconds = _totalDuration.inMilliseconds;
@@ -63,12 +81,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
             _incrementTimePlayed();
             _listened = true;
           }
-          // debugPrint('${position.inMilliseconds} - ${_prevPos.inMilliseconds} -> $interval ms');
         }
         _prevPos = position;
       }
-
-      // debugPrint('Listened: $_listenedDuration ms');
     });
   }
 
@@ -96,16 +111,17 @@ class AudioPlayerHandler extends BaseAudioHandler {
     );
   }
 
-  /// Returns the song duration in millisecond, or 0 if `null`.
-  ///
-  /// Shouldn't expect it to return 0.
-  Future<int> setPlayerSong(String songPath) async {
+  Future<void> setPlayerSong(String songPath) async {
     Duration? duration = player.duration;
 
     if (songPath != Globals.currentSongPath || Globals.currentSongPath.isEmpty) {
+      debugPrint('Switching to a different song: ${songPath.split('/').last}');
+
       duration = await player.setAudioSource(
         AudioSource.uri(Uri.parse(Uri.encodeComponent(songPath))),
       );
+      Globals.currentSongPath = songPath;
+      Globals.showMinimizedPlayer = true;
 
       MusicTrack item = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
 
@@ -122,18 +138,26 @@ class AudioPlayerHandler extends BaseAudioHandler {
       _listenedDuration = 0;
       _listened = false;
 
+      // Broadcast change
+      _onSongChangeController.add(true);
+
       if (_totalDuration.inMilliseconds <= 0) {
         debugPrint('Something is wrong when setting audio source');
       } else {
-        debugPrint('Listen time limit: ${(_totalDuration.inMilliseconds * 0.1).round()} ms');
+        debugPrint('Min listen time: ${(_totalDuration.inMilliseconds * 0.1).round()} ms');
       }
 
-      // await _incrementTimePlayed();
       if (Config.autoPlayNewSong) {
         play();
       }
     }
-    return duration?.inMilliseconds ?? 0;
+  }
+
+  Future<void> registerPlaylist(String name, List<String> list) async {
+    playlist = list;
+    int songCount = playlist.length;
+    playlistName = 'Playlist: $name - $songCount song${songCount > 1 ? 's' : ''}';
+    debugPrint('Got playlist: $songCount songs');
   }
 
   @override
@@ -178,14 +202,13 @@ class AudioPlayerHandler extends BaseAudioHandler {
     if (Globals.currentSongPath.isEmpty) return;
 
     if (player.processingState == ProcessingState.completed) {
-      // await _incrementTimePlayed();
       seek(0.ms);
     }
     player.play();
   }
 
   Future<void> changeShuffleMode() async {
-    debugPrint('Shuffle');
+    debugPrint('Change shuffle');
   }
 
   Future<void> changeRepeatMode() async {
@@ -203,12 +226,56 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   @override
   Future<void> skipToNext() async {
-    debugPrint('Next song');
+    debugPrint('Skipping to next song');
+
+    if (playlist.isEmpty) {
+      pause();
+      debugPrint('Playlist is empty, this should not be the case');
+      return;
+    }
+
+    if (playlist.length == 1) {
+      debugPrint('Playlist only contains one song, skipping action');
+      return;
+    }
+
+    int currentIndex = playlist.indexWhere((e) => e == Globals.currentSongPath);
+
+    if (currentIndex < 0) {
+      pause();
+      debugPrint('Can\'t find song in playlist, this should not be the case');
+      return;
+    }
+
+    currentIndex = (currentIndex + 1) % playlist.length;
+    await setPlayerSong(playlist[currentIndex]);
   }
 
   @override
   Future<void> skipToPrevious() async {
-    debugPrint('Previous song');
+    debugPrint('Skipping to previous song');
+
+    if (playlist.isEmpty) {
+      pause();
+      debugPrint('Playlist is empty, this should not be the case');
+      return;
+    }
+
+    if (playlist.length == 1) {
+      debugPrint('Playlist only contains one song, skipping action');
+      return;
+    }
+
+    int currentIndex = playlist.indexWhere((e) => e == Globals.currentSongPath);
+
+    if (currentIndex < 0) {
+      pause();
+      debugPrint('Can\'t find song in playlist, this should not be the case');
+      return;
+    }
+
+    currentIndex = currentIndex == 0 ? playlist.length : currentIndex;
+    await setPlayerSong(playlist[currentIndex - 1]);
   }
 
   @override

@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../player/music_player.dart';
 import '../songs/song_info.dart';
 import 'music_track.dart';
 import 'variables.dart';
@@ -64,25 +63,6 @@ ButtonStyle textButtonStyle(BuildContext context) {
         borderRadius: BorderRadius.circular(30),
       ),
     ),
-  );
-}
-
-Route getMusicPlayerRoute(
-  BuildContext context,
-  String songPath,
-) {
-  return PageRouteBuilder(
-    pageBuilder: (context, _, __) => MusicPlayerPage(songPath: songPath),
-    transitionDuration: 400.ms,
-    transitionsBuilder: (_, anim, __, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 1),
-          end: const Offset(0, 0),
-        ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(anim),
-        child: child,
-      );
-    },
   );
 }
 

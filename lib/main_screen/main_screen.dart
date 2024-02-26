@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -13,6 +12,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../permission/storage_permission.dart';
+import '../player/music_player.dart';
 import '../player/player_utils.dart';
 import '../songs/songs_list.dart';
 import 'songs_of_artist.dart';
@@ -64,9 +64,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       }
     });
     Globals.audioHandler.player.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed) {
-        Globals.audioHandler.pause();
-      }
       setState(() {});
     });
     Globals.audioHandler.player.positionStream.listen((current) {
@@ -354,7 +351,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         ),
                         onTap: () async {
                           await Navigator.of(context).push(
-                            getMusicPlayerRoute(context, Globals.currentSongPath),
+                            await getMusicPlayerRoute(
+                              context,
+                              Globals.currentSongPath,
+                            ),
                           );
                           setState(() {});
                         },

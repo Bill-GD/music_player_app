@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../player/music_player.dart';
 
 class SongList extends StatefulWidget {
   final int param;
@@ -45,8 +46,12 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       ),
                     ),
                     onPressed: () async {
+                      Globals.audioHandler.registerPlaylist(
+                        'All songs',
+                        Globals.allSongs.map((e) => e.absolutePath).toList(),
+                      );
                       await Navigator.of(context).push(
-                        getMusicPlayerRoute(
+                        await getMusicPlayerRoute(
                           context,
                           Globals.allSongs[Random().nextInt(Globals.allSongs.length)].absolutePath,
                         ),
@@ -166,8 +171,15 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     ),
                   ),
                   onTap: () async {
+                    Globals.audioHandler.registerPlaylist(
+                      'All songs',
+                      Globals.allSongs.map((e) => e.absolutePath).toList(),
+                    );
                     await Navigator.of(context).push(
-                      getMusicPlayerRoute(context, Globals.allSongs[songIndex].absolutePath),
+                      await getMusicPlayerRoute(
+                        context,
+                        Globals.allSongs[songIndex].absolutePath,
+                      ),
                     );
                     setState(() {});
                     widget.updateParent(() {});

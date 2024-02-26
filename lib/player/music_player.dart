@@ -11,6 +11,26 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import 'player_utils.dart';
 
+Future<Route> getMusicPlayerRoute(
+  BuildContext context,
+  String songPath,
+) async {
+  await Globals.audioHandler.setPlayerSong(songPath);
+  return PageRouteBuilder(
+    pageBuilder: (context, _, __) => MusicPlayerPage(songPath: songPath),
+    transitionDuration: 400.ms,
+    transitionsBuilder: (_, anim, __, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 1),
+          end: const Offset(0, 0),
+        ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(anim),
+        child: child,
+      );
+    },
+  );
+}
+
 class MusicPlayerPage extends StatefulWidget {
   final String songPath;
   const MusicPlayerPage({super.key, required this.songPath});
@@ -21,28 +41,44 @@ class MusicPlayerPage extends StatefulWidget {
 
 class _MusicPlayerPageState extends State<MusicPlayerPage> {
   int currentDuration = 0, maxDuration = 0;
-  // bool isShuffle = true;
   late StreamSubscription<Duration> posStream;
+  late StreamSubscription<bool> songChangeStream;
   late MusicTrack song;
+
+  void updateSongInfo([String? songPath]) async {
+    song = Globals.allSongs.firstWhere((e) => e.absolutePath == (songPath ?? Globals.currentSongPath));
+    debugPrint('Update song info: ${song.trackName}');
+
+    debugPrint('Updating player duration values');
+    currentDuration = getCurrentDuration();
+    maxDuration = getTotalDuration();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
 
-    song = Globals.allSongs.firstWhere((e) => e.absolutePath == widget.songPath);
+    // Initial player state, KEEP IT
+    updateSongInfo(widget.songPath);
 
-    currentDuration = widget.songPath != Globals.currentSongPath ? 0 : getCurrentDuration();
-    Globals.audioHandler.setPlayerSong(widget.songPath).then((value) => setState(() => maxDuration = value));
-
-    Globals.showMinimizedPlayer = true;
-    Globals.currentSongPath = widget.songPath;
-
-    setState(() {});
-
+    songChangeStream = Globals.audioHandler.onSongChange.listen((changed) {
+      if (changed) {
+        debugPrint('Detected song change, updating player');
+        updateSongInfo();
+      }
+    });
     posStream = Globals.audioHandler.player.positionStream.listen((current) {
       currentDuration = current.inMilliseconds;
       setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    posStream.cancel();
+    songChangeStream.cancel();
   }
 
   @override
@@ -54,7 +90,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
             onPressed: () async {
-              await posStream.cancel();
               if (context.mounted) Navigator.of(context).pop();
             },
           ),
@@ -64,12 +99,12 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
               onPressed: () async {
                 await showSongOptionsMenu(
                   context,
-                  widget.songPath,
+                  Globals.currentSongPath,
                   setState,
                   showDeleteOption: false,
                 );
                 setState(() {
-                  song = Globals.allSongs.firstWhere((e) => e.absolutePath == widget.songPath);
+                  song = Globals.allSongs.firstWhere((e) => e.absolutePath == song.absolutePath);
                 });
               },
             ),
@@ -80,9 +115,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // "Image"
                 Container(
-                  margin: const EdgeInsets.only(top: 25, bottom: 20),
+                  margin: const EdgeInsets.only(top: 25, bottom: 15),
                   padding: const EdgeInsets.all(65),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -106,19 +143,28 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     size: 180,
                   ),
                 ),
+                // Song info
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 40),
+                  padding: const EdgeInsets.only(bottom: 30),
                   child: Column(
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8, top: 0),
+                        child: Text(
+                          Globals.audioHandler.playlistName,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                        ),
+                      ),
                       Text(
                         song.trackName,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
                       ),
                       Text(
                         song.artist,
-                        style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w400, fontSize: 16),
+                        style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600, fontSize: 18),
                       ),
                     ],
                   ),
@@ -140,13 +186,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     setState(() {});
                   },
                 ),
+                // Controls
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 70),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: Globals.audioHandler.changeShuffleMode,
                         icon: Icon(
                           CupertinoIcons.shuffle,
                           color: Theme.of(context).colorScheme.primary,
@@ -154,7 +201,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => Globals.audioHandler.skipToPrevious(),
+                        onPressed: () async {
+                          await Globals.audioHandler.skipToPrevious();
+                        },
                         icon: Icon(
                           Icons.skip_previous_rounded,
                           color: Theme.of(context).colorScheme.primary,
@@ -182,7 +231,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => Globals.audioHandler.skipToPrevious(),
+                        onPressed: () async {
+                          await Globals.audioHandler.skipToNext();
+                        },
                         icon: Icon(
                           Icons.skip_next_rounded,
                           color: Theme.of(context).colorScheme.primary,
@@ -190,7 +241,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: Globals.audioHandler.changeRepeatMode,
                         icon: Icon(
                           CupertinoIcons.repeat,
                           color: Theme.of(context).colorScheme.primary,

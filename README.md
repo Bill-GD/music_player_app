@@ -14,10 +14,11 @@ A __*simple*__ music player app made in Flutter
 - Change song info
 - Player screen (seek, play/pause, minimize)
 - Controls from lock screen & notification
+- Playlist
+- Prev/next song
 
 ## Planned features
 
 - Search songs
 - User settings
-- Prev/next song
 - Play mode (repeat all, shuffle, repeat one)
