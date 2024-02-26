@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../globals/music_track.dart';
@@ -35,10 +36,40 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   bool get playing => player.playing;
 
+  Duration _prevPos = 0.ms, _totalDuration = 0.ms;
+  int _listenedDuration = 0;
+  bool _listened = false;
+
   AudioPlayerHandler() {
     player = AudioPlayer();
     player.playbackEventStream.map(_transformEvent).pipe(playbackState);
     setVolume(Config.volume);
+
+    player.positionStream.listen((position) {
+      int totalMilliseconds = _totalDuration.inMilliseconds;
+
+      // Stops when play count is already incremented
+      if (_listened) return;
+
+      // Longer than length limit, to be safe
+      if (totalMilliseconds >= Config.lengthLimitMilliseconds) {
+        int interval = position.inMilliseconds - _prevPos.inMilliseconds;
+        // If rewind, skip
+        if (interval > 0) {
+          if (interval < 1000) {
+            _listenedDuration += interval;
+          }
+          if (!_listened && _listenedDuration >= (totalMilliseconds * 0.1).round()) {
+            _incrementTimePlayed();
+            _listened = true;
+          }
+          // debugPrint('${position.inMilliseconds} - ${_prevPos.inMilliseconds} -> $interval ms');
+        }
+        _prevPos = position;
+      }
+
+      // debugPrint('Listened: $_listenedDuration ms');
+    });
   }
 
   PlaybackState _transformEvent(PlaybackEvent event) {
@@ -85,7 +116,19 @@ class AudioPlayerHandler extends BaseAudioHandler {
         duration: duration,
       ));
 
-      await _incrementTimePlayed();
+      // Reset song listen duration trackers
+      _prevPos = 0.ms;
+      _totalDuration = duration ?? 0.ms;
+      _listenedDuration = 0;
+      _listened = false;
+
+      if (_totalDuration.inMilliseconds <= 0) {
+        debugPrint('Something is wrong when setting audio source');
+      } else {
+        debugPrint('Listen time limit: ${(_totalDuration.inMilliseconds * 0.1).round()} ms');
+      }
+
+      // await _incrementTimePlayed();
       if (Config.autoPlayNewSong) {
         play();
       }
@@ -135,8 +178,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
     if (Globals.currentSongPath.isEmpty) return;
 
     if (player.processingState == ProcessingState.completed) {
-      await _incrementTimePlayed();
-      seek(Duration.zero);
+      // await _incrementTimePlayed();
+      seek(0.ms);
     }
     player.play();
   }

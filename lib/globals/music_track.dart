@@ -88,7 +88,7 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
   debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds / 1000}s');
   for (var element in allMp3) {
     Metadata info = await MetadataRetriever.fromFile(File(element.absolute.path));
-    if (info.trackDuration! > Config.lengthLimitMilliseconds) {
+    if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
       filteredList.add(element);
     }
   }

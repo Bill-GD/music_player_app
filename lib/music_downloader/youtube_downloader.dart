@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
@@ -25,7 +26,7 @@ Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String u
       'thumbnailUrl': video.thumbnails.lowResUrl,
       'title': video.title,
       'author': video.author,
-      'duration': video.duration ?? Duration.zero,
+      'duration': video.duration ?? 0.ms,
     };
   } on Exception catch (e) {
     if (context.mounted) {
