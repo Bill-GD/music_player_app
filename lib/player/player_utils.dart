@@ -44,11 +44,6 @@ class AudioPlayerHandler extends BaseAudioHandler {
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [
-        MediaControl.custom(
-          androidIcon: 'drawable/ic_shuffle',
-          label: 'Shuffle',
-          name: 'shuffle',
-        ),
         MediaControl.skipToPrevious,
         if (player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToNext,
@@ -56,7 +51,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       systemActions: const {
         MediaAction.seek,
       },
-      androidCompactActionIndices: const [1, 2, 3],
+      androidCompactActionIndices: const [0, 1, 2],
       processingState: const {
         ProcessingState.idle: AudioProcessingState.idle,
         ProcessingState.loading: AudioProcessingState.loading,
@@ -66,7 +61,6 @@ class AudioPlayerHandler extends BaseAudioHandler {
       }[player.processingState]!,
       playing: player.playing,
       updatePosition: player.position,
-      speed: player.speed,
       queueIndex: event.currentIndex,
     );
   }
@@ -125,7 +119,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       id: songPath,
       title: trackName,
     );
-    
+
     if (artist != null) item = item.copyWith(artist: artist);
     item = duration != null
         ? item.copyWith(duration: duration)
