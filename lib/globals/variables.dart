@@ -34,8 +34,11 @@ class Config {
   /// Should the player start when choosing a new song, default `true`.
   static bool autoPlayNewSong = true;
 
-  /// The base volume of the player, default `1`. Range `[0.5, 5]`
+  /// The base volume of the player, default `1`. Range `[0.5, 5]`.
   static double volume = 1;
+
+  /// The delay between song changes, default `0` milliseconds. Range `[0, 500]`.
+  static int delayMilliseconds = 0;
 
   static String getSortOptionString() {
     switch (currentSortOption) {
@@ -46,6 +49,10 @@ class Config {
       case SortOptions.recentlyAdded:
         return 'Recently added';
     }
+  }
+
+  static Future<void> saveConfig() async {
+    // debugPrint('Not yet implemented');
   }
 }
 

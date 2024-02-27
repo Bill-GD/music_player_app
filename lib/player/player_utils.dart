@@ -301,6 +301,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
       return;
     }
 
+    await Future.delayed(Config.delayMilliseconds.ms);
+
     if (currentIndex == _playlist.length - 1) {
       switch (_repeat) {
         case AudioServiceRepeatMode.all:

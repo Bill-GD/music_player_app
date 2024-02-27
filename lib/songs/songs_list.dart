@@ -150,13 +150,16 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
               child: ListView.builder(
                 itemCount: Globals.allSongs.length,
                 itemBuilder: (context, songIndex) => ListTile(
-                  contentPadding: const EdgeInsets.only(left: 30, right: 10),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   leading: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.music_note_rounded,
-                        color: Theme.of(context).colorScheme.primary,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Icon(
+                          Icons.music_note_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ],
                   ),

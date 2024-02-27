@@ -85,8 +85,9 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                 child: ListView.builder(
                   itemCount: songs.length,
                   itemBuilder: (context, songIndex) => ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                     leading: Padding(
-                      padding: const EdgeInsets.only(left: 15),
+                      padding: const EdgeInsets.only(left: 16),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
