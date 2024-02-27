@@ -175,14 +175,10 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> registerPlaylist(String name, List<String> list, String begin) async {
     _playlist = list;
 
-    // debugPrint(begin);
-
     _shufflePlaylist(begin: begin);
 
-    // debugPrint(_playlist.toString());
-
     int songCount = _playlist.length;
-    _playlistName = 'Playlist: $name - $songCount song${songCount > 1 ? 's' : ''}';
+    _playlistName = 'Playlist: $name\n($songCount song${songCount > 1 ? 's' : ''})';
     debugPrint('Got playlist: $songCount songs');
   }
 
@@ -240,12 +236,13 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   /// Only from player
   Future<void> changeShuffleMode() async {
-    _shuffle = _shuffle == AudioServiceShuffleMode.all
+    _shuffle = isShuffled
         ? AudioServiceShuffleMode.none //
         : AudioServiceShuffleMode.all;
 
     _shufflePlaylist(begin: Globals.currentSongPath);
     debugPrint('Change shuffle: $isShuffled');
+    Config.saveConfig();
   }
 
   /// Only from player
@@ -264,6 +261,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
         break;
     }
     debugPrint('Change repeat: ${_repeat.name}');
+    Config.saveConfig();
   }
 
   @override
@@ -361,5 +359,14 @@ class AudioPlayerHandler extends BaseAudioHandler {
   @override
   Future<void> onTaskRemoved() async {
     if (!playbackState.value.playing) stop();
+  }
+
+  void loadConfig(bool? shuffle, String? repeat) {
+    _shuffle = shuffle == true ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none;
+    _repeat = repeat == 'all'
+        ? AudioServiceRepeatMode.all
+        : repeat == 'one'
+            ? AudioServiceRepeatMode.one
+            : AudioServiceRepeatMode.none;
   }
 }

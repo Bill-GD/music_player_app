@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../player/player_utils.dart';
 import 'music_track.dart';
@@ -52,7 +54,39 @@ class Config {
   }
 
   static Future<void> saveConfig() async {
-    // debugPrint('Not yet implemented');
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('currentSortOption', currentSortOption.name);
+    await prefs.setInt('lengthLimitSecond', (lengthLimitMilliseconds / 1000).round());
+    await prefs.setBool('autoPlayNewSong', autoPlayNewSong);
+    await prefs.setDouble('volume', volume);
+    await prefs.setInt('delayMilliseconds', delayMilliseconds);
+    await prefs.setBool('isShuffled', Globals.audioHandler.isShuffled);
+    await prefs.setString('repeatMode', Globals.audioHandler.repeatMode.name);
+    debugPrint('Config saved');
+  }
+
+  static Future<void> loadConfig() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final sort = prefs.getString('currentSortOption');
+    currentSortOption = sort == 'mostPlayed'
+        ? SortOptions.mostPlayed
+        : sort == 'recentlyAdded'
+            ? SortOptions.recentlyAdded
+            : SortOptions.name;
+
+    final length = prefs.getInt('lengthLimitSecond');
+    if (length != null) lengthLimitMilliseconds = length * 1000;
+    final auto = prefs.getBool('autoPlayNewSong');
+    if (auto != null) autoPlayNewSong = auto;
+    final vol = prefs.getDouble('volume');
+    if (vol != null) volume = vol;
+    final delay = prefs.getInt('delayMilliseconds');
+    if (delay != null) delayMilliseconds = delay;
+
+    Globals.audioHandler.loadConfig(prefs.getBool('isShuffled'), prefs.getString('repeatMode'));
+    debugPrint('Config loaded');
   }
 }
 

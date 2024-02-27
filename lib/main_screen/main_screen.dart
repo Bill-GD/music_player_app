@@ -59,7 +59,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       if (storagePermissionStatus.isGranted) {
         debugPrint('Storage permission is granted');
         await updateMusicData();
-        sortAllSongs(SortOptions.name);
+        sortAllSongs();
         setState(() => isLoading = false);
       }
     });

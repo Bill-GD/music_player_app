@@ -100,6 +100,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             onTap: () {
                               setState(() => sortAllSongs(SortOptions.name));
                               Navigator.of(context).pop();
+                              Config.saveConfig();
                             },
                           ),
                           ListTile(
@@ -112,6 +113,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             onTap: () {
                               setState(() => sortAllSongs(SortOptions.mostPlayed));
                               Navigator.of(context).pop();
+                              Config.saveConfig();
                             },
                           ),
                           ListTile(
@@ -124,6 +126,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                             onTap: () {
                               setState(() => sortAllSongs(SortOptions.recentlyAdded));
                               Navigator.of(context).pop();
+                              Config.saveConfig();
                             },
                           ),
                         ],

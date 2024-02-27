@@ -13,6 +13,8 @@ void main() async {
 
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
 
+  await Config.loadConfig();
+
   runApp(const MusicPlayerApp());
 }
 

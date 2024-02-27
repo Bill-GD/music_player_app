@@ -45,8 +45,8 @@ dependencies:
   animations: <=2.0.8
   flutter_animate: <=4.5.0
   audio_service: <=0.18.12
+  shared_preferences: <=2.2.2
   # audio_session: <=0.1.18
-  # shared_preferences: <=2.2.2
   # animations: <=2.0.8
   # get_it: <=7.6.0
   flutter:

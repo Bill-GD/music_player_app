@@ -102,7 +102,7 @@ Future<List<MusicTrack>?> _getSavedMusicData() async {
   if (!saveFile.existsSync()) return null;
 
   debugPrint('Getting saved music data from: ${saveFile.path}');
-  return (json.decode(saveFile.readAsStringSync()) as List).map((e) => MusicTrack.fromJson(e)).toList();
+  return (jsonDecode(saveFile.readAsStringSync()) as List).map((e) => MusicTrack.fromJson(e)).toList();
 }
 
 Future<void> saveSongsToStorage() async {
