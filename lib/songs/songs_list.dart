@@ -46,14 +46,17 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       ),
                     ),
                     onPressed: () async {
+                      final randomSong =
+                          Globals.allSongs[Random().nextInt(Globals.allSongs.length)].absolutePath;
                       Globals.audioHandler.registerPlaylist(
                         'All songs',
                         Globals.allSongs.map((e) => e.absolutePath).toList(),
+                        randomSong,
                       );
                       await Navigator.of(context).push(
                         await getMusicPlayerRoute(
                           context,
-                          Globals.allSongs[Random().nextInt(Globals.allSongs.length)].absolutePath,
+                          randomSong,
                         ),
                       );
                       setState(() {});
@@ -174,6 +177,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     Globals.audioHandler.registerPlaylist(
                       'All songs',
                       Globals.allSongs.map((e) => e.absolutePath).toList(),
+                      Globals.allSongs[songIndex].absolutePath,
                     );
                     await Navigator.of(context).push(
                       await getMusicPlayerRoute(

@@ -53,29 +53,29 @@ Future<void> updateMusicData() async {
 
 /// Updates all songs with saved data
 Future<void> updateListOfSongs() async {
-  List<MusicTrack> tracksFromStorage = await _getSongsFromStorage();
+  List<MusicTrack> storageSongs = await _getSongsFromStorage();
 
-  List<MusicTrack>? savedTracks = await _getSavedMusicData();
+  List<MusicTrack>? savedSongs = await _getSavedMusicData();
 
-  if (savedTracks != null) {
+  if (savedSongs != null) {
     debugPrint('Updating music data from saved');
-    for (int i = 0; i < tracksFromStorage.length; i++) {
-      if (i >= savedTracks.length) break;
+    for (int i = 0; i < storageSongs.length; i++) {
+      if (i >= savedSongs.length) break;
 
-      final matchingTrack = savedTracks.firstWhereOrNull(
-        (element) => element.absolutePath == tracksFromStorage[i].absolutePath,
+      final matchingSong = savedSongs.firstWhereOrNull(
+        (element) => element.absolutePath == storageSongs[i].absolutePath,
       );
 
-      if (matchingTrack == null) continue;
+      if (matchingSong == null) continue;
 
-      tracksFromStorage[i]
-        ..trackName = matchingTrack.trackName
-        ..artist = matchingTrack.artist
-        ..timeListened = matchingTrack.timeListened;
+      storageSongs[i]
+        ..trackName = matchingSong.trackName
+        ..artist = matchingSong.artist
+        ..timeListened = matchingSong.timeListened;
     }
   }
 
-  Globals.allSongs = tracksFromStorage;
+  Globals.allSongs = storageSongs;
 }
 
 Future<List<MusicTrack>> _getSongsFromStorage() async {

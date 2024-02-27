@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -193,10 +194,15 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: Globals.audioHandler.changeShuffleMode,
+                        onPressed: () async {
+                          await Globals.audioHandler.changeShuffleMode();
+                          setState(() {});
+                        },
                         icon: Icon(
                           CupertinoIcons.shuffle,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Globals.audioHandler.isShuffled
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.primary.withOpacity(0.3),
                           size: 30,
                         ),
                       ),
@@ -241,10 +247,17 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: Globals.audioHandler.changeRepeatMode,
+                        onPressed: () async {
+                          await Globals.audioHandler.changeRepeatMode();
+                          setState(() {});
+                        },
                         icon: Icon(
-                          CupertinoIcons.repeat,
-                          color: Theme.of(context).colorScheme.primary,
+                          Globals.audioHandler.repeatMode == AudioServiceRepeatMode.one
+                              ? CupertinoIcons.repeat_1
+                              : CupertinoIcons.repeat,
+                          color: Globals.audioHandler.repeatMode == AudioServiceRepeatMode.none
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                              : Theme.of(context).colorScheme.primary,
                           size: 35,
                         ),
                       ),

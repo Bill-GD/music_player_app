@@ -65,14 +65,16 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                 ),
               ),
               onPressed: () async {
+                final randomSong = songs[Random().nextInt(songs.length)].absolutePath;
                 Globals.audioHandler.registerPlaylist(
                   widget.artistName,
                   songs.map((e) => e.absolutePath).toList(),
+                  randomSong,
                 );
                 await Navigator.of(context).push(
                   await getMusicPlayerRoute(
                     context,
-                    songs[Random().nextInt(songs.length)].absolutePath,
+                    randomSong,
                   ),
                 );
               },
@@ -110,6 +112,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                       Globals.audioHandler.registerPlaylist(
                         widget.artistName,
                         songs.map((e) => e.absolutePath).toList(),
+                        songs[songIndex].absolutePath,
                       );
                       await Navigator.of(context).push(
                         await getMusicPlayerRoute(
