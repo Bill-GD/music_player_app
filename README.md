@@ -16,9 +16,9 @@ A __*simple*__ music player app made in Flutter
 - Controls from lock screen & notification
 - Playlist
 - Prev/next song
+- Play mode (repeat all, shuffle, repeat one)
 
 ## Planned features
 
 - Search songs
 - User settings
-- Play mode (repeat all, shuffle, repeat one)
