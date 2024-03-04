@@ -41,8 +41,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
   late Stream<bool> onSongChange;
 
   // Player
-  late final AudioPlayer player;
-  bool get playing => player.playing;
+  AudioPlayer get player => _player;
+  late final AudioPlayer _player;
+  bool get playing => _player.playing;
 
   // Playlist
   late List<String> _playlist; // Only keep track of paths
@@ -69,11 +70,11 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     _playlist = [];
 
-    player = AudioPlayer();
-    player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    _player = AudioPlayer();
+    _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
     setVolume(Config.volume);
 
-    player.processingStateStream.listen((state) async {
+    _player.processingStateStream.listen((state) async {
       if (state == ProcessingState.completed) {
         if (_repeat == AudioServiceRepeatMode.one) {
           debugPrint('Repeat one, restarting song');
@@ -84,7 +85,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       }
     });
 
-    player.positionStream.listen((position) {
+    _player.positionStream.listen((position) {
       int totalMilliseconds = _totalDuration.inMilliseconds;
 
       // Stops when play count is already incremented
@@ -112,7 +113,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     return PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
-        if (player.playing) MediaControl.pause else MediaControl.play,
+        if (_player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToNext,
       ],
       systemActions: const {
@@ -125,20 +126,20 @@ class AudioPlayerHandler extends BaseAudioHandler {
         ProcessingState.buffering: AudioProcessingState.buffering,
         ProcessingState.ready: AudioProcessingState.ready,
         ProcessingState.completed: AudioProcessingState.completed,
-      }[player.processingState]!,
-      playing: player.playing,
-      updatePosition: player.position,
+      }[_player.processingState]!,
+      playing: _player.playing,
+      updatePosition: _player.position,
       queueIndex: event.currentIndex,
     );
   }
 
   Future<void> setPlayerSong(String songPath) async {
-    Duration? duration = player.duration;
+    Duration? duration = _player.duration;
 
     if (songPath != Globals.currentSongPath || Globals.currentSongPath.isEmpty) {
       debugPrint('Switching to a different song: ${songPath.split('/').last}');
 
-      duration = await player.setAudioSource(
+      duration = await _player.setAudioSource(
         AudioSource.uri(Uri.parse(Uri.encodeComponent(songPath))),
       );
       Globals.currentSongPath = songPath;
@@ -166,7 +167,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       if (_totalDuration.inMilliseconds <= 0) {
         debugPrint('Something is wrong when setting audio source');
       } else {
-        debugPrint('Min listen time: ${_minTime} ms');
+        debugPrint('Min listen time: $_minTime ms');
       }
 
       if (Config.autoPlayNewSong) {
@@ -181,7 +182,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     _shufflePlaylist(begin: begin);
 
     int songCount = _playlist.length;
-    _playlistName = 'Playlist: $name\n($songCount song${songCount > 1 ? 's' : ''})';
+    _playlistName = 'Playlist\n$name ($songCount song${songCount > 1 ? 's' : ''})';
     debugPrint('Got playlist: $songCount songs');
   }
 
@@ -225,19 +226,19 @@ class AudioPlayerHandler extends BaseAudioHandler {
     mediaItem.add(item);
   }
 
-  Future<void> setVolume(double volume) async => player.setVolume(volume);
+  Future<void> setVolume(double volume) async => _player.setVolume(volume);
 
   @override
   Future<void> play() async {
     if (Globals.currentSongPath.isEmpty) return;
 
-    if (player.processingState == ProcessingState.completed) {
+    if (_player.processingState == ProcessingState.completed) {
       seek(0.ms);
     }
-    player.play();
+    _player.play();
   }
 
-  /// Only from player
+  /// Only from _player
   Future<void> changeShuffleMode() async {
     _shuffle = isShuffled
         ? AudioServiceShuffleMode.none //
@@ -248,7 +249,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     Config.saveConfig();
   }
 
-  /// Only from player
+  /// Only from _player
   Future<void> changeRepeatMode() async {
     switch (_repeat) {
       case AudioServiceRepeatMode.all:
@@ -268,13 +269,13 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   @override
-  Future<void> pause() async => player.pause();
+  Future<void> pause() async => _player.pause();
 
   @override
-  Future<void> stop() async => player.stop();
+  Future<void> stop() async => _player.stop();
 
   @override
-  Future<void> seek(Duration position) async => player.seek(position);
+  Future<void> seek(Duration position) async => _player.seek(position);
 
   @override
   Future<void> skipToNext() async {
@@ -312,7 +313,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
           await setPlayerSong(_playlist[0]);
           break;
         case AudioServiceRepeatMode.none:
-          if (player.processingState == ProcessingState.completed) {
+          if (_player.processingState == ProcessingState.completed) {
             debugPrint('Repeat none');
             pause();
           }
