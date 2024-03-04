@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
@@ -56,8 +57,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   // Listen count
   Duration _prevPos = 0.ms, _totalDuration = 0.ms;
-  int _listenedDuration = 0;
+  int _listenedDuration = 0, _minTime = 0;
   bool _listened = false;
+  double get minTimePercent => _minTime / _totalDuration.inMilliseconds;
 
   // Skip cooldown
   bool _skipping = false;
@@ -96,7 +98,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
           if (interval < 1000) {
             _listenedDuration += interval;
           }
-          if (!_listened && _listenedDuration >= (totalMilliseconds * 0.1).round()) {
+          if (!_listened && _listenedDuration >= _minTime) {
             _incrementTimePlayed();
             _listened = true;
           }
@@ -156,6 +158,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       _totalDuration = duration ?? 0.ms;
       _listenedDuration = 0;
       _listened = false;
+      _minTime = max((_totalDuration.inMilliseconds * 0.1).round(), 10000);
 
       // Broadcast change
       _onSongChangeController.add(true);
@@ -163,7 +166,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       if (_totalDuration.inMilliseconds <= 0) {
         debugPrint('Something is wrong when setting audio source');
       } else {
-        debugPrint('Min listen time: ${(_totalDuration.inMilliseconds * 0.1).round()} ms');
+        debugPrint('Min listen time: ${_minTime} ms');
       }
 
       if (Config.autoPlayNewSong) {
