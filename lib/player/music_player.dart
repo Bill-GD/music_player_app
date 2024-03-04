@@ -190,8 +190,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       },
                     ),
                     Container(
-                      height: 4,
-                      width: 5,
+                      height: 4.5,
+                      width: 2,
                       margin: EdgeInsets.only(
                         top: 8,
                         left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
