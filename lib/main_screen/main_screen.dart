@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:music_player_app/Search/Search.dart';
+import 'package:music_player_app/Settings/setting.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -24,7 +26,8 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
   bool isLoading = true, isDarkTheme = false;
 
   int _childParam = 0;
@@ -35,7 +38,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Future<PermissionStatus> _checkStoragePermission() async {
-    PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
+    PermissionStatus storagePermissionStatus =
+        await Permission.manageExternalStorage.status;
     if (!storagePermissionStatus.isGranted && context.mounted) {
       debugPrint('Storage permission not granted, redirecting to request page');
 
@@ -107,11 +111,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ),
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .secondaryContainer
+                      .withOpacity(0.4),
                 ),
                 onTap: () {
-                  // go to search page/open search area
-                  debugPrint('Search');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchPage()),
+                  );
                 },
               ),
             ),
@@ -155,7 +164,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     child: Column(
                       children: [
                         ListTile(
-                          contentPadding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
+                          contentPadding: const EdgeInsets.only(
+                              left: 15, bottom: 10, top: 5),
                           title: Text(
                             Globals.packageInfo.appName,
                             style: bottomSheetTitle.copyWith(fontSize: 24),
@@ -166,13 +176,31 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
+                          leading: Icon(CupertinoIcons.gear_alt_fill,
+                              color: iconColor(context)),
                           title: const Text(
                             'Settings',
                             style: bottomSheetTitle,
                           ),
-                          onTap: () {
-                            debugPrint('To app settings page');
+                          onTap: () async {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        SettingsPage(),
+                                transitionsBuilder: (context, anim1, _, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(-1, 0),
+                                      end: const Offset(0, 0),
+                                    ).animate(anim1.drive(
+                                        CurveTween(curve: Curves.decelerate))),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
                           },
                         ),
                         listItemDivider(),
@@ -181,19 +209,23 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          leading: Icon(Icons.download_rounded, color: iconColor(context)),
-                          title: const Text('Download Music', style: bottomSheetTitle),
+                          leading: Icon(Icons.download_rounded,
+                              color: iconColor(context)),
+                          title: const Text('Download Music',
+                              style: bottomSheetTitle),
                           onTap: () async {
                             bool hasChange = await Navigator.push(
                               context,
                               PageRouteBuilder(
-                                pageBuilder: (context, _, __) => const MusicDownloader(),
+                                pageBuilder: (context, _, __) =>
+                                    const MusicDownloader(),
                                 transitionsBuilder: (context, anim1, _, child) {
                                   return SlideTransition(
                                     position: Tween<Offset>(
                                       begin: const Offset(-1, 0),
                                       end: const Offset(0, 0),
-                                    ).animate(anim1.drive(CurveTween(curve: Curves.decelerate))),
+                                    ).animate(anim1.drive(
+                                        CurveTween(curve: Curves.decelerate))),
                                     child: child,
                                   );
                                 },
@@ -212,9 +244,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
-                          title: const Text('Change Theme', style: bottomSheetTitle),
-                          onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
+                          leading: FaIcon(Icons.color_lens_rounded,
+                              color: iconColor(context)),
+                          title: const Text('Change Theme',
+                              style: bottomSheetTitle),
+                          onTap: () =>
+                              ThemeProvider.controllerOf(context).nextTheme(),
                         ),
                       ],
                     ),
@@ -239,14 +274,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           transitionDuration: 300.ms,
                           transitionBuilder: (_, anim1, __, child) {
                             return ScaleTransition(
-                              scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                              scale: anim1.drive(
+                                  CurveTween(curve: Curves.easeOutQuart)),
                               alignment: Alignment.bottomLeft,
                               child: child,
                             );
                           },
                           pageBuilder: (context, _, __) => AboutDialog(
                             applicationName: Globals.packageInfo.appName,
-                            applicationVersion: 'v${Globals.packageInfo.version}',
+                            applicationVersion:
+                                'v${Globals.packageInfo.version}',
                           ),
                         ),
                       ),
@@ -270,19 +307,24 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         child: ListView.builder(
                           itemCount: Globals.artists.length,
                           itemBuilder: (context, artistIndex) {
-                            String artistName = Globals.artists.keys.elementAt(artistIndex);
+                            String artistName =
+                                Globals.artists.keys.elementAt(artistIndex);
                             return OpenContainer(
                               closedElevation: 0,
-                              closedColor: Theme.of(context).colorScheme.background,
+                              closedColor:
+                                  Theme.of(context).colorScheme.background,
                               openColor: Colors.transparent,
                               transitionDuration: 400.ms,
                               onClosed: (_) => setState(() {}),
-                              openBuilder: (context, action) => ArtistSongsPage(artistName: artistName),
+                              openBuilder: (context, action) =>
+                                  ArtistSongsPage(artistName: artistName),
                               closedBuilder: (context, action) => ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
                                 title: Text(
                                   artistName,
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600),
                                 ),
                                 subtitle: Text(
                                   '${Globals.artists[artistName]} song${Globals.artists[artistName]! > 1 ? "s" : ""}',
@@ -302,7 +344,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 ),
           // mini player
           bottomNavigationBar: Visibility(
-            visible: Globals.showMinimizedPlayer && Globals.currentSongPath.isNotEmpty,
+            visible: Globals.showMinimizedPlayer &&
+                Globals.currentSongPath.isNotEmpty,
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
@@ -333,7 +376,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         title: Text(
                           Globals.currentSongPath.isNotEmpty
                               ? Globals.allSongs
-                                  .firstWhereOrNull((e) => e.absolutePath == Globals.currentSongPath)!
+                                  .firstWhereOrNull((e) =>
+                                      e.absolutePath ==
+                                      Globals.currentSongPath)!
                                   .trackName
                               : 'None',
                           overflow: TextOverflow.ellipsis,
@@ -345,7 +390,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         subtitle: Text(
                           Globals.currentSongPath.isNotEmpty
                               ? Globals.allSongs
-                                  .firstWhereOrNull((e) => e.absolutePath == Globals.currentSongPath)!
+                                  .firstWhereOrNull((e) =>
+                                      e.absolutePath ==
+                                      Globals.currentSongPath)!
                                   .artist
                               : 'None',
                         ),

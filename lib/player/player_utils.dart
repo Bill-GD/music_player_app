@@ -9,16 +9,20 @@ import '../globals/music_track.dart';
 import '../globals/variables.dart';
 
 /// Returns the current song duration in milliseconds
-int getCurrentDuration() =>
-    Globals.currentSongPath.isNotEmpty ? Globals.audioHandler.player.position.inMilliseconds : 0;
+int getCurrentDuration() => Globals.currentSongPath.isNotEmpty
+    ? Globals.audioHandler.player.position.inMilliseconds
+    : 0;
 
 /// Returns the current song duration in milliseconds
-int getTotalDuration() =>
-    Globals.currentSongPath.isNotEmpty ? Globals.audioHandler.player.duration?.inMilliseconds ?? 1 : 1;
+int getTotalDuration() => Globals.currentSongPath.isNotEmpty
+    ? Globals.audioHandler.player.duration?.inMilliseconds ?? 1
+    : 1;
 
 Future<void> _incrementTimePlayed() async {
   Globals
-      .allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
+      .allSongs[Globals.allSongs
+          .indexWhere((e) => e.absolutePath == Globals.currentSongPath)]
+      .timeListened++;
   debugPrint('Incremented play count');
   await saveSongsToStorage();
 }
@@ -62,6 +66,52 @@ class AudioPlayerHandler extends BaseAudioHandler {
   // Skip cooldown
   bool _skipping = false;
 
+  Timer? _timer;
+
+  void startTimer(Duration duration) {
+    _timer?.cancel();
+    _timer = Timer(duration, () {
+      stop();
+    });
+  }
+
+  void cancelTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  // Delay between songs
+  Duration delayDuration = Duration.zero;
+
+  void updateDelayDuration(Duration newDuration) {
+    delayDuration = newDuration;
+  }
+
+  bool autoPlayNext = false;
+
+  set autoPlayNewSong(bool value) {
+    autoPlayNext = value;
+  }
+
+  void delayBetweenSongs() async {
+    if (delayDuration != Duration.zero) {
+      await Future.delayed(delayDuration);
+    }
+  }
+
+  void onPlayerCompletion() {
+    delayBetweenSongs();
+    if (autoPlayNext) {
+      skipToNext();
+    } else if (_repeat == AudioServiceRepeatMode.one) {
+      play();
+    } else if (_repeat == AudioServiceRepeatMode.none) {
+      skipToNext();
+    } else {
+      skipToNext();
+    }
+  }
+
   AudioPlayerHandler() {
     onSongChange = _onSongChangeController.stream;
 
@@ -96,7 +146,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
           if (interval < 1000) {
             _listenedDuration += interval;
           }
-          if (!_listened && _listenedDuration >= (totalMilliseconds * 0.1).round()) {
+          if (!_listened &&
+              _listenedDuration >= (totalMilliseconds * 0.1).round()) {
             _incrementTimePlayed();
             _listened = true;
           }
@@ -133,7 +184,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> setPlayerSong(String songPath) async {
     Duration? duration = player.duration;
 
-    if (songPath != Globals.currentSongPath || Globals.currentSongPath.isEmpty) {
+    if (songPath != Globals.currentSongPath ||
+        Globals.currentSongPath.isEmpty) {
       debugPrint('Switching to a different song: ${songPath.split('/').last}');
 
       duration = await player.setAudioSource(
@@ -142,7 +194,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
       Globals.currentSongPath = songPath;
       Globals.showMinimizedPlayer = true;
 
-      MusicTrack item = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
+      MusicTrack item =
+          Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
 
       addMediaItem(MediaItem(
         id: songPath,
@@ -163,7 +216,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
       if (_totalDuration.inMilliseconds <= 0) {
         debugPrint('Something is wrong when setting audio source');
       } else {
-        debugPrint('Min listen time: ${(_totalDuration.inMilliseconds * 0.1).round()} ms');
+        debugPrint(
+            'Min listen time: ${(_totalDuration.inMilliseconds * 0.1).round()} ms');
       }
 
       if (Config.autoPlayNewSong) {
@@ -172,13 +226,15 @@ class AudioPlayerHandler extends BaseAudioHandler {
     }
   }
 
-  Future<void> registerPlaylist(String name, List<String> list, String begin) async {
+  Future<void> registerPlaylist(
+      String name, List<String> list, String begin) async {
     _playlist = list;
 
     _shufflePlaylist(begin: begin);
 
     int songCount = _playlist.length;
-    _playlistName = 'Playlist: $name\n($songCount song${songCount > 1 ? 's' : ''})';
+    _playlistName =
+        'Playlist: $name\n($songCount song${songCount > 1 ? 's' : ''})';
     debugPrint('Got playlist: $songCount songs');
   }
 
@@ -196,7 +252,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
         }
       }
     }
-    debugPrint('Current song index: ${_playlist.indexWhere((e) => e == Globals.currentSongPath)}');
+    debugPrint(
+        'Current song index: ${_playlist.indexWhere((e) => e == Globals.currentSongPath)}');
   }
 
   Future<void> addMediaItem(MediaItem item) async => mediaItem.add(item);
@@ -232,6 +289,11 @@ class AudioPlayerHandler extends BaseAudioHandler {
       seek(0.ms);
     }
     player.play();
+    player.playbackEventStream.listen((event) {
+      if (event.processingState == ProcessingState.completed) {
+        onPlayerCompletion();
+      }
+    });
   }
 
   /// Only from player
@@ -291,7 +353,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
       return;
     }
 
-    int currentIndex = _playlist.indexWhere((e) => e == Globals.currentSongPath);
+    int currentIndex =
+        _playlist.indexWhere((e) => e == Globals.currentSongPath);
 
     if (currentIndex < 0) {
       pause();
@@ -342,7 +405,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
       return;
     }
 
-    int currentIndex = _playlist.indexWhere((e) => e == Globals.currentSongPath);
+    int currentIndex =
+        _playlist.indexWhere((e) => e == Globals.currentSongPath);
 
     if (currentIndex < 0) {
       pause();
@@ -362,7 +426,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   void loadConfig(bool? shuffle, String? repeat) {
-    _shuffle = shuffle == true ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none;
+    _shuffle = shuffle == true
+        ? AudioServiceShuffleMode.all
+        : AudioServiceShuffleMode.none;
     _repeat = repeat == 'all'
         ? AudioServiceRepeatMode.all
         : repeat == 'one'
