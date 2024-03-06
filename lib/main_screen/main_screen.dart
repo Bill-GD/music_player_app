@@ -96,8 +96,9 @@ class _MainScreenState extends State<MainScreen>
             title: Container(
               height: AppBar().preferredSize.height * 0.65,
               margin: const EdgeInsets.only(right: 15),
-              child: TextFormField(
-                readOnly: true,
+              child: TextField(
+                readOnly: false,
+                controller: searchController,
                 decoration: textFieldDecoration(
                   context,
                   hintText: 'Search songs and artists',
@@ -116,11 +117,8 @@ class _MainScreenState extends State<MainScreen>
                       .secondaryContainer
                       .withOpacity(0.4),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SearchPage()),
-                  );
+                onChanged: (value) {
+                  filterSongs();
                 },
               ),
             ),
