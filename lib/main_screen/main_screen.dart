@@ -14,7 +14,7 @@ import '../music_downloader/music_downloader.dart';
 import '../permission/storage_permission.dart';
 import '../player/music_player.dart';
 import '../player/player_utils.dart';
-import '../search/search.dart';
+import '../search/search_page.dart';
 import '../setting_page/setting.dart';
 import '../songs/songs_list.dart';
 import 'songs_of_artist.dart';
@@ -95,8 +95,7 @@ class _MainScreenState extends State<MainScreen> {
               height: AppBar().preferredSize.height * 0.65,
               margin: const EdgeInsets.only(right: 15),
               child: TextField(
-                readOnly: false,
-                // controller: searchController,
+                readOnly: true,
                 decoration: textFieldDecoration(
                   context,
                   hintText: 'Search songs and artists',
@@ -112,10 +111,9 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SearchPage()),
+                onTap: () async {
+                  await Navigator.of(context).push(
+                    await getSearchPageRoute(context),
                   );
                 },
               ),
