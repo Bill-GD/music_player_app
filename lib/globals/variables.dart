@@ -30,6 +30,9 @@ class Config {
   /// Current sorting order of the song list, default [SortOptions.name].
   static SortOptions currentSortOption = SortOptions.name;
 
+  /// Should filtering out all short files.
+  static bool enableSongFiltering = true;
+
   /// Filters out all files shorter than this, default `30` seconds.
   static int lengthLimitMilliseconds = 30000;
 
@@ -57,6 +60,7 @@ class Config {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setString('currentSortOption', currentSortOption.name);
+    await prefs.setBool('enableSongFiltering', enableSongFiltering);
     await prefs.setInt('lengthLimitSecond', (lengthLimitMilliseconds / 1000).round());
     await prefs.setBool('autoPlayNewSong', autoPlayNewSong);
     await prefs.setDouble('volume', volume);
@@ -76,6 +80,8 @@ class Config {
             ? SortOptions.recentlyAdded
             : SortOptions.name;
 
+    final filter = prefs.getBool('autoPlayNewSong');
+    if (filter != null) enableSongFiltering = filter;
     final length = prefs.getInt('lengthLimitSecond');
     if (length != null) lengthLimitMilliseconds = length * 1000;
     final auto = prefs.getBool('autoPlayNewSong');

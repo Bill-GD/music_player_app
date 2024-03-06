@@ -213,15 +213,6 @@ class _SongInfoState extends State<SongInfo> {
   }
 }
 
-Text leadingText(BuildContext context, String text) => Text(
-      text,
-      style: TextStyle(
-        fontSize: 18,
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-
 extension DateString on DateTime {
   String toDateString() {
     return '${formatDay(day)} ${_monthNames[month - 1]} $year, ${hour.padIntLeft(2, '0')}:${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}';

@@ -20,6 +20,15 @@ const TextStyle bottomSheetText = TextStyle(
 
 Color? iconColor(BuildContext context) => Theme.of(context).iconTheme.color;
 
+Text leadingText(BuildContext context, String text, [bool bold = true, double size = 18]) => Text(
+      text,
+      style: TextStyle(
+        fontSize: size,
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
+        fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+      ),
+    );
+
 InputDecoration textFieldDecoration(
   BuildContext context, {
   Color? fillColor,
