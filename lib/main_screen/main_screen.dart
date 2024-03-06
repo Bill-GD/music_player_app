@@ -25,7 +25,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
-  bool isLoading = true, isDarkTheme = false;
+  bool isLoading = true;
 
   int _childParam = 0;
 
