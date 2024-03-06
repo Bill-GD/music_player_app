@@ -170,22 +170,35 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     ],
                   ),
                 ),
-                ProgressBar(
-                  progress: min(maxDuration, currentDuration).ms,
-                  total: maxDuration.ms,
-                  thumbCanPaintOutsideBar: false,
-                  timeLabelPadding: 5,
-                  timeLabelLocation: TimeLabelLocation.below,
-                  timeLabelType: TimeLabelType.totalTime,
-                  timeLabelTextStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  onSeek: (seekDuration) async {
-                    currentDuration = min(maxDuration, seekDuration.inMilliseconds);
-                    await Globals.audioHandler.seek(seekDuration);
-                    setState(() {});
-                  },
+                Stack(
+                  children: [
+                    ProgressBar(
+                      progress: min(maxDuration, currentDuration).ms,
+                      total: maxDuration.ms,
+                      thumbCanPaintOutsideBar: false,
+                      timeLabelPadding: 5,
+                      timeLabelLocation: TimeLabelLocation.below,
+                      timeLabelType: TimeLabelType.totalTime,
+                      timeLabelTextStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onSeek: (seekDuration) async {
+                        currentDuration = min(maxDuration, seekDuration.inMilliseconds);
+                        await Globals.audioHandler.seek(seekDuration);
+                        setState(() {});
+                      },
+                    ),
+                    Container(
+                      height: 4.5,
+                      width: 2,
+                      margin: EdgeInsets.only(
+                        top: 8,
+                        left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
+                      ),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
                 ),
                 // Controls
                 Padding(

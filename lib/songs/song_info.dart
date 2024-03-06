@@ -79,11 +79,11 @@ class _SongInfoState extends State<SongInfo> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            children: [
-              Container(
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   border: BorderDirectional(
@@ -109,7 +109,10 @@ class _SongInfoState extends State<SongInfo> {
                   ],
                 ),
               ),
-              Container(
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   border: BorderDirectional(
@@ -135,19 +138,23 @@ class _SongInfoState extends State<SongInfo> {
                   ],
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.only(top: 30, bottom: 20),
-                child: const Text(
-                  'Other Information',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 30, bottom: 20),
+              child: const Text(
+                'Other Information',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30, right: 15),
+              child: Row(
                 children: [
                   leadingText(context, 'Time Played'),
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
+                      scrollPadding: const EdgeInsets.only(right: 0),
                       initialValue: song.timeListened.toString(),
                       decoration: textFieldDecoration(
                         context,
@@ -158,12 +165,16 @@ class _SongInfoState extends State<SongInfo> {
                   ),
                 ],
               ),
-              Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30, right: 15),
+              child: Row(
                 children: [
                   leadingText(context, 'Time Added'),
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
+                      scrollPadding: const EdgeInsets.only(right: 0),
                       initialValue: song.timeAdded.toDateString(),
                       decoration: textFieldDecoration(
                         context,
@@ -174,12 +185,16 @@ class _SongInfoState extends State<SongInfo> {
                   ),
                 ],
               ),
-              Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30, right: 15),
+              child: Row(
                 children: [
                   leadingText(context, 'Path'),
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
+                      scrollPadding: const EdgeInsets.only(right: 0),
                       initialValue: widget.songPath,
                       decoration: textFieldDecoration(
                         context,
@@ -190,8 +205,8 @@ class _SongInfoState extends State<SongInfo> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
