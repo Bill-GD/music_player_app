@@ -161,7 +161,10 @@ class AudioPlayerHandler extends BaseAudioHandler {
       _totalDuration = duration ?? 0.ms;
       _listenedDuration = 0;
       _listened = false;
-      _minTime = max((_totalDuration.inMilliseconds * 0.1).round(), 10000);
+      _minTime = min(
+        max((_totalDuration.inMilliseconds * 0.1).round(), 10000),
+        _totalDuration.inMilliseconds,
+      );
 
       // Broadcast change
       _onSongChangeController.add(true);
@@ -169,7 +172,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       if (_totalDuration.inMilliseconds <= 0) {
         debugPrint('Something is wrong when setting audio source');
       } else {
-        debugPrint('Min listen time: $_minTime ms');
+        debugPrint('Min listen time: $_minTime / ${_totalDuration.inMilliseconds} ms');
       }
 
       if (Config.autoPlayNewSong) {

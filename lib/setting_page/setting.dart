@@ -1,3 +1,4 @@
+import 'package:dedent/dedent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -149,21 +150,46 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             SwitchListTile(
-              title: leadingText(context, 'Ignore short files', false, 16),
+              title: Row(
+                children: [
+                  leadingText(context, 'Song Filter', false, 16),
+                  getSettingOptionInfo(
+                    context,
+                    'Ignore short files',
+                    dedent('''
+                    Ignore all .mp3 files that are short enough.
+                    If turned off, the app will get all mp3 files in Downloads folder, regardless of length.
+
+                    If you changed this, you should refresh the song list to update.
+                    All songs that were filtered will have their data deleted.
+                    '''),
+                  ),
+                ],
+              ),
               value: ignoreShortFile,
-              onChanged: (value) {
-                setState(() => ignoreShortFile = value);
-              },
+              onChanged: (value) => setState(() => ignoreShortFile = value),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16),
               child: Row(
                 children: [
                   leadingText(context, 'Time (in seconds)', false, 16),
+                  getSettingOptionInfo(
+                    context,
+                    'Time limit to filter',
+                    dedent('''
+                    The app will ignore all .mp3 files that are shorter than this time in seconds.
+                    If song filter is disabled, this option is ignored.
+
+                    If you changed this, you should refresh the song list to update.
+                    All songs that were filtered will have their data deleted.
+                    '''),
+                  ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 100, right: 16),
                       child: TextField(
+                        enabled: ignoreShortFile,
                         controller: _timerController..text = ignoreTimeLimit.toString(),
                         onChanged: (value) => ignoreTimeLimit = value.isNotEmpty ? int.parse(value) : 0,
                         keyboardType: TextInputType.number,
@@ -185,7 +211,19 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             SwitchListTile(
-              title: leadingText(context, 'Auto play new song', false, 16),
+              title: Row(
+                children: [
+                  leadingText(context, 'Auto play new song', false, 16),
+                  getSettingOptionInfo(
+                    context,
+                    'New song will auto start',
+                    dedent('''
+                    When a new song is chosen or skipped to, the player will automatically start playing music.
+                    If turned off, you have to start playing manually.
+                    '''),
+                  ),
+                ],
+              ),
               value: autoPlay,
               onChanged: (value) {
                 setState(() => autoPlay = value);
@@ -193,7 +231,19 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16),
-              child: leadingText(context, 'Delay between songs:', false, 16),
+              child: Row(
+                children: [
+                  leadingText(context, 'Delay between songs:', false, 16),
+                  getSettingOptionInfo(
+                    context,
+                    'Short delay when skipping song',
+                    dedent('''
+                    When playing a playlist and the song is finished, the player will change song after a delay.
+                    The delay is in milliseconds, from 0 to 500.
+                    '''),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
@@ -215,7 +265,22 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16),
-              child: leadingText(context, 'Volume:', false, 16),
+              child: Row(
+                children: [
+                  leadingText(context, 'Volume:', false, 16),
+                  getSettingOptionInfo(
+                    context,
+                    'Changing base volume',
+                    dedent('''
+                    Changing the base volume of the player.
+                    You should not set it too high unless the volume output is too low.
+
+                    The normal volume is 1, which is 1 time the normal volume.
+                    The range is from 0.5 to 5.
+                    '''),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
@@ -240,4 +305,62 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+}
+
+Widget getSettingOptionInfo(BuildContext context, String title, String content) => GestureDetector(
+      onTap: () async {
+        await showOptionInfo(context, title, content);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Icon(
+          Icons.help_rounded,
+          size: 20,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+
+Future<void> showOptionInfo(BuildContext context, String title, String content) async {
+  await showGeneralDialog(
+    context: context,
+    transitionDuration: 300.ms,
+    transitionBuilder: (_, anim1, __, child) {
+      return ScaleTransition(
+        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+        child: child,
+      );
+    },
+    barrierDismissible: true,
+    barrierLabel: '',
+    pageBuilder: (context, _, __) {
+      return AlertDialog(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: bottomSheetTitle.copyWith(fontSize: 24),
+        ),
+        alignment: Alignment.center,
+        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 40),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            content,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceAround,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
 }

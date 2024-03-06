@@ -85,13 +85,15 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
   final allMp3 = downloadPath.listSync().where((file) => file.absolute.path.endsWith('.mp3'));
   List<FileSystemEntity> filteredList = [];
 
-  if (Config.enableSongFiltering) {
-    debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds / 1000}s');
-    for (var element in allMp3) {
-      Metadata info = await MetadataRetriever.fromFile(File(element.absolute.path));
-      if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
-        filteredList.add(element);
-      }
+  if (!Config.enableSongFiltering) {
+    return allMp3.map((e) => MusicTrack(e.absolute.path)).toList();
+  }
+
+  debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds / 1000}s');
+  for (var element in allMp3) {
+    Metadata info = await MetadataRetriever.fromFile(File(element.absolute.path));
+    if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
+      filteredList.add(element);
     }
   }
 
