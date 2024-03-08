@@ -376,6 +376,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   void loadConfig(bool? shuffle, String? repeat) {
+    setVolume(Config.volume);
     _shuffle = shuffle == true ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none;
     _repeat = repeat == 'all'
         ? AudioServiceRepeatMode.all

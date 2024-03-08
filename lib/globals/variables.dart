@@ -39,7 +39,7 @@ class Config {
   /// Should the player start when choosing a new song, default `true`.
   static bool autoPlayNewSong = true;
 
-  /// The base volume of the player, default `1`. Range `[0.5, 5]`.
+  /// The base volume of the player, default `1`. Range `[0, 1]`.
   static double volume = 1;
 
   /// The delay between song changes, default `0` milliseconds. Range `[0, 500]`.

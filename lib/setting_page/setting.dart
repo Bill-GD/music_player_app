@@ -114,7 +114,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             child: const Text('NO'),
                           ),
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async {
                               needsUpdate = true;
                               Config.enableSongFiltering = ignoreShortFile;
                               Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
@@ -122,8 +122,8 @@ class _SettingsPageState extends State<SettingsPage> {
                               Config.delayMilliseconds = delayBetween;
                               Config.volume = volume;
                               Globals.audioHandler.setVolume(Config.volume);
-                              Config.saveConfig();
-                              Navigator.of(context).pop();
+                              await Config.saveConfig();
+                              if (context.mounted) Navigator.of(context).pop();
                             },
                             child: const Text('YES'),
                           ),
@@ -187,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 100, right: 16),
+                      padding: const EdgeInsets.only(left: 50, right: 16),
                       child: TextField(
                         enabled: ignoreShortFile,
                         controller: _timerController..text = ignoreTimeLimit.toString(),
@@ -273,10 +273,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     'Changing base volume',
                     dedent('''
                     Changing the base volume of the player.
-                    You should not set it too high unless the volume output is too low.
 
-                    The normal volume is 1, which is 1 time the normal volume.
-                    The range is from 0.5 to 5.
+                    The normal volume is 1, which is max volume. The range is from 0 to 1.
                     '''),
                   ),
                 ],
@@ -287,18 +285,18 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text('0.5'),
-                  Text('5'),
+                  Text('0'),
+                  Text('1'),
                 ],
               ),
             ),
             Slider(
               value: volume,
-              min: 0.5,
-              max: 5.0,
+              min: 0,
+              max: 1,
               label: volume.toString(),
               onChanged: (value) => setState(() => volume = value),
-              divisions: 9,
+              divisions: 10,
             ),
           ],
         ),
