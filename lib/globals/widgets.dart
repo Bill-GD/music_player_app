@@ -152,9 +152,9 @@ Future<void> showSongOptionsMenu(
             ),
           );
           if (needsUpdate == true) {
-            updateMusicData().then((_) {
+            setState(() {
+              updateArtistsList();
               sortAllSongs();
-              setState(() {});
             });
             if (context.mounted) Navigator.of(context).pop();
           }

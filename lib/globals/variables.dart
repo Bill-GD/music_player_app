@@ -71,27 +71,23 @@ class Config {
   }
 
   static Future<void> loadConfig() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
-    final sort = prefs.getString('currentSortOption');
-    currentSortOption = sort == 'mostPlayed'
-        ? SortOptions.mostPlayed
-        : sort == 'recentlyAdded'
-            ? SortOptions.recentlyAdded
-            : SortOptions.name;
+    currentSortOption = SortOptions.values.firstWhere(
+      (option) => option.name == prefs.getString('currentSortOption'),
+      orElse: () => SortOptions.name,
+    );
 
-    final filter = prefs.getBool('autoPlayNewSong');
-    if (filter != null) enableSongFiltering = filter;
-    final length = prefs.getInt('lengthLimitSecond');
-    if (length != null) lengthLimitMilliseconds = length * 1000;
-    final auto = prefs.getBool('autoPlayNewSong');
-    if (auto != null) autoPlayNewSong = auto;
-    final vol = prefs.getDouble('volume');
-    if (vol != null) volume = vol;
-    final delay = prefs.getInt('delayMilliseconds');
-    if (delay != null) delayMilliseconds = delay;
+    enableSongFiltering = prefs.getBool('enableSongFiltering') ?? true;
+    lengthLimitMilliseconds = (prefs.getInt('lengthLimitSecond') ?? 30) * 1000;
+    autoPlayNewSong = prefs.getBool('autoPlayNewSong') ?? true;
+    volume = (prefs.getDouble('volume') ?? 1).clamp(0, 1);
+    delayMilliseconds = prefs.getInt('delayMilliseconds') ?? 0;
 
-    Globals.audioHandler.loadConfig(prefs.getBool('isShuffled'), prefs.getString('repeatMode'));
+    Globals.audioHandler.loadConfig(
+      prefs.getBool('isShuffled'),
+      prefs.getString('repeatMode'),
+    );
     debugPrint('Config loaded');
   }
 }

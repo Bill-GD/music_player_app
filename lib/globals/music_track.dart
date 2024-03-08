@@ -47,7 +47,7 @@ class MusicTrack {
 /// Get all songs (from storage & saved)
 Future<void> updateMusicData() async {
   await updateListOfSongs();
-  updateListOfArtists();
+  updateArtistsList();
   await saveSongsToStorage();
 }
 
@@ -79,34 +79,33 @@ Future<void> updateListOfSongs() async {
 }
 
 Future<List<MusicTrack>> _getSongsFromStorage() async {
-  final downloadPath = Directory('/storage/emulated/0/Download');
-  debugPrint('Getting music files from: ${downloadPath.path}');
-
-  final allMp3 = downloadPath.listSync().where((file) => file.absolute.path.endsWith('.mp3'));
-  List<FileSystemEntity> filteredList = [];
+  final downloadDir = Directory('/storage/emulated/0/Download');
+  debugPrint('Getting music files from: ${downloadDir.path}');
+  final mp3Files = downloadDir.listSync().where((e) => e.path.endsWith('.mp3')).toList();
+  final filteredFiles = <MusicTrack>[];
 
   if (!Config.enableSongFiltering) {
-    return allMp3.map((e) => MusicTrack(e.absolute.path)).toList();
+    return mp3Files.map((e) => MusicTrack(e.path)).toList();
   }
 
   debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds / 1000}s');
-  for (var element in allMp3) {
-    Metadata info = await MetadataRetriever.fromFile(File(element.absolute.path));
+  for (final file in mp3Files) {
+    final info = await MetadataRetriever.fromFile(File(file.path));
     if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
-      filteredList.add(element);
+      filteredFiles.add(MusicTrack(file.path));
     }
   }
 
-  return filteredList.map((file) => MusicTrack(file.path)).toList();
+  return filteredFiles;
 }
 
 Future<List<MusicTrack>?> _getSavedMusicData() async {
-  File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
+  final file = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
+  if (!file.existsSync()) return null;
 
-  if (!saveFile.existsSync()) return null;
-
-  debugPrint('Getting saved music data from: ${saveFile.path}');
-  return (jsonDecode(saveFile.readAsStringSync()) as List).map((e) => MusicTrack.fromJson(e)).toList();
+  debugPrint('Getting saved music data from: ${file.path}');
+  final List json = jsonDecode(file.readAsStringSync());
+  return json.map((e) => MusicTrack.fromJson(e)).toList();
 }
 
 Future<void> saveSongsToStorage() async {
@@ -117,42 +116,32 @@ Future<void> saveSongsToStorage() async {
 }
 
 void sortAllSongs([SortOptions? sortType]) {
-  debugPrint('Sorting all tracks: ${Config.currentSortOption.name}');
+  final tracks = List<MusicTrack>.from(Globals.allSongs);
   Config.currentSortOption = sortType ?? Config.currentSortOption;
+  debugPrint('Sorting all tracks: ${Config.currentSortOption.name}');
   switch (Config.currentSortOption) {
     case SortOptions.name:
-      Globals.allSongs.sort((track1, track2) {
-        return track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase());
-      });
+      tracks
+          .sort((track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()));
       break;
     case SortOptions.mostPlayed:
-      Globals.allSongs.sort((track1, track2) {
-        return track2.timeListened.compareTo(track1.timeListened);
-      });
+      tracks.sort((track1, track2) => track2.timeListened.compareTo(track1.timeListened));
       break;
     case SortOptions.recentlyAdded:
-      Globals.allSongs.sort((track1, track2) {
-        return track2.timeAdded.compareTo(track1.timeAdded);
-      });
+      tracks.sort((track1, track2) => track2.timeAdded.compareTo(track1.timeAdded));
       break;
   }
+  Globals.allSongs = tracks;
 }
 
-void updateListOfArtists() {
+void updateArtistsList() {
   debugPrint('Getting list of artists');
-  Set<String> uniqueArtists = <String>{};
-
-  for (var element in Globals.allSongs) {
-    uniqueArtists.add(element.artist);
-  }
-
-  uniqueArtists = SplayTreeSet.from(
-    uniqueArtists,
+  final artists = <String, int>{}..addAll({
+      for (final song in Globals.allSongs)
+        song.artist: Globals.allSongs.where((s) => s.artist == song.artist).length,
+    });
+  Globals.artists = SplayTreeMap.from(
+    artists,
     (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
   );
-
-  Globals.artists = {
-    for (var element in uniqueArtists)
-      element: Globals.allSongs.where((song) => song.artist == element).length
-  };
 }

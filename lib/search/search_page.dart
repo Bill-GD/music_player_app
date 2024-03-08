@@ -5,9 +5,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 
-Future<Route> getSearchPageRoute(
-  BuildContext context,
-) async {
+Future<Route> getSearchPageRoute(BuildContext context) async {
   return PageRouteBuilder(
     pageBuilder: (context, _, __) => const SearchPage(),
     transitionDuration: 400.ms,

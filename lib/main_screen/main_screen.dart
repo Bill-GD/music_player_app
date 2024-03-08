@@ -295,21 +295,25 @@ class _MainScreenState extends State<MainScreen> {
                               transitionDuration: 400.ms,
                               onClosed: (_) => setState(() {}),
                               openBuilder: (context, action) => ArtistSongsPage(artistName: artistName),
-                              closedBuilder: (context, action) => ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                                title: Text(
-                                  artistName,
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                subtitle: Text(
-                                  '${Globals.artists[artistName]} song${Globals.artists[artistName]! > 1 ? "s" : ""}',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w400,
+                              closedBuilder: (context, action) {
+                                final songCount = Globals.artists[artistName];
+                                if (songCount == null) return const SizedBox.shrink();
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                  title: Text(
+                                    artistName,
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
-                                ),
-                                onTap: action,
-                              ),
+                                  subtitle: Text(
+                                    '$songCount song${songCount! > 1 ? "s" : ""}',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  onTap: action,
+                                );
+                              },
                             );
                           },
                         ),
