@@ -305,7 +305,7 @@ class _MainScreenState extends State<MainScreen> {
                                     style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                   subtitle: Text(
-                                    '$songCount song${songCount! > 1 ? "s" : ""}',
+                                    '$songCount song${songCount > 1 ? "s" : ""}',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontWeight: FontWeight.w400,
