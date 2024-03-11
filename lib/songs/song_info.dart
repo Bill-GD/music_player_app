@@ -64,11 +64,13 @@ class _SongInfoState extends State<SongInfo> {
                       ? 'Unknown' //
                       : _artistController.text;
 
-                  Globals.audioHandler.updateNotificationInfo(
-                    songPath: widget.songPath,
-                    trackName: _songController.text,
-                    artist: _artistController.text,
-                  );
+                  if (widget.songPath == Globals.currentSongPath) {
+                    Globals.audioHandler.updateNotificationInfo(
+                      songPath: widget.songPath,
+                      trackName: _songController.text,
+                      artist: _artistController.text,
+                    );
+                  }
 
                   await saveSongsToStorage();
                 }
