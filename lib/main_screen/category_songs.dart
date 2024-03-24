@@ -141,7 +141,6 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                           context,
                           songs[songIndex].absolutePath,
                           setState,
-                          isCategoryArtist: categoryIsArtist,
                         );
                         getSongs();
                         if (songs.isEmpty && context.mounted) {

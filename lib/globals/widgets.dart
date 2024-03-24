@@ -117,7 +117,6 @@ Future<void> showSongOptionsMenu(
   String songPath,
   void Function(void Function()) setState, {
   bool showDeleteOption = true,
-  bool isCategoryArtist = true,
 }) async {
   MusicTrack song = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
   await getBottomSheet(
@@ -154,7 +153,8 @@ Future<void> showSongOptionsMenu(
           );
           if (needsUpdate == true) {
             setState(() {
-              isCategoryArtist ? updateArtistsList() : updateAlbumList();
+              updateArtistsList();
+              updateAlbumList();
               sortAllSongs();
             });
             if (context.mounted) Navigator.of(context).pop();
