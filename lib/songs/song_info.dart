@@ -13,7 +13,9 @@ class SongInfo extends StatefulWidget {
 }
 
 class _SongInfoState extends State<SongInfo> {
-  final _songController = TextEditingController(), _artistController = TextEditingController();
+  final _songController = TextEditingController(),
+      _artistController = TextEditingController(),
+      _albumController = TextEditingController();
 
   late MusicTrack song;
 
@@ -28,6 +30,7 @@ class _SongInfoState extends State<SongInfo> {
     super.dispose();
     _songController.dispose();
     _artistController.dispose();
+    _albumController.dispose();
   }
 
   @override
@@ -52,8 +55,11 @@ class _SongInfoState extends State<SongInfo> {
                 FocusManager.instance.primaryFocus?.unfocus();
                 _songController.text = _songController.text.trim();
                 _artistController.text = _artistController.text.trim();
+                _albumController.text = _albumController.text.trim();
                 // only update if changed
-                if (_songController.text != song.trackName || _artistController.text != song.artist) {
+                if (_songController.text != song.trackName ||
+                    _artistController.text != song.artist ||
+                    _albumController.text != song.album) {
                   needsUpdate = true;
 
                   song.trackName = _songController.text.isEmpty
@@ -63,6 +69,10 @@ class _SongInfoState extends State<SongInfo> {
                   song.artist = _artistController.text.isEmpty
                       ? 'Unknown' //
                       : _artistController.text;
+
+                  song.album = _albumController.text.isEmpty
+                      ? 'Unknown' //
+                      : _albumController.text;
 
                   if (widget.songPath == Globals.currentSongPath) {
                     Globals.audioHandler.updateNotificationInfo(
@@ -129,6 +139,35 @@ class _SongInfoState extends State<SongInfo> {
                     Expanded(
                       child: TextField(
                         controller: _artistController..text = song.artist,
+                        decoration: textFieldDecoration(
+                          context,
+                          fillColor: Theme.of(context).colorScheme.background,
+                          border: InputBorder.none,
+                          suffixIcon: const Icon(Icons.edit_rounded),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  border: BorderDirectional(
+                    bottom: BorderSide(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    leadingText(context, 'Album'),
+                    Expanded(
+                      child: TextField(
+                        controller: _albumController..text = song.album,
                         decoration: textFieldDecoration(
                           context,
                           fillColor: Theme.of(context).colorScheme.background,

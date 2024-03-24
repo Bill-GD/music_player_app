@@ -87,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return SafeArea(
       child: DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.background,
@@ -140,6 +140,7 @@ class _MainScreenState extends State<MainScreen> {
               tabs: const [
                 Tab(child: Text('Songs')),
                 Tab(child: Text('Artists')),
+                Tab(child: Text('Albums')),
               ],
             ),
           ),
@@ -282,41 +283,72 @@ class _MainScreenState extends State<MainScreen> {
                       // song list
                       SongList(param: _childParam, updateParent: setState),
                       // artist list
-                      StretchingOverscrollIndicator(
-                        axisDirection: AxisDirection.down,
-                        child: ListView.builder(
-                          itemCount: Globals.artists.length,
-                          itemBuilder: (context, artistIndex) {
-                            String artistName = Globals.artists.keys.elementAt(artistIndex);
-                            return OpenContainer(
-                              closedElevation: 0,
-                              closedColor: Theme.of(context).colorScheme.background,
-                              openColor: Colors.transparent,
-                              transitionDuration: 400.ms,
-                              onClosed: (_) => setState(() {}),
-                              openBuilder: (context, action) => ArtistSongsPage(artistName: artistName),
-                              closedBuilder: (context, action) {
-                                final songCount = Globals.artists[artistName];
-                                if (songCount == null) return const SizedBox.shrink();
-                                return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                                  title: Text(
-                                    artistName,
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                      ListView.builder(
+                        itemCount: Globals.artists.length,
+                        itemBuilder: (context, artistIndex) {
+                          String artistName = Globals.artists.keys.elementAt(artistIndex);
+                          return OpenContainer(
+                            closedElevation: 0,
+                            closedColor: Theme.of(context).colorScheme.background,
+                            openColor: Colors.transparent,
+                            transitionDuration: 400.ms,
+                            onClosed: (_) => setState(() {}),
+                            openBuilder: (context, action) => CategorySongsPage(artistName: artistName),
+                            closedBuilder: (context, action) {
+                              final songCount = Globals.artists[artistName];
+                              if (songCount == null) return const SizedBox.shrink();
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                title: Text(
+                                  artistName,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  '$songCount song${songCount > 1 ? "s" : ""}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w400,
                                   ),
-                                  subtitle: Text(
-                                    '$songCount song${songCount > 1 ? "s" : ""}',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                                ),
+                                onTap: action,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      // album list
+                      ListView.builder(
+                        itemCount: Globals.albums.length,
+                        itemBuilder: (context, albumIndex) {
+                          String albumName = Globals.albums.keys.elementAt(albumIndex);
+                          return OpenContainer(
+                            closedElevation: 0,
+                            closedColor: Theme.of(context).colorScheme.background,
+                            openColor: Colors.transparent,
+                            transitionDuration: 400.ms,
+                            onClosed: (_) => setState(() {}),
+                            openBuilder: (context, action) => CategorySongsPage(albumName: albumName),
+                            closedBuilder: (context, action) {
+                              final songCount = Globals.albums[albumName];
+                              if (songCount == null) return const SizedBox.shrink();
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                title: Text(
+                                  albumName,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  '$songCount song${songCount > 1 ? "s" : ""}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w400,
                                   ),
-                                  onTap: action,
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                ),
+                                onTap: action,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),

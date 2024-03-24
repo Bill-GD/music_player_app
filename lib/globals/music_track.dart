@@ -11,7 +11,7 @@ import 'variables.dart';
 
 class MusicTrack {
   String absolutePath;
-  String trackName, artist;
+  String trackName, artist, album;
   int timeListened;
   late DateTime timeAdded;
 
@@ -19,6 +19,7 @@ class MusicTrack {
     this.absolutePath, {
     this.trackName = '',
     this.artist = 'Unknown',
+    this.album = 'Unknown',
     this.timeListened = 0,
   }) {
     trackName = trackName.isEmpty ? absolutePath.split('/').last.split('.mp3').first : trackName;
@@ -29,6 +30,7 @@ class MusicTrack {
       : absolutePath = json['absolutePath'],
         trackName = json['trackName'] ?? json['absolutePath'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
+        album = json['album'] ?? 'Unknown',
         timeListened = json['timeListened'],
         timeAdded = DateTime.parse(
             json['timeAdded'] ?? File(json['absolutePath']).statSync().modified.toIso8601String());
@@ -39,6 +41,7 @@ class MusicTrack {
         'absolutePath': absolutePath,
         'trackName': trackName,
         'artist': artist,
+        'album': album,
         'timeListened': timeListened,
         'timeAdded': timeAdded.toIso8601String(),
       };
@@ -48,6 +51,7 @@ class MusicTrack {
 Future<void> updateMusicData() async {
   await updateListOfSongs();
   updateArtistsList();
+  updateAlbumList();
   await saveSongsToStorage();
 }
 
@@ -71,6 +75,7 @@ Future<void> updateListOfSongs() async {
       storageSongs[i]
         ..trackName = matchingSong.trackName
         ..artist = matchingSong.artist
+        ..album = matchingSong.album
         ..timeListened = matchingSong.timeListened;
     }
   }
@@ -142,6 +147,18 @@ void updateArtistsList() {
     });
   Globals.artists = SplayTreeMap.from(
     artists,
+    (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
+  );
+}
+
+void updateAlbumList() {
+  debugPrint('Getting list of albums');
+  final albums = <String, int>{}..addAll({
+      for (final song in Globals.allSongs)
+        song.album: Globals.allSongs.where((s) => s.album == song.album).length,
+    });
+  Globals.albums = SplayTreeMap.from(
+    albums,
     (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
   );
 }

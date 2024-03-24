@@ -12,6 +12,9 @@ class Globals {
   /// List of name and song count of artists.
   static Map<String, int> artists = {};
 
+  /// List of name and song count of albums.
+  static Map<String, int> albums = {};
+
   static late final AudioPlayerHandler audioHandler;
 
   static late final PackageInfo packageInfo;

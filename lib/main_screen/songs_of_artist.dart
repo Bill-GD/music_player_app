@@ -8,27 +8,37 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 
-class ArtistSongsPage extends StatefulWidget {
-  final String artistName;
-  const ArtistSongsPage({super.key, required this.artistName});
+class CategorySongsPage extends StatefulWidget {
+  final String artistName, albumName;
+  const CategorySongsPage({super.key, this.artistName = '', this.albumName = ''});
 
   @override
-  State<ArtistSongsPage> createState() => _ArtistSongsPageState();
+  State<CategorySongsPage> createState() => _CategorySongsPageState();
 }
 
-class _ArtistSongsPageState extends State<ArtistSongsPage> {
+class _CategorySongsPageState extends State<CategorySongsPage> {
   late List<MusicTrack> songs;
 
+  late bool categoryIsArtist;
+
   void getSongs() {
-    songs = Globals.allSongs.where((song) => song.artist == widget.artistName).toList()
-      ..sort(
-        (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
-      );
+    if (categoryIsArtist) {
+      songs = Globals.allSongs.where((song) => song.artist == widget.artistName).toList()
+        ..sort(
+          (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
+        );
+    } else {
+      songs = Globals.allSongs.where((song) => song.album == widget.albumName).toList()
+        ..sort(
+          (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
+        );
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    categoryIsArtist = widget.artistName.isNotEmpty;
     getSongs();
   }
 
@@ -43,7 +53,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
           ),
           centerTitle: true,
           title: Text(
-            widget.artistName,
+            categoryIsArtist ? widget.artistName : widget.albumName,
             style: const TextStyle(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
@@ -66,8 +76,9 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
               ),
               onPressed: () async {
                 final randomSong = songs[Random().nextInt(songs.length)].absolutePath;
+                // get artistName or albumName depend on category
                 Globals.audioHandler.registerPlaylist(
-                  widget.artistName,
+                  categoryIsArtist ? widget.artistName : widget.albumName,
                   songs.map((e) => e.absolutePath).toList(),
                   randomSong,
                 );
@@ -102,7 +113,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      songs[songIndex].artist,
+                      '${songs[songIndex].artist} | ${songs[songIndex].album}',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.grey[600],
@@ -111,7 +122,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                     ),
                     onTap: () async {
                       Globals.audioHandler.registerPlaylist(
-                        widget.artistName,
+                        categoryIsArtist ? widget.artistName : widget.albumName,
                         songs.map((e) => e.absolutePath).toList(),
                         songs[songIndex].absolutePath,
                       );
@@ -130,6 +141,7 @@ class _ArtistSongsPageState extends State<ArtistSongsPage> {
                           context,
                           songs[songIndex].absolutePath,
                           setState,
+                          isCategoryArtist: categoryIsArtist,
                         );
                         getSongs();
                         if (songs.isEmpty && context.mounted) {
