@@ -17,7 +17,7 @@ import '../player/player_utils.dart';
 import '../search/search_page.dart';
 import '../setting_page/setting.dart';
 import '../songs/songs_list.dart';
-import 'songs_of_artist.dart';
+import 'category_songs.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
