@@ -20,6 +20,7 @@ A __*simple*__ music player app made in Flutter
 - Play mode (repeat all, shuffle, repeat one)
 - Search songs
 - User settings
+- Albums
 
 ## Planned features
 
