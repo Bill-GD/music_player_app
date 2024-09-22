@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../globals/functions.dart';
 import '../globals/variables.dart';
+import '../globals/widgets.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -79,7 +80,6 @@ class _BackupScreenState extends State<BackupScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('No data to backup')),
                         );
-
                         return;
                       }
                       if (!bu.existsSync()) bu.createSync();
@@ -96,22 +96,70 @@ class _BackupScreenState extends State<BackupScreen> {
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (!bu.existsSync()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('No backup data found')),
                         );
-
                         return;
                       }
-                      if (!dataFile.existsSync()) dataFile.createSync();
 
+                      final res = await showGeneralDialog<bool>(
+                        context: context,
+                        transitionDuration: 300.ms,
+                        transitionBuilder: (_, anim1, __, child) {
+                          return ScaleTransition(
+                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                            child: child,
+                          );
+                        },
+                        barrierDismissible: true,
+                        barrierLabel: '',
+                        pageBuilder: (context, _, __) {
+                          return AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                            title: Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                'Overwite Data',
+                                textAlign: TextAlign.center,
+                                style: bottomSheetTitle.copyWith(fontSize: 24),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 40),
+                            content: const Text(
+                              'Do you want to recover data from backup? This will overwrite current data.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actionsAlignment: MainAxisAlignment.spaceAround,
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('NO'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text('YES'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      if (res != true) return;
+
+                      if (!dataFile.existsSync()) dataFile.createSync();
                       dataFile.writeAsStringSync(bu.readAsStringSync());
 
                       debugPrint('Recovering back up data from: ${bu.path}');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Data recovered successfully')),
-                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Data recovered successfully')),
+                        );
+                      }
                       setState(() => getFileStats());
                     },
                     child: const Text('Recover Backup'),
