@@ -260,8 +260,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () async {
-                          await Globals.audioHandler.changeShuffleMode();
+                        onPressed: () {
+                          Globals.audioHandler.changeShuffleMode();
                           setState(() {});
                         },
                         icon: Icon(

@@ -24,6 +24,9 @@ class Globals {
 
   /// Path of the currently selected/playing song.
   static String currentSongPath = '';
+
+  /// The path to the app's storage directory.
+  static late final String storagePath;
 }
 
 // Configs

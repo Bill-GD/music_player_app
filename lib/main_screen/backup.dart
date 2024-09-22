@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../globals/functions.dart';
+import '../globals/variables.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -15,19 +15,14 @@ class BackupScreen extends StatefulWidget {
 class _BackupScreenState extends State<BackupScreen> {
   late final File dataFile;
   final bu = File('/storage/emulated/0/Android/tracks.json');
-  bool loading = true;
   late FileStat dataStat, buStat;
 
   @override
   void initState() {
     super.initState();
-    getExternalStorageDirectory().then((value) {
-      if (value == null) return;
-      dataFile = File('${value.path}/tracks.json');
-      getFileStats();
-      loading = false;
-      setState(() {});
-    });
+    dataFile = File('${Globals.storagePath}/tracks.json');
+    getFileStats();
+    setState(() {});
   }
 
   void getFileStats() {
@@ -55,11 +50,9 @@ class _BackupScreenState extends State<BackupScreen> {
               // data
               const Text('Data file', textAlign: TextAlign.center, style: TextStyle(fontSize: 24)),
               Text(
-                loading
-                    ? 'Loading'
-                    : 'Path: ${dataFile.path}'
-                        '\nSize: ${getSizeString(dataStat.size.toDouble())}'
-                        '\nLast modified: ${dataStat.modified}',
+                'Path: ${dataFile.path}'
+                '\nSize: ${getSizeString(dataStat.size.toDouble())}'
+                '\nLast modified: ${dataStat.modified}',
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),

@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'variables.dart';
 
@@ -52,22 +51,19 @@ Future<void> updateMusicData() async {
   await updateListOfSongs();
   updateArtistsList();
   updateAlbumList();
-  await saveSongsToStorage();
+  saveSongsToStorage();
 }
 
 /// Updates all songs with saved data
 Future<void> updateListOfSongs() async {
   List<MusicTrack> storageSongs = await _getSongsFromStorage();
-
-  List<MusicTrack>? savedSongs = await _getSavedMusicData();
+  List<MusicTrack>? savedSongs = _getSavedMusicData();
 
   if (savedSongs != null) {
     debugPrint('Updating music data from saved');
     for (int i = 0; i < storageSongs.length; i++) {
-      if (i >= savedSongs.length) break;
-
       final matchingSong = savedSongs.firstWhereOrNull(
-        (element) => element.absolutePath == storageSongs[i].absolutePath,
+        (e) => e.absolutePath == storageSongs[i].absolutePath,
       );
 
       if (matchingSong == null) continue;
@@ -93,7 +89,7 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
     return mp3Files.map((e) => MusicTrack(e.path)).toList();
   }
 
-  debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds / 1000}s');
+  debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds ~/ 1000}s');
   for (final file in mp3Files) {
     final info = await MetadataRetriever.fromFile(File(file.path));
     if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
@@ -104,8 +100,8 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
   return filteredFiles;
 }
 
-Future<List<MusicTrack>?> _getSavedMusicData() async {
-  final file = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
+List<MusicTrack>? _getSavedMusicData() {
+  final file = File('${Globals.storagePath}/tracks.json');
   if (!file.existsSync()) return null;
 
   debugPrint('Getting saved music data from: ${file.path}');
@@ -113,8 +109,8 @@ Future<List<MusicTrack>?> _getSavedMusicData() async {
   return json.map((e) => MusicTrack.fromJson(e)).toList();
 }
 
-Future<void> saveSongsToStorage() async {
-  File saveFile = File('${(await getExternalStorageDirectory())?.path}/tracks.json');
+void saveSongsToStorage() {
+  File saveFile = File('${Globals.storagePath}/tracks.json');
 
   debugPrint('Saving updated music data to: ${saveFile.path}');
   saveFile.writeAsStringSync(jsonEncode(Globals.allSongs));

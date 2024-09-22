@@ -83,7 +83,7 @@ class _SongInfoState extends State<SongInfo> {
                     );
                   }
 
-                  await saveSongsToStorage();
+                  saveSongsToStorage();
                 }
                 if (context.mounted) {
                   Navigator.of(context).pop(needsUpdate);

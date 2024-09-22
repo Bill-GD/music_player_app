@@ -23,7 +23,7 @@ Future<void> _incrementTimePlayed() async {
   Globals
       .allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
   debugPrint('Incremented play count');
-  await saveSongsToStorage();
+  saveSongsToStorage();
 }
 
 Future<AudioHandler> initAudioHandler() async {
@@ -257,7 +257,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   /// Only from _player
-  Future<void> changeShuffleMode() async {
+  void changeShuffleMode() {
     _shuffle = isShuffled
         ? AudioServiceShuffleMode.none //
         : AudioServiceShuffleMode.all;

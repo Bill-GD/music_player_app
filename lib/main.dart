@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 import 'globals/variables.dart';
 import 'main_screen/main_screen.dart';
 import 'player/player_utils.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Globals.packageInfo = await PackageInfo.fromPlatform();
-
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
-
+  Globals.storagePath = (await getExternalStorageDirectory())?.path ?? '';
   await Config.loadConfig();
 
   runApp(const MusicPlayerApp());
