@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dedent/dedent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -32,7 +31,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
 
   String? _errorText;
 
-  late StreamSubscription<ConnectivityResult> connectStream;
+  late StreamSubscription<List<ConnectivityResult>> connectStream;
 
   void _checkInternetConnection([ConnectivityResult? result]) async {
     final connectivityResult = result ?? await Connectivity().checkConnectivity();
@@ -68,8 +67,8 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   void initState() {
     super.initState();
     _checkInternetConnection();
-    connectStream = Connectivity().onConnectivityChanged.listen((newResult) {
-      _checkInternetConnection(newResult);
+    connectStream = Connectivity().onConnectivityChanged.listen((newResults) {
+      newResults.map(_checkInternetConnection);
     });
     _textEditingController = TextEditingController();
   }

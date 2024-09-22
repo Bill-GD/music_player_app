@@ -1,7 +1,7 @@
-import 'package:dedent/dedent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../globals/functions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
@@ -245,11 +245,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+            const Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text('0'),
                   Text('500'),
                 ],
@@ -280,11 +280,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+            const Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text('0'),
                   Text('1'),
                 ],

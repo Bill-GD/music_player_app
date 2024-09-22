@@ -41,11 +41,13 @@ class _MainScreenState extends State<MainScreen> {
     if (!storagePermissionStatus.isGranted && context.mounted) {
       debugPrint('Storage permission not granted, redirecting to request page');
 
-      await showDialog(
-        context: context,
-        builder: (_) => const StoragePermissionDialog(),
-        barrierDismissible: false,
-      );
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (_) => const StoragePermissionDialog(),
+          barrierDismissible: false,
+        );
+      }
 
       storagePermissionStatus = await Permission.manageExternalStorage.status;
     }

@@ -91,7 +91,11 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
 }
 
 Future<void> downloadSoundCloudMP3(
-    BuildContext context, String url, String videoTitle, void Function(int, int) onReceiveProgress) async {
+  BuildContext context,
+  String url,
+  String videoTitle,
+  void Function(int, int) onReceiveProgress,
+) async {
   final dio = Dio();
   final file = File('/storage/emulated/0/Download/${sanitizeFilePath(videoTitle)}.mp3');
 
@@ -119,8 +123,10 @@ Future<void> downloadSoundCloudMP3(
     }
   } on Exception catch (e) {
     debugPrint(e.toString());
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('An Error occurred while downloading')),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An Error occurred while downloading')),
+      );
+    }
   }
 }

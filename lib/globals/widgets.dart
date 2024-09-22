@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:dedent/dedent.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../globals/functions.dart';
 import '../songs/song_info.dart';
 import 'music_track.dart';
 import 'variables.dart';

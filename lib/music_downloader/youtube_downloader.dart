@@ -80,8 +80,10 @@ Future<void> downloadYoutubeMP3(
     }
   } on Exception catch (e) {
     debugPrint(e.toString());
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('An Error occurred while downloading')),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An Error occurred while downloading')),
+      );
+    }
   }
 }
