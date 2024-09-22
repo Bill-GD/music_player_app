@@ -20,8 +20,9 @@ A __*simple*__ music player app made in Flutter
 - Play mode (repeat all, shuffle, repeat one)
 - Search songs
 - User settings
-- Albums
+- User created albums
+- Modifiable song order in playlist
 
 ## Planned features
 
-- None
+- ~~Set volume for individual song (not system/device volume)~~ Seems a bit too difficult (MPEG 2.5 Layer 3) for such a unimportant feature
