@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-import '../globals/functions.dart';
+import '../globals/functions.dart' as g;
 import '../globals/widgets.dart';
 import 'soundcloud_downloader.dart';
 import 'youtube_downloader.dart';
@@ -109,7 +109,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
               onPressed: () {
                 showGeneralDialog(
                   context: context,
-                  transitionDuration: 300.ms,
+                  transitionDuration: NumDurationExtensions(300).ms,
                   transitionBuilder: (_, anim1, __, child) {
                     return ScaleTransition(
                       scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
@@ -132,7 +132,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       alignment: Alignment.center,
                       contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
                       content: Text(
-                        dedent('''
+                        g.dedent('''
                         Enter YouTube or SoundCloud link into the text field.
                         Press the get data button.
                         Wait for the app to fetch the data.
@@ -348,7 +348,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                         alignment: Alignment.center,
                         children: [
                           TweenAnimationBuilder<double>(
-                            duration: 100.ms,
+                            duration: NumDurationExtensions(100).ms,
                             curve: Curves.easeOut,
                             tween: Tween<double>(
                               begin: 0,

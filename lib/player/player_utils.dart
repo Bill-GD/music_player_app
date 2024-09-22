@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../globals/functions.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 
@@ -49,6 +49,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   // Playlist
   late List<String> _playlist; // Only keep track of paths
+  List<String> get playlist => _playlist;
   String get playlistName => _playlistName;
   String _playlistName = '';
 
@@ -186,28 +187,38 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> registerPlaylist(String name, List<String> list, String begin) async {
     _playlist = list;
 
-    _shufflePlaylist(begin: begin);
+    if (_shuffle == AudioServiceShuffleMode.all) {
+      _shufflePlaylist(begin: begin);
+    }
 
     int songCount = _playlist.length;
-    _playlistName = 'Playlist\n$name ($songCount song${songCount > 1 ? 's' : ''})';
+    _playlistName = '$name ($songCount song${songCount > 1 ? 's' : ''})';
     debugPrint('Got playlist: $songCount songs');
   }
 
   void _shufflePlaylist({bool currentToStart = true, String begin = ''}) {
-    if (_shuffle == AudioServiceShuffleMode.all) {
-      debugPrint('Shuffling playlist');
-      _playlist.shuffle();
+    debugPrint('Shuffling playlist');
+    _playlist.shuffle();
 
-      if (currentToStart) {
-        if (begin.isEmpty) {
-          debugPrint('Begin song should not be empty');
-        } else {
-          _playlist.removeWhere((e) => e == begin);
-          _playlist.insert(0, begin);
-        }
+    if (currentToStart) {
+      if (begin.isEmpty) {
+        debugPrint('Begin song should not be empty');
+      } else {
+        _playlist.removeWhere((e) => e == begin);
+        _playlist.insert(0, begin);
       }
     }
     debugPrint('Current song index: ${_playlist.indexWhere((e) => e == Globals.currentSongPath)}');
+  }
+
+  void moveSong(int from, int to) {
+    if (from < 0 || from >= _playlist.length || to < 0 || to >= _playlist.length) {
+      debugPrint('Invalid move song index');
+      return;
+    }
+
+    String song = _playlist.removeAt(from);
+    _playlist.insert(to, song);
   }
 
   Future<void> addMediaItem(MediaItem item) async => mediaItem.add(item);

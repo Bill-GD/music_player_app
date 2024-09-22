@@ -23,13 +23,33 @@ String getSizeString(double bytes) {
   return '${bytes.toStringAsFixed(2)} ${units[unitIndex]}';
 }
 
+/// [start] and [end] are inclusive
+List<int> range(int start, int end) {
+  return List<int>.generate(end - start + 1, (i) => i + start);
+}
+
+extension NumDurationExtensions on num {
+  Duration get microseconds => Duration(microseconds: round());
+  Duration get ms => (this * 1000).microseconds;
+  Duration get milliseconds => (this * 1000).microseconds;
+  Duration get seconds => (this * 1000 * 1000).microseconds;
+  Duration get minutes => (this * 1000 * 1000 * 60).microseconds;
+  Duration get hours => (this * 1000 * 1000 * 60 * 60).microseconds;
+  Duration get days => (this * 1000 * 1000 * 60 * 60 * 24).microseconds;
+}
+
+extension PadInt on int {
+  String padIntLeft(int count, [String padding = ' ']) {
+    return toString().padLeft(count, padding);
+  }
+}
+
 /// From https://pub.dev/packages/dedent, modified to not use extra packages
 String dedent(String text) {
   final whitespaceOnlyRe = RegExp(r'^[ \t]+$', multiLine: true);
   final leadingWhitespaceRe = RegExp(r'(^[ \t]*)(?:[^ \t\n])', multiLine: true);
 
-  // Look for the longest leading string of spaces and tabs common to
-  // all lines.
+  // Look for the longest leading string of spaces and tabs common to all lines.
   String? margin;
   text = text.replaceAll(whitespaceOnlyRe, '');
   final indents = leadingWhitespaceRe.allMatches(text);
@@ -51,8 +71,7 @@ String dedent(String text) {
       margin = indent;
     }
 
-    // Find the largest common whitespace between current line and previous
-    // winner.
+    // Find the largest common whitespace between current line and previous winner.
     else {
       final it = zip([margin.split(''), indent.split('')]).toList();
       for (int i = 0; i < it.length; i++) {

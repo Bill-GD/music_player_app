@@ -5,8 +5,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
+import '../globals/functions.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -144,19 +144,75 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     size: 180,
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12, top: 4),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(5),
+                    onTap: () {},
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          getBottomSheet(
+                            scrollable: true,
+                            onReorder: (o, newIndex) {
+                              final n = newIndex - 1;
+                              debugPrint(
+                                'Old song: ${Globals.audioHandler.playlist[o].split('/').last} ($o)',
+                              );
+                              debugPrint(
+                                'New song: ${Globals.audioHandler.playlist[n].split('/').last} ($n)',
+                              );
+                              Globals.audioHandler.moveSong(o, n);
+                            },
+                            context,
+                            Text(
+                              Globals.audioHandler.playlistName,
+                              style: bottomSheetTitle,
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                            ),
+                            [
+                              for (var i in range(0, Globals.audioHandler.playlist.length - 1))
+                                ListTile(
+                                  key: ValueKey('$i'),
+                                  leading: Text((i + 1).padIntLeft(2, '0')),
+                                  title: Text(
+                                    Globals.allSongs
+                                        .firstWhere((e) => e.absolutePath == Globals.audioHandler.playlist[i])
+                                        .trackName,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    Globals.allSongs
+                                        .firstWhere((e) => e.absolutePath == Globals.audioHandler.playlist[i])
+                                        .artist,
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.search_rounded),
+                            const SizedBox(width: 5),
+                            Text(
+                              Globals.audioHandler.playlistName,
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 // Song info
                 Padding(
                   padding: const EdgeInsets.only(bottom: 30),
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8, top: 0),
-                        child: Text(
-                          Globals.audioHandler.playlistName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                        ),
-                      ),
                       Text(
                         song.trackName,
                         textAlign: TextAlign.center,

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../globals/functions.dart';
 import '../songs/song_info.dart';
@@ -78,36 +77,62 @@ ButtonStyle textButtonStyle(BuildContext context) {
 Future<void> getBottomSheet(
   BuildContext context,
   Widget title,
-  List<Widget> content,
-) async {
+  List<Widget> content, {
+  double? maxHeight,
+  bool scrollable = false,
+  void Function(int oldIndex, int newIndex)? onReorder,
+}) async {
+  if (scrollable) assert(onReorder != null, 'onReorder must be provided if scrollable is true');
   await showCupertinoModalPopup(
     context: context,
-    builder: (context) => Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: title,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: ListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: content,
-                ),
-              ),
-            ],
+    builder: (_) => StatefulBuilder(
+      builder: (context, setModalState) {
+        return Material(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(30),
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
+              maxHeight: maxHeight ?? MediaQuery.of(context).size.height * 0.5,
+            ),
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(padding: const EdgeInsets.only(left: 20, right: 20), child: title),
+                if (scrollable)
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: ReorderableListView(
+                        onReorder: (a, b) {
+                          onReorder?.call(a, b);
+                          setModalState(() {});
+                        },
+                        proxyDecorator: (child, _, __) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Material(
+                              color: Theme.of(context).colorScheme.primaryContainer,
+                              child: child,
+                            ),
+                          );
+                        },
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: content,
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: content,
+                  ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     ),
   );
 }

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';

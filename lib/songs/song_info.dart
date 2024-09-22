@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../globals/functions.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -257,12 +258,6 @@ class _SongInfoState extends State<SongInfo> {
 extension DateString on DateTime {
   String toDateString() {
     return '${formatDay(day)} ${_monthNames[month - 1]} $year, ${hour.padIntLeft(2, '0')}:${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}';
-  }
-}
-
-extension PadInt on int {
-  String padIntLeft(int count, [String padding = ' ']) {
-    return toString().padLeft(count, padding);
   }
 }
 
