@@ -77,7 +77,7 @@ ButtonStyle textButtonStyle(BuildContext context) {
 Future<void> getBottomSheet(
   BuildContext context,
   Widget title,
-  List<Widget> content, {
+  List<ListTile> content, {
   double? maxHeight,
   bool scrollable = false,
   void Function(int oldIndex, int newIndex)? onReorder,
@@ -85,54 +85,59 @@ Future<void> getBottomSheet(
   if (scrollable) assert(onReorder != null, 'onReorder must be provided if scrollable is true');
   await showCupertinoModalPopup(
     context: context,
-    builder: (_) => StatefulBuilder(
-      builder: (context, setModalState) {
-        return Material(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(30),
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.9,
-              maxHeight: maxHeight ?? MediaQuery.of(context).size.height * 0.5,
-            ),
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(padding: const EdgeInsets.only(left: 20, right: 20), child: title),
-                if (scrollable)
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: ReorderableListView(
-                        onReorder: (a, b) {
-                          onReorder?.call(a, b);
-                          setModalState(() {});
-                        },
-                        proxyDecorator: (child, _, __) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Material(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              child: child,
-                            ),
-                          );
-                        },
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: content,
-                      ),
-                    ),
-                  )
-                else
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
+    builder: (context) => Material(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.9,
+          maxHeight: maxHeight ?? MediaQuery.of(context).size.height * 0.5,
+        ),
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(padding: const EdgeInsets.only(left: 20, right: 20), child: title),
+            if (scrollable)
+              Flexible(
+                child: SingleChildScrollView(
+                  child: ReorderableListView(
+                    onReorder: (o, n) {
+                      if (n > o) n--;
+                      onReorder?.call(o, n);
+                      content.insert(n, content.removeAt(o));
+                      for (int i = 0; i < content.length; i++) {
+                        content[i] = ListTile(
+                          key: ValueKey('$i'),
+                          leading: Text((i + 1).padIntLeft(2, '0')),
+                          title: content[i].title,
+                          subtitle: content[i].subtitle,
+                        );
+                      }
+                    },
+                    proxyDecorator: (child, _, __) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Material(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          child: child,
+                        ),
+                      );
+                    },
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: content,
                   ),
-              ],
-            ),
-          ),
-        );
-      },
+                ),
+              )
+            else
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: content,
+              ),
+          ],
+        ),
+      ),
     ),
   );
 }

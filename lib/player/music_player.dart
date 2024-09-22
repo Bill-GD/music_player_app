@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -154,9 +155,30 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       child: GestureDetector(
                         onTap: () {
                           getBottomSheet(
+                            context,
+                            Text(
+                              Globals.audioHandler.playlistName,
+                              style: bottomSheetTitle,
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                            ),
+                            Globals.audioHandler.playlist
+                                .mapIndexed(
+                                  (i, s) => ListTile(
+                                    key: ValueKey('$i'),
+                                    leading: Text((i + 1).padIntLeft(2, '0')),
+                                    title: Text(
+                                      Globals.allSongs.firstWhere((e) => e.absolutePath == s).trackName,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    subtitle: Text(
+                                      Globals.allSongs.firstWhere((e) => e.absolutePath == s).artist,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                             scrollable: true,
-                            onReorder: (o, newIndex) {
-                              final n = newIndex - 1;
+                            onReorder: (o, n) {
                               debugPrint(
                                 'Old song: ${Globals.audioHandler.playlist[o].split('/').last} ($o)',
                               );
@@ -165,31 +187,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                               );
                               Globals.audioHandler.moveSong(o, n);
                             },
-                            context,
-                            Text(
-                              Globals.audioHandler.playlistName,
-                              style: bottomSheetTitle,
-                              textAlign: TextAlign.center,
-                              softWrap: true,
-                            ),
-                            [
-                              for (var i in range(0, Globals.audioHandler.playlist.length - 1))
-                                ListTile(
-                                  key: ValueKey('$i'),
-                                  leading: Text((i + 1).padIntLeft(2, '0')),
-                                  title: Text(
-                                    Globals.allSongs
-                                        .firstWhere((e) => e.absolutePath == Globals.audioHandler.playlist[i])
-                                        .trackName,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  subtitle: Text(
-                                    Globals.allSongs
-                                        .firstWhere((e) => e.absolutePath == Globals.audioHandler.playlist[i])
-                                        .artist,
-                                  ),
-                                ),
-                            ],
                           );
                         },
                         child: Row(
