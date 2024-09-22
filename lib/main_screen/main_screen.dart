@@ -17,6 +17,7 @@ import '../player/player_utils.dart';
 import '../search/search_page.dart';
 import '../setting_page/setting.dart';
 import '../songs/songs_list.dart';
+import 'backup.dart';
 import 'category_songs.dart';
 
 class MainScreen extends StatefulWidget {
@@ -115,7 +116,19 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 onTap: () async {
                   await Navigator.of(context).push(
-                    await getSearchPageRoute(context),
+                    PageRouteBuilder(
+                      pageBuilder: (context, _, __) => const SearchScreen(),
+                      transitionDuration: 400.ms,
+                      transitionsBuilder: (_, anim, __, child) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, -1),
+                            end: const Offset(0, 0),
+                          ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(anim),
+                          child: child,
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -168,20 +181,17 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         ListTile(
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
                           title: const Text(
                             'Settings',
                             style: bottomSheetTitle,
                           ),
-                          onTap: () async {
+                          onTap: () {
                             Navigator.push(
                               context,
                               PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => const SettingsPage(),
+                                pageBuilder: (_, __, ___) => const SettingsPage(),
                                 transitionsBuilder: (context, anim1, _, child) {
                                   return SlideTransition(
                                     position: Tween<Offset>(
@@ -197,17 +207,14 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         listItemDivider(),
                         ListTile(
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           leading: Icon(Icons.download_rounded, color: iconColor(context)),
                           title: const Text('Download Music', style: bottomSheetTitle),
                           onTap: () async {
                             bool hasChange = await Navigator.push(
                               context,
                               PageRouteBuilder(
-                                pageBuilder: (context, _, __) => const MusicDownloader(),
+                                pageBuilder: (_, __, ___) => const MusicDownloader(),
                                 transitionsBuilder: (context, anim1, _, child) {
                                   return SlideTransition(
                                     position: Tween<Offset>(
@@ -228,10 +235,30 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         listItemDivider(),
                         ListTile(
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          leading: FaIcon(Icons.file_copy, color: iconColor(context)),
+                          title: const Text('Backup', style: bottomSheetTitle),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => const BackupScreen(),
+                                transitionsBuilder: (context, anim1, _, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(-1, 0),
+                                      end: const Offset(0, 0),
+                                    ).animate(anim1.drive(CurveTween(curve: Curves.decelerate))),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                        listItemDivider(),
+                        ListTile(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
                           title: const Text('Change Theme', style: bottomSheetTitle),
                           onTap: () => ThemeProvider.controllerOf(context).nextTheme(),

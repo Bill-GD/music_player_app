@@ -1,34 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 
-Future<Route> getSearchPageRoute(BuildContext context) async {
-  return PageRouteBuilder(
-    pageBuilder: (context, _, __) => const SearchPage(),
-    transitionDuration: 400.ms,
-    transitionsBuilder: (_, anim, __, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, -1),
-          end: const Offset(0, 0),
-        ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(anim),
-        child: child,
-      );
-    },
-  );
-}
-
-class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
 
   @override
-  State<SearchPage> createState() => _SearchPage();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchPage extends State<SearchPage> {
+class _SearchScreenState extends State<SearchScreen> {
   List<String> filteredSongs = [];
 
   @override
@@ -55,9 +38,7 @@ class _SearchPage extends State<SearchPage> {
           backgroundColor: Theme.of(context).colorScheme.background,
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 40),
-            onPressed: () async {
-              if (context.mounted) Navigator.of(context).pop();
-            },
+            onPressed: Navigator.of(context).pop,
           ),
           title: Container(
             height: AppBar().preferredSize.height * 0.65,

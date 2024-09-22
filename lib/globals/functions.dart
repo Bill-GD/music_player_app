@@ -13,6 +13,16 @@ String sanitizeFilePath(String path) {
   return path.replaceAll(RegExp(r'[\\|?*<":>+\[\]\/]'), '').replaceAll("'", '');
 }
 
+String getSizeString(double bytes) {
+  const units = ['B', 'KB', 'MB', 'GB'];
+  int unitIndex = 0;
+  while (bytes > 900 && unitIndex < units.length - 1) {
+    bytes /= 1024;
+    unitIndex++;
+  }
+  return '${bytes.toStringAsFixed(2)} ${units[unitIndex]}';
+}
+
 /// From https://pub.dev/packages/dedent, modified to not use extra packages
 String dedent(String text) {
   final whitespaceOnlyRe = RegExp(r'^[ \t]+$', multiLine: true);
