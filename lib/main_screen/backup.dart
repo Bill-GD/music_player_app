@@ -52,7 +52,7 @@ class _BackupScreenState extends State<BackupScreen> {
               const Text('Data file', textAlign: TextAlign.center, style: TextStyle(fontSize: 24)),
               Text(
                 'Path: ${dataFile.path}'
-                '\nSize: ${getSizeString(dataStat.size.toDouble())}'
+                '\nSize: ${dataStat.size} bytes'
                 '\nLast modified: ${dataStat.modified}',
               ),
               const Padding(
@@ -65,7 +65,7 @@ class _BackupScreenState extends State<BackupScreen> {
                 children: [
                   Text(
                     'Path: ${bu.path}'
-                    '\nSize: ${getSizeString(buStat.size.toDouble())}'
+                    '\nSize: ${buStat.size} bytes'
                     '\nLast modified: ${buStat.modified}',
                   ),
                 ],

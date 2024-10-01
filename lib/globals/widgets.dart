@@ -237,8 +237,7 @@ Future<void> showSongOptionsMenu(
                       This CANNOT be undone.
                       Are you sure you want to delete
         
-                      ${song.trackName}
-                      '''),
+                      ${song.trackName}'''),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16),
                   ),
@@ -313,8 +312,7 @@ Future<void> showErrorPopup(BuildContext context, String error) async {
           child: Text(
             dedent('''
             An error occurred while performing the operation.
-            Error: $error
-              '''),
+            Error: $error'''),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),
