@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../globals/functions.dart';
+import '../globals/widgets.dart';
 
 Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String urlText) async {
   if (!urlText.contains('https://')) {
@@ -124,9 +125,7 @@ Future<void> downloadSoundCloudMP3(
   } on Exception catch (e) {
     debugPrint(e.toString());
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An Error occurred while downloading')),
-      );
+      showErrorPopup(context, e.toString());
     }
   }
 }

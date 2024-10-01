@@ -275,3 +275,58 @@ Future<void> showSongOptionsMenu(
     ],
   );
 }
+
+Future<void> showErrorPopup(BuildContext context, String error) async {
+  await showGeneralDialog(
+    context: context,
+    transitionDuration: 300.ms,
+    barrierDismissible: true,
+    barrierLabel: '',
+    transitionBuilder: (_, anim1, __, child) {
+      return ScaleTransition(
+        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+        alignment: Alignment.center,
+        child: child,
+      );
+    },
+    pageBuilder: (context, _, __) {
+      return AlertDialog(
+        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        icon: Icon(
+          Icons.error_rounded,
+          color: Theme.of(context).colorScheme.error,
+          size: 30,
+        ),
+        title: const Center(
+          child: Text(
+            'Error',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: Text(
+            dedent('''
+            An error occurred while performing the operation.
+            Error: $error
+              '''),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceAround,
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      );
+    },
+  );
+}

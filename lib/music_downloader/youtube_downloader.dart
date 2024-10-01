@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
+import '../globals/widgets.dart';
 
 Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String urlText) async {
   try {
@@ -36,9 +37,10 @@ Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String u
           );
           break;
         default:
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Got an error while getting video')),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(content: Text('Got an error while getting video')),
+          // );
+          showErrorPopup(context, e.toString());
           break;
       }
     }
