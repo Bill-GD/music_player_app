@@ -6,6 +6,7 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/functions.dart';
 import '../globals/music_track.dart';
@@ -41,11 +42,16 @@ class MusicPlayerPage extends StatefulWidget {
   State<MusicPlayerPage> createState() => _MusicPlayerPageState();
 }
 
-class _MusicPlayerPageState extends State<MusicPlayerPage> {
+class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderStateMixin {
   int currentDuration = 0, maxDuration = 0;
   late StreamSubscription<Duration> posStream;
   late StreamSubscription<bool> songChangeStream;
   late MusicTrack song;
+  late final AnimationController animController;
+  late final ScrollController playlistScrollController;
+  AnimatedIconData playIcon = Globals.audioHandler.playing
+      ? AnimatedIcons.pause_play //
+      : AnimatedIcons.play_pause;
 
   void updateSongInfo([String? songPath]) async {
     song = Globals.allSongs.firstWhere((e) => e.absolutePath == (songPath ?? Globals.currentSongPath));
@@ -54,6 +60,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
     debugPrint('Updating player duration values');
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
+    animController = AnimationController(duration: 500.ms, reverseDuration: 500.ms, vsync: this);
+    playlistScrollController = ScrollController();
     setState(() {});
   }
 
@@ -78,9 +86,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
 
   @override
   void dispose() {
-    super.dispose();
     posStream.cancel();
     songChangeStream.cancel();
+    animController.dispose();
+    playlistScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -145,69 +155,88 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                     size: 180,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12, top: 4),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(5),
-                    onTap: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          getBottomSheet(
-                            context,
-                            Text(
-                              Globals.audioHandler.playlistName,
-                              style: bottomSheetTitle,
-                              textAlign: TextAlign.center,
-                              softWrap: true,
-                            ),
-                            Globals.audioHandler.playlist
-                                .mapIndexed(
-                                  (i, s) => ListTile(
-                                    key: ValueKey('$i'),
-                                    leading: Text((i + 1).padIntLeft(2, '0')),
-                                    title: Text(
-                                      Globals.allSongs.firstWhere((e) => e.absolutePath == s).trackName,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    subtitle: Text(
-                                      Globals.allSongs.firstWhere((e) => e.absolutePath == s).artist,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                            scrollable: true,
-                            onReorder: (o, n) {
-                              debugPrint(
-                                'Old song: ${Globals.audioHandler.playlist[o].split('/').last} ($o)',
-                              );
-                              debugPrint(
-                                'New song: ${Globals.audioHandler.playlist[n].split('/').last} ($n)',
-                              );
-                              Globals.audioHandler.moveSong(o, n);
-                            },
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.search_rounded),
-                            const SizedBox(width: 5),
-                            Text(
-                              Globals.audioHandler.playlistName,
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                            ),
-                          ],
-                        ),
+                // playlist list
+                InkWell(
+                  borderRadius: BorderRadius.circular(5),
+                  onTap: () {
+                    playlistSheet(
+                      context,
+                      title: Text(
+                        Globals.audioHandler.playlistName,
+                        style: bottomSheetTitle,
+                        textAlign: TextAlign.center,
+                        softWrap: true,
                       ),
+                      content: Globals.audioHandler.playlist
+                          .mapIndexed(
+                            (i, s) => ListTile(
+                              key: ValueKey('$i'),
+                              visualDensity: VisualDensity.compact,
+                              titleAlignment: ListTileTitleAlignment.threeLine,
+                              leading: SizedBox(
+                                width: 32,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Globals.currentSongPath == s
+                                      ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
+                                      : Text((i + 1).padIntLeft(2, '0')),
+                                ),
+                              ),
+                              title: Text(
+                                Globals.allSongs.firstWhere((e) => e.absolutePath == s).trackName,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                Globals.allSongs.firstWhere((e) => e.absolutePath == s).artist,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      scrollController: playlistScrollController,
+                      onReorder: (o, n) {
+                        debugPrint(
+                          'Old song: ${Globals.audioHandler.playlist[o].split('/').last} ($o)',
+                        );
+                        debugPrint(
+                          'New song: ${Globals.audioHandler.playlist[n].split('/').last} ($n)',
+                        );
+                        Globals.audioHandler.moveSong(o, n);
+                      },
+                    );
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (playlistScrollController.hasClients) {
+                        final count = Globals.audioHandler.playlist.length;
+                        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongPath);
+                        final maxScrollExtent = playlistScrollController.position.maxScrollExtent;
+
+                        playlistScrollController.animateTo(
+                          maxScrollExtent * (current / count),
+                          duration: 100.ms,
+                          curve: Curves.easeIn,
+                        );
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.search_rounded),
+                        const SizedBox(width: 5),
+                        Text(
+                          Globals.audioHandler.playlistName,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 // Song info
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 30),
+                  padding: const EdgeInsets.only(bottom: 30, top: 12),
                   child: Column(
                     children: [
                       Text(
@@ -275,6 +304,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       IconButton(
                         onPressed: () async {
                           await Globals.audioHandler.skipToPrevious();
+                          playIcon = Globals.audioHandler.playing
+                              ? AnimatedIcons.play_pause
+                              : AnimatedIcons.pause_play;
                         },
                         icon: Icon(
                           Icons.skip_previous_rounded,
@@ -288,15 +320,19 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                         child: IconButton(
                           onPressed: () async {
-                            Globals.audioHandler.playing
-                                ? Globals.audioHandler.pause()
-                                : Globals.audioHandler.play();
+                            playIcon = AnimatedIcons.pause_play;
+                            if (Globals.audioHandler.playing) {
+                              Globals.audioHandler.pause();
+                              animController.forward(from: 0);
+                            } else {
+                              Globals.audioHandler.play();
+                              animController.reverse(from: 1);
+                            }
                             setState(() {});
                           },
-                          icon: Icon(
-                            Globals.audioHandler.playing
-                                ? Icons.pause_rounded //
-                                : Icons.play_arrow_rounded,
+                          icon: AnimatedIcon(
+                            icon: playIcon,
+                            progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
                             color: Theme.of(context).colorScheme.primary,
                             size: 70,
                           ),
@@ -305,6 +341,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       IconButton(
                         onPressed: () async {
                           await Globals.audioHandler.skipToNext();
+                          playIcon = Globals.audioHandler.playing
+                              ? AnimatedIcons.play_pause
+                              : AnimatedIcons.pause_play;
                         },
                         icon: Icon(
                           Icons.skip_next_rounded,

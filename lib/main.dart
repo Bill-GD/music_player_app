@@ -7,6 +7,7 @@ import 'package:theme_provider/theme_provider.dart';
 import 'globals/variables.dart';
 import 'main_screen/main_screen.dart';
 import 'player/player_utils.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Globals.packageInfo = await PackageInfo.fromPlatform();
