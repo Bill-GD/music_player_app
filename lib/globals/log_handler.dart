@@ -8,7 +8,7 @@ import 'variables.dart';
 enum LogLevel { info, error }
 
 class LogHandler {
-  static final _logFile = File(Globals.dbPath);
+  static final _logFile = File(Globals.logPath);
 
   static void init() {
     if (!_logFile.existsSync()) _logFile.createSync(recursive: true);
@@ -19,7 +19,7 @@ class LogHandler {
   static void log(String content, [LogLevel level = LogLevel.info]) {
     final prefix = level.name[0].toUpperCase();
     _logFile.writeAsStringSync(
-      '[${_time()} $prefix: $content\n',
+      '[${_time()}] [$prefix] $content\n',
       mode: FileMode.append,
     );
     debugPrint('[$prefix] $content');

@@ -27,8 +27,12 @@ class Globals {
 
   /// The path to the app's storage directory.
   static late final String storagePath;
-  static String get jsonPath => '$storagePath/files/tracks.json';
-  static String get dbPath => '$storagePath/database/database.db';
+  static late final String jsonPath;
+  static late final String dbPath;
+  static late final String logPath;
+
+  /// The path to the app's storage directory.
+  static const String downloadPath = '/storage/emulated/0/Download/';
 }
 
 // Configs

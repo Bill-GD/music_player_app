@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -14,7 +16,7 @@ import '../permission/storage_permission.dart';
 import '../player/music_player.dart';
 import '../player/player_utils.dart';
 import '../search/search_page.dart';
-import '../setting_page/setting.dart';
+import '../setting/setting.dart';
 import '../songs/songs_list.dart';
 import 'backup.dart';
 import 'category_songs.dart';
@@ -261,6 +263,58 @@ class _MainScreenState extends State<MainScreen> {
                           leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
                           title: const Text('Change Theme', style: bottomSheetTitle),
                           onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
+                        ),
+                        listItemDivider(),
+                        ListTile(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          leading: FaIcon(Icons.logo_dev, color: iconColor(context)),
+                          title: const Text('Log', style: bottomSheetTitle),
+                          onTap: () async {
+                            final logContent = File(Globals.logPath).readAsStringSync();
+                            showGeneralDialog(
+                              context: context,
+                              transitionDuration: 300.ms,
+                              transitionBuilder: (_, anim1, __, child) {
+                                return ScaleTransition(
+                                  scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                                  child: child,
+                                );
+                              },
+                              barrierDismissible: true,
+                              barrierLabel: '',
+                              pageBuilder: (context, _, __) {
+                                return AlertDialog(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  title: Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      'Application log',
+                                      textAlign: TextAlign.center,
+                                      style: bottomSheetTitle.copyWith(fontSize: 24),
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 40),
+                                  content: SingleChildScrollView(
+                                    physics: const ClampingScrollPhysics(),
+                                    child: Text(
+                                      logContent,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                  actionsAlignment: MainAxisAlignment.center,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(),
+                                      child: const Text('Ok'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),

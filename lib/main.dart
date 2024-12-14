@@ -12,10 +12,15 @@ import 'player/player_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  LogHandler.init();
+
   Globals.packageInfo = await PackageInfo.fromPlatform();
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
+  Globals.logPath = '${Globals.storagePath}/log.txt';
+  Globals.jsonPath = '${Globals.storagePath}/files/tracks.json';
+  Globals.dbPath = '${Globals.storagePath}/database/database.db';
+
+  LogHandler.init();
   await Config.loadConfig();
   await DatabaseHandler.init();
 
