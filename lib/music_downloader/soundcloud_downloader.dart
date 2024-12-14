@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/widgets.dart';
+
+const _url = 'https://api-v2.soundcloud.com';
 
 Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String urlText) async {
   if (!urlText.contains('https://')) {
@@ -17,11 +20,9 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   String url = urlText.split('?').first;
   String author = url.split('/').elementAt(3);
 
-  Map? trackData;
-
-  debugPrint('Searching for author: $author');
+  LogHandler.log('Searching for author: $author');
   http.Response responseAuthor = await http.get(
-    Uri.parse('https://api-v2.soundcloud.com/search/users?q=$author&$clientId'),
+    Uri.parse('$_url/search/users?q=$author&$clientId'),
   );
 
   Map<String, dynamic> jsonDataAuthor = jsonDecode(responseAuthor.body);
@@ -31,10 +32,10 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
 
   // can't find author
   if (resultAuthor.isEmpty) {
-    debugPrint('Couldn\'t find author: $author');
+    LogHandler.log("Couldn't find author: $author");
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Couldn\'t find author: $author')),
+        SnackBar(content: Text("Couldn't find author: $author")),
       );
     }
     return null;
@@ -44,25 +45,25 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   String authorUsername = '${resultAuthor.first['username']}';
   String trackCount = '${resultAuthor.first['track_count'] * 2}';
 
-  debugPrint('Author: $authorUsername (id:$authorId) has $trackCount songs');
+  LogHandler.log('Author: $authorUsername (id:$authorId) has $trackCount songs');
 
-  debugPrint('Searching for track: ${url.split('/').elementAt(4)}');
+  LogHandler.log('Searching for track: ${url.split('/').elementAt(4)}');
   http.Response responseTracks = await http.get(
-    Uri.parse('https://api-v2.soundcloud.com/users/$authorId/tracks?$clientId&limit=$trackCount'),
+    Uri.parse('$_url/users/$authorId/tracks?$clientId&limit=$trackCount'),
   );
 
   Map<String, dynamic> jsonDataTracks = jsonDecode(responseTracks.body);
   var resultTracks = (jsonDataTracks['collection'] as List).where(
     (element) => element['permalink'] == url.split('/').elementAt(4),
   );
-  trackData = resultTracks.isNotEmpty ? resultTracks.first : null;
 
+  final Map? trackData = resultTracks.isNotEmpty ? resultTracks.first : null;
   // can't find song
   if (trackData == null) {
-    debugPrint('Couldn\'t find song: ${url.split('/').elementAt(4)}');
+    LogHandler.log("Couldn't find song: ${url.split('/').elementAt(4)}");
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Couldn\'t find song: ${url.split('/').elementAt(4)}')),
+        SnackBar(content: Text("Couldn't find song: ${url.split('/').elementAt(4)}")),
       );
     }
     return null;
@@ -73,14 +74,14 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   Duration duration = Duration(milliseconds: trackData['media']['transcodings'][1]['duration']);
   String? artworkUrl = trackData['artwork_url'];
 
-  debugPrint('Found track stream url: $trackStreamUrl');
-  debugPrint('Getting song media url');
+  LogHandler.log('Found track stream url: $trackStreamUrl');
+  LogHandler.log('Getting song media url');
   http.Response responseTrack = await http.get(Uri.parse('$trackStreamUrl?$clientId'));
 
   String trackUrl = jsonDecode(responseTrack.body)['url'];
 
-  // debugPrint(trackUrl);
-  // debugPrint(songTitle);
+  // LogHandler.log(trackUrl);
+  // LogHandler.log(songTitle);
 
   return {
     'trackUrl': trackUrl,
@@ -101,7 +102,7 @@ Future<void> downloadSoundCloudMP3(
   final file = File('/storage/emulated/0/Download/${sanitizeFilePath(videoTitle)}.mp3');
 
   if (file.existsSync() && file.lengthSync() > 0) {
-    debugPrint('File with the same name already exists');
+    LogHandler.log('File with the same name already exists');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('File with the same name already exists')),
@@ -110,7 +111,7 @@ Future<void> downloadSoundCloudMP3(
     return;
   }
   try {
-    debugPrint('Saving to: ${file.absolute.path}');
+    LogHandler.log('Saving to: ${file.absolute.path}');
     await dio.download(
       url,
       file.absolute.path,
@@ -123,7 +124,7 @@ Future<void> downloadSoundCloudMP3(
       );
     }
   } on Exception catch (e) {
-    debugPrint(e.toString());
+    LogHandler.log(e.toString());
     if (context.mounted) {
       showErrorPopup(context, e.toString());
     }

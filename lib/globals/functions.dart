@@ -30,17 +30,37 @@ List<int> range(int start, int end) {
 
 extension NumDurationExtensions on num {
   Duration get microseconds => Duration(microseconds: round());
+
   Duration get ms => (this * 1000).microseconds;
+
   Duration get milliseconds => (this * 1000).microseconds;
+
   Duration get seconds => (this * 1000 * 1000).microseconds;
+
   Duration get minutes => (this * 1000 * 1000 * 60).microseconds;
+
   Duration get hours => (this * 1000 * 1000 * 60 * 60).microseconds;
+
   Duration get days => (this * 1000 * 1000 * 60 * 60 * 24).microseconds;
 }
 
 extension PadInt on int {
   String padIntLeft(int count, [String padding = ' ']) {
     return toString().padLeft(count, padding);
+  }
+}
+
+extension WhereOrNull<E> on Iterable<E> {
+  E? firstWhereOrNull(bool Function(E element) test) {
+    for (final i in range(0, length - 1)) {
+      if (test(elementAt(i))) return elementAt(i);
+    }
+    return null;
+  }
+
+  Iterable<R> mapIndexed<R>(R Function(int index, E element) test) {
+    int index = 0;
+    return map((e) => test(index++, e));
   }
 }
 

@@ -2,10 +2,10 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 
+import 'functions.dart';
+import 'log_handler.dart';
 import 'variables.dart';
 
 class MusicTrack {
@@ -31,8 +31,8 @@ class MusicTrack {
         artist = json['artist'] ?? 'Unknown',
         album = json['album'] ?? 'Unknown',
         timeListened = json['timeListened'],
-        timeAdded = DateTime.parse(
-            json['timeAdded'] ?? File(json['absolutePath']).statSync().modified.toIso8601String());
+        timeAdded =
+            DateTime.parse(json['timeAdded'] ?? File(json['absolutePath']).statSync().modified.toIso8601String());
 
   MusicTrack.fromJsonString(String jsonString) : this.fromJson(json.decode(jsonString));
 
@@ -60,7 +60,7 @@ Future<void> updateListOfSongs() async {
   List<MusicTrack>? savedSongs = _getSavedMusicData();
 
   if (savedSongs != null) {
-    debugPrint('Updating music data from saved');
+    LogHandler.log('Updating music data from saved');
     for (int i = 0; i < storageSongs.length; i++) {
       final matchingSong = savedSongs.firstWhereOrNull(
         (e) => e.absolutePath == storageSongs[i].absolutePath,
@@ -81,7 +81,7 @@ Future<void> updateListOfSongs() async {
 
 Future<List<MusicTrack>> _getSongsFromStorage() async {
   final downloadDir = Directory('/storage/emulated/0/Download');
-  debugPrint('Getting music files from: ${downloadDir.path}');
+  LogHandler.log('Getting music files from: ${downloadDir.path}');
   final mp3Files = downloadDir.listSync().where((e) => e.path.endsWith('.mp3')).toList();
   final filteredFiles = <MusicTrack>[];
 
@@ -89,7 +89,7 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
     return mp3Files.map((e) => MusicTrack(e.path)).toList();
   }
 
-  debugPrint('Filtering out song with length < ${Config.lengthLimitMilliseconds ~/ 1000}s');
+  LogHandler.log('Filtering out song with length < ${Config.lengthLimitMilliseconds ~/ 1000}s');
   for (final file in mp3Files) {
     final info = await MetadataRetriever.fromFile(File(file.path));
     if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
@@ -101,29 +101,28 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
 }
 
 List<MusicTrack>? _getSavedMusicData() {
-  final file = File('${Globals.storagePath}/tracks.json');
+  final file = File(Globals.jsonPath);
   if (!file.existsSync()) return null;
 
-  debugPrint('Getting saved music data from: ${file.path}');
+  LogHandler.log('Getting saved music data from: ${file.path}');
   final List json = jsonDecode(file.readAsStringSync());
   return json.map((e) => MusicTrack.fromJson(e)).toList();
 }
 
 void saveSongsToStorage() {
-  File saveFile = File('${Globals.storagePath}/tracks.json');
+  File saveFile = File(Globals.jsonPath);
 
-  debugPrint('Saving updated music data to: ${saveFile.path}');
+  LogHandler.log('Saving updated music data to: ${saveFile.path}');
   saveFile.writeAsStringSync(jsonEncode(Globals.allSongs));
 }
 
 void sortAllSongs([SortOptions? sortType]) {
   final tracks = List<MusicTrack>.from(Globals.allSongs);
   Config.currentSortOption = sortType ?? Config.currentSortOption;
-  debugPrint('Sorting all tracks: ${Config.currentSortOption.name}');
+  LogHandler.log('Sorting all tracks: ${Config.currentSortOption.name}');
   switch (Config.currentSortOption) {
     case SortOptions.name:
-      tracks
-          .sort((track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()));
+      tracks.sort((track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()));
       break;
     case SortOptions.mostPlayed:
       tracks.sort((track1, track2) => track2.timeListened.compareTo(track1.timeListened));
@@ -136,9 +135,9 @@ void sortAllSongs([SortOptions? sortType]) {
 }
 
 void updateArtistsList() {
-  debugPrint('Getting list of artists');
+  LogHandler.log('Getting list of artists');
   final artists = <String, int>{}..addAll({
-      for (final song in Globals.allSongs)
+      for (final song in Globals.allSongs) //
         song.artist: Globals.allSongs.where((s) => s.artist == song.artist).length,
     });
   Globals.artists = SplayTreeMap.from(
@@ -148,13 +147,18 @@ void updateArtistsList() {
 }
 
 void updateAlbumList() {
-  debugPrint('Getting list of albums');
+  LogHandler.log('Getting list of albums');
   final albums = <String, int>{}..addAll({
-      for (final song in Globals.allSongs)
+      for (final song in Globals.allSongs) //
         song.album: Globals.allSongs.where((s) => s.album == song.album).length,
     });
   Globals.albums = SplayTreeMap.from(
     albums,
     (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
   );
+}
+
+void getFromDatabase() async {
+  // TODO migrate from local file
+  // openDatabase();
 }

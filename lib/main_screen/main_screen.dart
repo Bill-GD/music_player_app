@@ -1,12 +1,11 @@
 import 'package:animations/animations.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -40,7 +39,7 @@ class _MainScreenState extends State<MainScreen> {
   Future<PermissionStatus> _checkStoragePermission() async {
     PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
     if (!storagePermissionStatus.isGranted && context.mounted) {
-      debugPrint('Storage permission not granted, redirecting to request page');
+      LogHandler.log('Storage permission not granted, redirecting to request page');
 
       if (mounted) {
         await showDialog(
@@ -62,7 +61,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _checkStoragePermission().then((storagePermissionStatus) async {
       if (storagePermissionStatus.isGranted) {
-        debugPrint('Storage permission is granted');
+        LogHandler.log('Storage permission is granted');
         await updateMusicData();
         sortAllSongs();
         setState(() => isLoading = false);
@@ -182,7 +181,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         ListTile(
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                          leading: Icon(CupertinoIcons.gear_alt_fill, color: iconColor(context)),
+                          leading: FaIcon(FontAwesomeIcons.gear, color: iconColor(context)),
                           title: const Text(
                             'Settings',
                             style: bottomSheetTitle,
@@ -467,9 +466,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          Globals.audioHandler.playing
-                              ? Globals.audioHandler.pause()
-                              : Globals.audioHandler.play();
+                          Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
                           setState(() {});
                         },
                         icon: Icon(

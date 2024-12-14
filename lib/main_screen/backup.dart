@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
@@ -21,7 +22,7 @@ class _BackupScreenState extends State<BackupScreen> {
   @override
   void initState() {
     super.initState();
-    dataFile = File('${Globals.storagePath}/tracks.json');
+    dataFile = File(Globals.jsonPath);
     getFileStats();
     setState(() {});
   }
@@ -86,7 +87,7 @@ class _BackupScreenState extends State<BackupScreen> {
 
                       bu.writeAsStringSync(dataFile.readAsStringSync());
 
-                      debugPrint('Backing up data to: ${bu.path}');
+                      LogHandler.log('Backing up data to: ${bu.path}');
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Data backed up successfully')),
                       );
@@ -154,7 +155,7 @@ class _BackupScreenState extends State<BackupScreen> {
                       if (!dataFile.existsSync()) dataFile.createSync();
                       dataFile.writeAsStringSync(bu.readAsStringSync());
 
-                      debugPrint('Recovering back up data from: ${bu.path}');
+                      LogHandler.log('Recovering back up data from: ${bu.path}');
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Data recovered successfully')),

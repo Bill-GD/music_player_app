@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+// ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 
@@ -20,9 +22,8 @@ int getTotalDuration() => Globals.currentSongPath.isNotEmpty
     : 1;
 
 Future<void> _incrementTimePlayed() async {
-  Globals
-      .allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
-  debugPrint('Incremented play count');
+  Globals.allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
+  LogHandler.log('Incremented play count');
   saveSongsToStorage();
 }
 
@@ -80,7 +81,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     _player.processingStateStream.listen((state) async {
       if (state == ProcessingState.completed) {
         if (_repeat == AudioServiceRepeatMode.one) {
-          debugPrint('Repeat one, restarting song');
+          LogHandler.log('Repeat one, restarting song');
           await seek(0.ms);
         } else {
           skipToNext();
@@ -140,7 +141,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     Duration? duration = _player.duration;
 
     if (songPath != Globals.currentSongPath || Globals.currentSongPath.isEmpty) {
-      debugPrint('Switching to a different song: ${songPath.split('/').last}');
+      LogHandler.log('Switching to a different song: ${songPath.split('/').last}');
 
       duration = await _player.setAudioSource(
         AudioSource.uri(Uri.parse(Uri.encodeComponent(songPath))),
@@ -171,9 +172,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
       _onSongChangeController.add(true);
 
       if (_totalDuration.inMilliseconds <= 0) {
-        debugPrint('Something is wrong when setting audio source');
+        LogHandler.log('Something is wrong when setting audio source');
       } else {
-        debugPrint('Min listen time: $_minTime / ${_totalDuration.inMilliseconds} ms');
+        LogHandler.log('Min listen time: $_minTime / ${_totalDuration.inMilliseconds} ms');
       }
 
       if (Config.autoPlayNewSong) {
@@ -193,27 +194,27 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     int songCount = _playlist.length;
     _playlistName = '$name ($songCount song${songCount > 1 ? 's' : ''})';
-    debugPrint('Got playlist: $songCount songs');
+    LogHandler.log('Got playlist: $songCount songs');
   }
 
   void _shufflePlaylist({bool currentToStart = true, String begin = ''}) {
-    debugPrint('Shuffling playlist');
+    LogHandler.log('Shuffling playlist');
     _playlist.shuffle();
 
     if (currentToStart) {
       if (begin.isEmpty) {
-        debugPrint('Begin song should not be empty');
+        LogHandler.log('Begin song should not be empty');
       } else {
         _playlist.removeWhere((e) => e == begin);
         _playlist.insert(0, begin);
       }
     }
-    debugPrint('Current song index: ${_playlist.indexWhere((e) => e == Globals.currentSongPath)}');
+    LogHandler.log('Current song index: ${_playlist.indexWhere((e) => e == Globals.currentSongPath)}');
   }
 
   void moveSong(int from, int to) {
     if (from < 0 || from >= _playlist.length || to < 0 || to >= _playlist.length) {
-      debugPrint('Invalid move song index');
+      LogHandler.log('Invalid move song index');
       return;
     }
 
@@ -237,9 +238,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     );
 
     if (artist != null) item = item.copyWith(artist: artist);
-    item = duration != null
-        ? item.copyWith(duration: duration)
-        : item.copyWith(duration: mediaItem.value!.duration);
+    item = duration != null ? item.copyWith(duration: duration) : item.copyWith(duration: mediaItem.value!.duration);
 
     mediaItem.add(item);
   }
@@ -263,7 +262,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
         : AudioServiceShuffleMode.all;
 
     _shufflePlaylist(begin: Globals.currentSongPath);
-    debugPrint('Change shuffle: $isShuffled');
+    LogHandler.log('Change shuffle: $isShuffled');
     Config.saveConfig();
   }
 
@@ -282,7 +281,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       default:
         break;
     }
-    debugPrint('Change repeat: ${_repeat.name}');
+    LogHandler.log('Change repeat: ${_repeat.name}');
     Config.saveConfig();
   }
 
@@ -299,17 +298,17 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> skipToNext() async {
     if (_skipping) return;
 
-    debugPrint('Skipping to next song');
+    LogHandler.log('Skipping to next song');
     _skipping = true;
 
     if (_playlist.isEmpty) {
       pause();
-      debugPrint('Playlist is empty, this should not be the case');
+      LogHandler.log('Playlist is empty, this should not be the case');
       return;
     }
 
     if (_playlist.length == 1) {
-      debugPrint('Playlist only contains one song, skipping action');
+      LogHandler.log('Playlist only contains one song, skipping action');
       return;
     }
 
@@ -317,25 +316,25 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (currentIndex < 0) {
       pause();
-      debugPrint('Can\'t find song in playlist, this should not be the case');
+      LogHandler.log('Can\'t find song in playlist, this should not be the case');
       return;
     }
 
     await Future.delayed(
       Config.delayMilliseconds.ms,
-      () => debugPrint('Delayed for ${Config.delayMilliseconds}ms'),
+      () => LogHandler.log('Delayed for ${Config.delayMilliseconds}ms'),
     );
 
     if (currentIndex == _playlist.length - 1) {
       switch (_repeat) {
         case AudioServiceRepeatMode.all:
-          debugPrint('Repeat all');
+          LogHandler.log('Repeat all');
           if (isShuffled) _shufflePlaylist(currentToStart: false);
           await setPlayerSong(_playlist[0]);
           break;
         case AudioServiceRepeatMode.none:
           if (_player.processingState == ProcessingState.completed) {
-            debugPrint('Repeat none');
+            LogHandler.log('Repeat none');
             pause();
           }
           break;
@@ -353,17 +352,17 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> skipToPrevious() async {
     if (_skipping) return;
 
-    debugPrint('Skipping to previous song');
+    LogHandler.log('Skipping to previous song');
     _skipping = true;
 
     if (_playlist.isEmpty) {
       pause();
-      debugPrint('Playlist is empty, this should not be the case');
+      LogHandler.log('Playlist is empty, this should not be the case');
       return;
     }
 
     if (_playlist.length == 1) {
-      debugPrint('Playlist only contains one song, skipping action');
+      LogHandler.log('Playlist only contains one song, skipping action');
       return;
     }
 
@@ -371,7 +370,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (currentIndex < 0) {
       pause();
-      debugPrint('Can\'t find song in playlist, this should not be the case');
+      LogHandler.log('Can\'t find song in playlist, this should not be the case');
       return;
     }
 

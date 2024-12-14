@@ -206,7 +206,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                       strokeWidth: 3,
                                     ).animate(
                                       effects: const [FadeEffect()],
-                                      onComplete: (controller) {},
+                                      onComplete: (_) {},
                                     ),
                                   ),
                                 )
@@ -217,9 +217,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: ElevatedButton(
-                          onPressed: _textEditingController.text.isNotEmpty &&
-                                  !_isDownloading &&
-                                  _errorText == null
+                          onPressed: _textEditingController.text.isNotEmpty && !_isDownloading && _errorText == null
                               ? () async {
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   _isFromSoundCloud = _textEditingController.text.contains('soundcloud.com');
@@ -227,9 +225,12 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                     _isGettingData = true;
                                     _metadata = null;
                                   });
-                                  _metadata = _isFromSoundCloud
-                                      ? await getSoundCloudSongData(context, _textEditingController.text)
-                                      : await getYouTubeVideoData(context, _textEditingController.text);
+                                  if (_isFromSoundCloud) {
+                                    // _metadata = await getSoundCloudSongData(context, _textEditingController.text);
+                                    _errorText = 'SoundCloud API is currently disabled/inaccessible';
+                                  } else {
+                                    _metadata = await getYouTubeVideoData(context, _textEditingController.text);
+                                  }
                                   setState(() => _isGettingData = false);
                                 }
                               : null,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/widgets.dart';
 
 Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String urlText) async {
@@ -66,7 +67,7 @@ Future<void> downloadYoutubeMP3(
     final manifest = await yt.videos.streamsClient.getManifest(url);
     final streamInfo = manifest.audioOnly.withHighestBitrate();
 
-    debugPrint('Saving to: ${file.absolute.path}');
+    LogHandler.log('Saving to: ${file.absolute.path}');
 
     await dio.download(
       streamInfo.url.toString(),
@@ -80,7 +81,7 @@ Future<void> downloadYoutubeMP3(
       );
     }
   } on Exception catch (e) {
-    debugPrint(e.toString());
+    LogHandler.log(e.toString());
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An Error occurred while downloading')),

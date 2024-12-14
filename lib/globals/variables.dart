@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:music_player_app/globals/log_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +27,8 @@ class Globals {
 
   /// The path to the app's storage directory.
   static late final String storagePath;
+  static String get jsonPath => '$storagePath/files/tracks.json';
+  static String get dbPath => '$storagePath/database/database.db';
 }
 
 // Configs
@@ -73,7 +75,7 @@ class Config {
     await prefs.setInt('delayMilliseconds', delayMilliseconds);
     await prefs.setBool('isShuffled', Globals.audioHandler.isShuffled);
     await prefs.setString('repeatMode', Globals.audioHandler.repeatMode.name);
-    debugPrint('Config saved');
+    LogHandler.log('Config saved');
   }
 
   static Future<void> loadConfig() async {
@@ -94,7 +96,7 @@ class Config {
       prefs.getBool('isShuffled'),
       prefs.getString('repeatMode'),
     );
-    debugPrint('Config loaded');
+    LogHandler.log('Config loaded');
   }
 }
 

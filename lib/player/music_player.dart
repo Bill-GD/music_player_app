@@ -3,12 +3,12 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -55,9 +55,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
   void updateSongInfo([String? songPath]) async {
     song = Globals.allSongs.firstWhere((e) => e.absolutePath == (songPath ?? Globals.currentSongPath));
-    debugPrint('Update song info: ${song.trackName}');
+    LogHandler.log('Update song info: ${song.trackName}');
 
-    debugPrint('Updating player duration values');
+    LogHandler.log('Updating player duration values');
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
     animController = AnimationController(duration: 500.ms, reverseDuration: 500.ms, vsync: this);
@@ -74,7 +74,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
     songChangeStream = Globals.audioHandler.onSongChange.listen((changed) {
       if (changed) {
-        debugPrint('Detected song change, updating player');
+        LogHandler.log('Detected song change, updating player');
         updateSongInfo();
       }
     });
@@ -194,10 +194,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                           .toList(),
                       scrollController: playlistScrollController,
                       onReorder: (o, n) {
-                        debugPrint(
+                        LogHandler.log(
                           'Old song: ${Globals.audioHandler.playlist[o].split('/').last} ($o)',
                         );
-                        debugPrint(
+                        LogHandler.log(
                           'New song: ${Globals.audioHandler.playlist[n].split('/').last} ($n)',
                         );
                         Globals.audioHandler.moveSong(o, n);
@@ -304,9 +304,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       IconButton(
                         onPressed: () async {
                           await Globals.audioHandler.skipToPrevious();
-                          playIcon = Globals.audioHandler.playing
-                              ? AnimatedIcons.play_pause
-                              : AnimatedIcons.pause_play;
+                          playIcon = Globals.audioHandler.playing ? AnimatedIcons.play_pause : AnimatedIcons.pause_play;
                         },
                         icon: Icon(
                           Icons.skip_previous_rounded,
@@ -316,8 +314,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       ),
                       Container(
                         decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
+                            shape: BoxShape.circle, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                         child: IconButton(
                           onPressed: () async {
                             playIcon = AnimatedIcons.pause_play;
@@ -341,9 +338,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       IconButton(
                         onPressed: () async {
                           await Globals.audioHandler.skipToNext();
-                          playIcon = Globals.audioHandler.playing
-                              ? AnimatedIcons.play_pause
-                              : AnimatedIcons.pause_play;
+                          playIcon = Globals.audioHandler.playing ? AnimatedIcons.play_pause : AnimatedIcons.pause_play;
                         },
                         icon: Icon(
                           Icons.skip_next_rounded,
