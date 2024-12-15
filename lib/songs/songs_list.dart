@@ -166,7 +166,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     ],
                   ),
                   title: Text(
-                    Globals.allSongs[songIndex].trackName,
+                    Globals.allSongs[songIndex].name,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),

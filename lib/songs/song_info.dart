@@ -17,13 +17,7 @@ class SongInfo extends StatefulWidget {
 class _SongInfoState extends State<SongInfo> {
   final _songController = TextEditingController(), _artistController = TextEditingController();
 
-  late MusicTrack song;
-
-  @override
-  void initState() {
-    super.initState();
-    song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
-  }
+  late MusicTrack song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
 
   @override
   void dispose() {
@@ -55,10 +49,10 @@ class _SongInfoState extends State<SongInfo> {
                 _songController.text = _songController.text.trim();
                 _artistController.text = _artistController.text.trim();
                 // only update if changed
-                if (_songController.text != song.trackName || _artistController.text != song.artist) {
+                if (_songController.text != song.name || _artistController.text != song.artist) {
                   needsUpdate = true;
 
-                  song.trackName = _songController.text.isEmpty
+                  song.name = _songController.text.isEmpty
                       ? song.path.split('/').last.split('.mp3').first
                       : _songController.text;
 
@@ -100,7 +94,7 @@ class _SongInfoState extends State<SongInfo> {
                     leadingText(context, 'Song'),
                     Expanded(
                       child: TextField(
-                        controller: _songController..text = song.trackName,
+                        controller: _songController..text = song.name,
                         decoration: textFieldDecoration(
                           context,
                           fillColor: Theme.of(context).colorScheme.background,
@@ -146,7 +140,27 @@ class _SongInfoState extends State<SongInfo> {
               margin: const EdgeInsets.only(top: 30, bottom: 20),
               child: const Text(
                 'Other Information',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30, right: 15),
+              child: Row(
+                children: [
+                  leadingText(context, 'ID'),
+                  Expanded(
+                    child: TextFormField(
+                      readOnly: true,
+                      scrollPadding: const EdgeInsets.only(right: 0),
+                      initialValue: song.id.toString(),
+                      decoration: textFieldDecoration(
+                        context,
+                        fillColor: Theme.of(context).colorScheme.background,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Padding(

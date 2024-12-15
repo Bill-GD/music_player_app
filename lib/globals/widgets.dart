@@ -195,7 +195,7 @@ Future<void> showSongOptionsMenu(
   await getBottomSheet(
     context,
     Text(
-      song.trackName,
+      song.name,
       style: bottomSheetTitle,
       textAlign: TextAlign.center,
       softWrap: true,
@@ -280,7 +280,7 @@ Future<void> showSongOptionsMenu(
                       This CANNOT be undone.
                       Are you sure you want to delete
         
-                      ${song.trackName}'''),
+                      ${song.name}'''),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16),
                   ),

@@ -12,39 +12,43 @@ import 'variables.dart';
 class MusicTrack {
   int id;
   String path;
-  String trackName, artist;
+  String name, artist;
   int timeListened;
-  late DateTime timeAdded;
+  DateTime timeAdded = DateTime.now();
 
   String get fullPath => Globals.downloadPath + path;
 
   MusicTrack(
     this.path, {
     this.id = -1,
-    this.trackName = '',
+    this.name = '',
     this.artist = 'Unknown',
     // this.album = 'Unknown',
     this.timeListened = 0,
+    required this.timeAdded,
   }) {
-    trackName = trackName.isEmpty ? path.split('/').last.split('.mp3').first : trackName;
-    timeAdded = File(path).statSync().modified;
+    name = name.isEmpty ? path.split('/').last.split('.mp3').first : name;
   }
 
   MusicTrack.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         path = json['path'],
-        trackName = json['trackName'] ?? json['path'].split('/').last.split('.mp3').first,
+        name = json['name'] ?? json['path'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
         // album = json['album'] ?? 'Unknown',
         timeListened = json['timeListened'],
-        timeAdded = DateTime.parse(json['timeAdded'] ?? File(json['path']).statSync().modified.toIso8601String());
+        timeAdded = json['timeAdded'] == null
+            ? DateTime.parse(json['timeAdded'])
+            : File('${Globals.downloadPath}${json['path']}').statSync().modified {
+    // LogHandler.log('Time (fromJson): ${json['timeAdded']}');
+  }
 
   MusicTrack.fromJsonString(String jsonString) : this.fromJson(jsonDecode(jsonString));
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'path': path,
-        'trackName': trackName,
+        'name': name,
         'artist': artist,
         // 'album': album,
         'timeListened': timeListened,
@@ -66,7 +70,7 @@ class MusicTrack {
       'music_track',
       {
         'path': path,
-        'trackName': trackName,
+        'name': name,
         'artist': artist,
         'timeListened': timeListened,
         'timeAdded': timeAdded.toIso8601String(),
@@ -91,21 +95,20 @@ class MusicTrack {
 class Album {
   final int id;
   final String name;
-  DateTime? timeAdded;
-  final List<int> songs = const [];
+  DateTime timeAdded;
+  List<int> songs = [];
 
-  Album({required this.name, this.id = -1, this.timeAdded}) {
-    timeAdded ??= DateTime.now();
-  }
+  Album({required this.name, this.id = -1, required this.timeAdded});
 
   Album.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        name = json['name'];
+        name = json['name'],
+        timeAdded = DateTime.parse(json['timeAdded']);
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'timeAdded': timeAdded?.toIso8601String(),
+        'timeAdded': timeAdded.toIso8601String(),
       };
 
   Future<void> insert() async {
@@ -149,7 +152,7 @@ class Album {
 Future<void> updateMusicData() async {
   await updateListOfSongs();
   updateArtistsList();
-  updateAlbumList();
+  await updateAlbumList();
 }
 
 /// Updates all songs with saved data
@@ -167,7 +170,7 @@ Future<void> updateListOfSongs() async {
 
     storageSongs[i]
       ..id = matchingSong.id
-      ..trackName = matchingSong.trackName
+      ..name = matchingSong.name
       ..artist = matchingSong.artist
       ..timeListened = matchingSong.timeListened;
   }
@@ -189,14 +192,22 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
   final filteredFiles = <MusicTrack>[];
 
   if (!Config.enableSongFiltering) {
-    return mp3Files.map((e) => MusicTrack(e.path.split(Globals.downloadPath).last)).toList();
+    return mp3Files.map((e) {
+      return MusicTrack(
+        e.path.split(Globals.downloadPath).last,
+        timeAdded: e.statSync().modified,
+      );
+    }).toList();
   }
 
   LogHandler.log('Filtering out song with length < ${Config.lengthLimitMilliseconds ~/ 1000}s');
   for (final file in mp3Files) {
     final info = await MetadataRetriever.fromFile(File(file.path));
     if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
-      filteredFiles.add(MusicTrack(file.path.split(Globals.downloadPath).last));
+      filteredFiles.add(MusicTrack(
+        file.path.split(Globals.downloadPath).last,
+        timeAdded: file.statSync().modified,
+      ));
     }
   }
   return filteredFiles;
@@ -205,11 +216,11 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
 Future<List<MusicTrack>> _getSavedMusicData() async {
   LogHandler.log('Getting saved music data from database');
   final json = await DatabaseHandler.db.rawQuery(
-    'select t.*, a.name album from music_track t'
-    'inner join album_tracks at on t.id = at.track_id'
+    'select t.*, a.name album from music_track t '
+    'inner join album_tracks at on t.id = at.track_id '
     'inner join album a on a.id = at.album_id;',
   );
-  return json.map((e) => MusicTrack.fromJson(e)).toList();
+  return json.map(MusicTrack.fromJson).toList();
 }
 
 void sortAllSongs([SortOptions? sortType]) {
@@ -218,7 +229,7 @@ void sortAllSongs([SortOptions? sortType]) {
   LogHandler.log('Sorting all tracks: ${Config.currentSortOption.name}');
   switch (Config.currentSortOption) {
     case SortOptions.name:
-      tracks.sort((track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()));
+      tracks.sort((track1, track2) => track1.name.toLowerCase().compareTo(track2.name.toLowerCase()));
       break;
     case SortOptions.mostPlayed:
       tracks.sort((track1, track2) => track2.timeListened.compareTo(track1.timeListened));

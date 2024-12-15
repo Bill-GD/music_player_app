@@ -28,7 +28,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
     if (categoryIsArtist) {
       songs = Globals.allSongs.where((s) => s.artist == widget.artistName).toList()
         ..sort(
-          (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
+          (track1, track2) => track1.name.toLowerCase().compareTo(track2.name.toLowerCase()),
         );
       return;
     }
@@ -109,7 +109,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                       ),
                     ),
                     title: Text(
-                      songs[songIndex].trackName,
+                      songs[songIndex].name,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
@@ -157,6 +157,12 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
             ),
           ],
         ),
+        floatingActionButton: !categoryIsArtist
+            ? FloatingActionButton(
+                onPressed: () {},
+                child: const Icon(Icons.add_rounded),
+              )
+            : null,
       ),
     );
   }

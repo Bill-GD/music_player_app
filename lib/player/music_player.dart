@@ -36,6 +36,7 @@ Future<Route> getMusicPlayerRoute(
 
 class MusicPlayerPage extends StatefulWidget {
   final int songID;
+
   const MusicPlayerPage({super.key, required this.songID});
 
   @override
@@ -55,7 +56,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
   void updateSongInfo([int? songID]) async {
     song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
-    LogHandler.log('Update song info: ${song.trackName}');
+    LogHandler.log('Update song info: ${song.name}');
 
     LogHandler.log('Updating player duration values');
     currentDuration = getCurrentDuration();
@@ -183,7 +184,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                 ),
                               ),
                               title: Text(
-                                Globals.allSongs.firstWhere((e) => e.id == sId).trackName,
+                                Globals.allSongs.firstWhere((e) => e.id == sId).name,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               subtitle: Text(
@@ -240,7 +241,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                   child: Column(
                     children: [
                       Text(
-                        song.trackName,
+                        song.name,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
@@ -314,9 +315,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       ),
                       Container(
                         decoration: BoxDecoration(
-                            shape: BoxShape.circle, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                        ),
                         child: IconButton(
-                          onPressed: () async {
+                          onPressed: () {
                             playIcon = AnimatedIcons.pause_play;
                             if (Globals.audioHandler.playing) {
                               Globals.audioHandler.pause();
