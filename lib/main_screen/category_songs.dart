@@ -76,11 +76,11 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                 ),
               ),
               onPressed: () async {
-                final randomSong = songs[Random().nextInt(songs.length)].path;
+                final randomSong = songs[Random().nextInt(songs.length)].id;
                 // get artistName or albumName depend on category
                 Globals.audioHandler.registerPlaylist(
                   categoryIsArtist ? widget.artistName : albumName,
-                  songs.map((e) => e.path).toList(),
+                  songs.map((e) => e.id).toList(),
                   randomSong,
                 );
                 await Navigator.of(context).push(
@@ -124,13 +124,13 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                     onTap: () async {
                       Globals.audioHandler.registerPlaylist(
                         categoryIsArtist ? widget.artistName : albumName,
-                        songs.map((e) => e.path).toList(),
-                        songs[songIndex].path,
+                        songs.map((e) => e.id).toList(),
+                        songs[songIndex].id,
                       );
                       await Navigator.of(context).push(
                         await getMusicPlayerRoute(
                           context,
-                          songs[songIndex].path,
+                          songs[songIndex].id,
                         ),
                       );
                       setState(() {});
@@ -140,7 +140,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                       onPressed: () async {
                         await showSongOptionsMenu(
                           context,
-                          songs[songIndex].path,
+                          songs[songIndex].id,
                           setState,
                         );
                         getSongs();

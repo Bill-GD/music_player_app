@@ -16,11 +16,11 @@ import 'player_utils.dart';
 
 Future<Route> getMusicPlayerRoute(
   BuildContext context,
-  String songPath,
+  int songID,
 ) async {
-  await Globals.audioHandler.setPlayerSong(songPath);
+  await Globals.audioHandler.setPlayerSong(songID);
   return PageRouteBuilder(
-    pageBuilder: (context, _, __) => MusicPlayerPage(songPath: songPath),
+    pageBuilder: (context, _, __) => MusicPlayerPage(songID: songID),
     transitionDuration: 400.ms,
     transitionsBuilder: (_, anim, __, child) {
       return SlideTransition(
@@ -35,8 +35,8 @@ Future<Route> getMusicPlayerRoute(
 }
 
 class MusicPlayerPage extends StatefulWidget {
-  final String songPath;
-  const MusicPlayerPage({super.key, required this.songPath});
+  final int songID;
+  const MusicPlayerPage({super.key, required this.songID});
 
   @override
   State<MusicPlayerPage> createState() => _MusicPlayerPageState();
@@ -53,8 +53,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
       ? AnimatedIcons.pause_play //
       : AnimatedIcons.play_pause;
 
-  void updateSongInfo([String? songPath]) async {
-    song = Globals.allSongs.firstWhere((e) => e.path == (songPath ?? Globals.currentSongPath));
+  void updateSongInfo([int? songID]) async {
+    song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
     LogHandler.log('Update song info: ${song.trackName}');
 
     LogHandler.log('Updating player duration values');
@@ -70,7 +70,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
     super.initState();
 
     // Initial player state, KEEP IT
-    updateSongInfo(widget.songPath);
+    updateSongInfo(widget.songID);
 
     songChangeStream = Globals.audioHandler.onSongChange.listen((changed) {
       if (changed) {
@@ -111,7 +111,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
               onPressed: () async {
                 await showSongOptionsMenu(
                   context,
-                  Globals.currentSongPath,
+                  Globals.currentSongID,
                   setState,
                   showDeleteOption: false,
                 );
@@ -169,7 +169,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       ),
                       content: Globals.audioHandler.playlist
                           .mapIndexed(
-                            (i, s) => ListTile(
+                            (i, sId) => ListTile(
                               key: ValueKey('$i'),
                               visualDensity: VisualDensity.compact,
                               titleAlignment: ListTileTitleAlignment.threeLine,
@@ -177,17 +177,17 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                 width: 32,
                                 child: Align(
                                   alignment: Alignment.center,
-                                  child: Globals.currentSongPath == s
+                                  child: Globals.currentSongID == sId
                                       ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
                                       : Text((i + 1).padIntLeft(2, '0')),
                                 ),
                               ),
                               title: Text(
-                                Globals.allSongs.firstWhere((e) => e.path == s).trackName,
+                                Globals.allSongs.firstWhere((e) => e.id == sId).trackName,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               subtitle: Text(
-                                Globals.allSongs.firstWhere((e) => e.path == s).artist,
+                                Globals.allSongs.firstWhere((e) => e.id == sId).artist,
                               ),
                             ),
                           )
@@ -195,10 +195,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       scrollController: playlistScrollController,
                       onReorder: (o, n) {
                         LogHandler.log(
-                          'Old song: ${Globals.audioHandler.playlist[o].split('/').last} ($o)',
+                          'Old song id: ${Globals.audioHandler.playlist[o]}',
                         );
                         LogHandler.log(
-                          'New song: ${Globals.audioHandler.playlist[n].split('/').last} ($n)',
+                          'New song id: ${Globals.audioHandler.playlist[n]}',
                         );
                         Globals.audioHandler.moveSong(o, n);
                       },
@@ -207,7 +207,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (playlistScrollController.hasClients) {
                         final count = Globals.audioHandler.playlist.length;
-                        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongPath);
+                        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
                         final maxScrollExtent = playlistScrollController.position.maxScrollExtent;
 
                         playlistScrollController.animateTo(

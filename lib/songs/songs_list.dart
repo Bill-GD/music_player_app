@@ -46,10 +46,10 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       ),
                     ),
                     onPressed: () async {
-                      final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].path;
+                      final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].id;
                       Globals.audioHandler.registerPlaylist(
                         'All songs',
-                        Globals.allSongs.map((e) => e.path).toList(),
+                        Globals.allSongs.map((e) => e.id).toList(),
                         randomSong,
                       );
                       await Navigator.of(context).push(
@@ -181,13 +181,13 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                   onTap: () async {
                     Globals.audioHandler.registerPlaylist(
                       'All songs',
-                      Globals.allSongs.map((e) => e.path).toList(),
-                      Globals.allSongs[songIndex].path,
+                      Globals.allSongs.map((e) => e.id).toList(),
+                      Globals.allSongs[songIndex].id,
                     );
                     await Navigator.of(context).push(
                       await getMusicPlayerRoute(
                         context,
-                        Globals.allSongs[songIndex].path,
+                        Globals.allSongs[songIndex].id,
                       ),
                     );
                     setState(() {});
@@ -205,7 +205,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         onPressed: () async {
                           await showSongOptionsMenu(
                             context,
-                            Globals.allSongs[songIndex].path,
+                            Globals.allSongs[songIndex].id,
                             setState,
                           );
                           setState(() {});

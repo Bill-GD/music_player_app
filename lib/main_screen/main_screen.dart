@@ -85,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Globals.currentSongPath.isEmpty) {
+    if (Globals.currentSongID < 0) {
       Globals.showMinimizedPlayer = false;
     }
 
@@ -438,7 +438,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
           // mini player
           bottomNavigationBar: Visibility(
-            visible: Globals.showMinimizedPlayer && Globals.currentSongPath.isNotEmpty,
+            visible: Globals.showMinimizedPlayer && Globals.currentSongID >= 0,
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
@@ -474,8 +474,8 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         title: Text(
-                          Globals.currentSongPath.isNotEmpty
-                              ? Globals.allSongs.firstWhereOrNull((e) => e.path == Globals.currentSongPath)!.trackName
+                          Globals.currentSongID >= 0
+                              ? Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)!.trackName
                               : 'None',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -484,15 +484,15 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         subtitle: Text(
-                          Globals.currentSongPath.isNotEmpty
-                              ? Globals.allSongs.firstWhereOrNull((e) => e.path == Globals.currentSongPath)!.artist
+                          Globals.currentSongID >= 0
+                              ? Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)!.artist
                               : 'None',
                         ),
                         onTap: () async {
                           await Navigator.of(context).push(
                             await getMusicPlayerRoute(
                               context,
-                              Globals.currentSongPath,
+                              Globals.currentSongID,
                             ),
                           );
                           setState(() {});
