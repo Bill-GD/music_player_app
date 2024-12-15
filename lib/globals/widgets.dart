@@ -118,7 +118,7 @@ Future<void> playlistSheet(
                         width: 32,
                         child: Align(
                           alignment: Alignment.center,
-                          child: Globals.currentSongPath == Globals.audioHandler.playlist[i]
+                          child: Globals.currentSongID == Globals.audioHandler.playlist[i]
                               ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
                               : Text((i + 1).padIntLeft(2, '0')),
                         ),
@@ -187,11 +187,11 @@ Future<void> getBottomSheet(
 
 Future<void> showSongOptionsMenu(
   BuildContext context,
-  String songPath,
+  int songID,
   void Function(void Function()) setState, {
   bool showDeleteOption = true,
 }) async {
-  MusicTrack song = Globals.allSongs.firstWhere((e) => e.path == songPath);
+  MusicTrack song = Globals.allSongs.firstWhere((e) => e.id == songID);
   await getBottomSheet(
     context,
     Text(
@@ -221,7 +221,7 @@ Future<void> showSongOptionsMenu(
                   child: child,
                 );
               },
-              pageBuilder: (_, __, ___) => SongInfo(songPath: songPath),
+              pageBuilder: (_, __, ___) => SongInfo(songID: songID),
             ),
           );
           if (needsUpdate == true) {
@@ -293,12 +293,12 @@ Future<void> showSongOptionsMenu(
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () async {
-                        if (Globals.currentSongPath == songPath) {
-                          Globals.currentSongPath = '';
+                        if (Globals.currentSongID == songID) {
+                          Globals.currentSongID = -1;
                           Globals.showMinimizedPlayer = false;
                         }
                         Globals.audioHandler.pause();
-                        File(songPath).deleteSync();
+                        File(song.path).deleteSync();
                         songDeleted = true;
                         if (context.mounted) Navigator.of(context).pop();
                       },

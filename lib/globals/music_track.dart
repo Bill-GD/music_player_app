@@ -16,6 +16,8 @@ class MusicTrack {
   int timeListened;
   late DateTime timeAdded;
 
+  String get fullPath => Globals.downloadPath + path;
+
   MusicTrack(
     this.path, {
     this.id = -1,

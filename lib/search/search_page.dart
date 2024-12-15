@@ -88,13 +88,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 FocusManager.instance.primaryFocus?.unfocus();
                 Globals.audioHandler.registerPlaylist(
                   'All songs',
-                  Globals.allSongs.map((e) => e.path).toList(),
-                  song.path,
+                  Globals.allSongs.map((e) => e.id).toList(),
+                  song.id,
                 );
                 await Navigator.of(context).push(
                   await getMusicPlayerRoute(
                     context,
-                    song.path,
+                    song.id,
                   ),
                 );
                 setState(() {});

@@ -22,8 +22,8 @@ class Globals {
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;
 
-  /// Path of the currently selected/playing song.
-  static String currentSongPath = '';
+  /// ID of the currently selected/playing song.
+  static int currentSongID = -1;
 
   /// The path to the app's storage directory.
   static late final String storagePath;

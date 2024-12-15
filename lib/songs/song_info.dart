@@ -6,9 +6,9 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
 class SongInfo extends StatefulWidget {
-  final String songPath;
+  final int songID;
 
-  const SongInfo({super.key, required this.songPath});
+  const SongInfo({super.key, required this.songID});
 
   @override
   State<SongInfo> createState() => _SongInfoState();
@@ -22,7 +22,7 @@ class _SongInfoState extends State<SongInfo> {
   @override
   void initState() {
     super.initState();
-    song = Globals.allSongs.firstWhere((e) => e.path == widget.songPath);
+    song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
   }
 
   @override
@@ -66,9 +66,9 @@ class _SongInfoState extends State<SongInfo> {
                       ? 'Unknown' //
                       : _artistController.text;
 
-                  if (widget.songPath == Globals.currentSongPath) {
+                  if (widget.songID == Globals.currentSongID) {
                     Globals.audioHandler.updateNotificationInfo(
-                      songPath: widget.songPath,
+                      songID: widget.songID,
                       trackName: _songController.text,
                       artist: _artistController.text,
                     );
@@ -198,7 +198,7 @@ class _SongInfoState extends State<SongInfo> {
                     child: TextFormField(
                       readOnly: true,
                       scrollPadding: const EdgeInsets.only(right: 0),
-                      initialValue: widget.songPath,
+                      initialValue: song.fullPath,
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,
