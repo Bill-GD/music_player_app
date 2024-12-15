@@ -9,30 +9,31 @@ import '../globals/widgets.dart';
 import '../player/music_player.dart';
 
 class CategorySongsPage extends StatefulWidget {
-  final String artistName, albumName;
-  const CategorySongsPage({super.key, this.artistName = '', this.albumName = ''});
+  final String artistName;
+  final int albumID;
+
+  const CategorySongsPage({super.key, this.artistName = '', this.albumID = -1});
 
   @override
   State<CategorySongsPage> createState() => _CategorySongsPageState();
 }
 
 class _CategorySongsPageState extends State<CategorySongsPage> {
+  String albumName = '';
   late List<MusicTrack> songs;
 
   late bool categoryIsArtist;
 
   void getSongs() {
     if (categoryIsArtist) {
-      songs = Globals.allSongs.where((song) => song.artist == widget.artistName).toList()
+      songs = Globals.allSongs.where((s) => s.artist == widget.artistName).toList()
         ..sort(
           (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
         );
-    } else {
-      songs = Globals.allSongs.where((song) => song.album == widget.albumName).toList()
-        ..sort(
-          (track1, track2) => track1.trackName.toLowerCase().compareTo(track2.trackName.toLowerCase()),
-        );
+      return;
     }
+    songs = Globals.albums[widget.albumID].songs.map((e) => Globals.allSongs.firstWhere((s) => s.id == e)).toList();
+    albumName = Globals.albums[widget.albumID].name;
   }
 
   @override
@@ -53,7 +54,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
           ),
           centerTitle: true,
           title: Text(
-            categoryIsArtist ? widget.artistName : widget.albumName,
+            categoryIsArtist ? widget.artistName : albumName,
             style: const TextStyle(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
@@ -75,11 +76,11 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                 ),
               ),
               onPressed: () async {
-                final randomSong = songs[Random().nextInt(songs.length)].absolutePath;
+                final randomSong = songs[Random().nextInt(songs.length)].path;
                 // get artistName or albumName depend on category
                 Globals.audioHandler.registerPlaylist(
-                  categoryIsArtist ? widget.artistName : widget.albumName,
-                  songs.map((e) => e.absolutePath).toList(),
+                  categoryIsArtist ? widget.artistName : albumName,
+                  songs.map((e) => e.path).toList(),
                   randomSong,
                 );
                 await Navigator.of(context).push(
@@ -113,7 +114,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      '${songs[songIndex].artist} | ${songs[songIndex].album}',
+                      songs[songIndex].artist,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.grey[600],
@@ -122,14 +123,14 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                     ),
                     onTap: () async {
                       Globals.audioHandler.registerPlaylist(
-                        categoryIsArtist ? widget.artistName : widget.albumName,
-                        songs.map((e) => e.absolutePath).toList(),
-                        songs[songIndex].absolutePath,
+                        categoryIsArtist ? widget.artistName : albumName,
+                        songs.map((e) => e.path).toList(),
+                        songs[songIndex].path,
                       );
                       await Navigator.of(context).push(
                         await getMusicPlayerRoute(
                           context,
-                          songs[songIndex].absolutePath,
+                          songs[songIndex].path,
                         ),
                       );
                       setState(() {});
@@ -139,7 +140,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                       onPressed: () async {
                         await showSongOptionsMenu(
                           context,
-                          songs[songIndex].absolutePath,
+                          songs[songIndex].path,
                           setState,
                         );
                         getSongs();

@@ -25,7 +25,7 @@ class _SearchScreenState extends State<SearchScreen> {
           .where((song) =>
               song.trackName.toLowerCase().contains(keyword.toLowerCase()) ||
               song.artist.toLowerCase().contains(keyword.toLowerCase()))
-          .map((e) => e.absolutePath)
+          .map((e) => e.path)
           .toList();
     });
   }
@@ -68,7 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           itemCount: filteredSongs.length,
           itemBuilder: (context, index) {
-            final song = Globals.allSongs.firstWhere((e) => e.absolutePath == filteredSongs[index]);
+            final song = Globals.allSongs.firstWhere((e) => e.path == filteredSongs[index]);
             return ListTile(
               // contentPadding: const EdgeInsets.symmetric(horizontal: 30),
               title: Text(
@@ -88,13 +88,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 FocusManager.instance.primaryFocus?.unfocus();
                 Globals.audioHandler.registerPlaylist(
                   'All songs',
-                  Globals.allSongs.map((e) => e.absolutePath).toList(),
-                  song.absolutePath,
+                  Globals.allSongs.map((e) => e.path).toList(),
+                  song.path,
                 );
                 await Navigator.of(context).push(
                   await getMusicPlayerRoute(
                     context,
-                    song.absolutePath,
+                    song.path,
                   ),
                 );
                 setState(() {});

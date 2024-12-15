@@ -402,21 +402,22 @@ class _MainScreenState extends State<MainScreen> {
                       ListView.builder(
                         itemCount: Globals.albums.length,
                         itemBuilder: (context, albumIndex) {
-                          String albumName = Globals.albums.keys.elementAt(albumIndex);
+                          Album album = Globals.albums[albumIndex];
+
                           return OpenContainer(
                             closedElevation: 0,
                             closedColor: Theme.of(context).colorScheme.background,
                             openColor: Colors.transparent,
                             transitionDuration: 400.ms,
                             onClosed: (_) => setState(() {}),
-                            openBuilder: (context, action) => CategorySongsPage(albumName: albumName),
+                            openBuilder: (context, action) => CategorySongsPage(albumID: albumIndex),
                             closedBuilder: (context, action) {
-                              final songCount = Globals.albums[albumName];
-                              if (songCount == null) return const SizedBox.shrink();
+                              final songCount = album.songs.length;
+                              if (songCount <= 0) return const SizedBox.shrink();
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                                 title: Text(
-                                  albumName,
+                                  album.name,
                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 subtitle: Text(
@@ -474,9 +475,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         title: Text(
                           Globals.currentSongPath.isNotEmpty
-                              ? Globals.allSongs
-                                  .firstWhereOrNull((e) => e.absolutePath == Globals.currentSongPath)!
-                                  .trackName
+                              ? Globals.allSongs.firstWhereOrNull((e) => e.path == Globals.currentSongPath)!.trackName
                               : 'None',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -486,9 +485,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         subtitle: Text(
                           Globals.currentSongPath.isNotEmpty
-                              ? Globals.allSongs
-                                  .firstWhereOrNull((e) => e.absolutePath == Globals.currentSongPath)!
-                                  .artist
+                              ? Globals.allSongs.firstWhereOrNull((e) => e.path == Globals.currentSongPath)!.artist
                               : 'None',
                         ),
                         onTap: () async {

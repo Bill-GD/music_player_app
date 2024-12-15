@@ -13,7 +13,7 @@ class Globals {
   static Map<String, int> artists = {};
 
   /// List of name and song count of albums.
-  static Map<String, int> albums = {};
+  static List<Album> albums = [];
 
   static late final AudioPlayerHandler audioHandler;
 

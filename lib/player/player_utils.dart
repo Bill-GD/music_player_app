@@ -21,12 +21,6 @@ int getTotalDuration() => Globals.currentSongPath.isNotEmpty
     ? Globals.audioHandler.player.duration?.inMilliseconds ?? 1 //
     : 1;
 
-Future<void> _incrementTimePlayed() async {
-  Globals.allSongs[Globals.allSongs.indexWhere((e) => e.absolutePath == Globals.currentSongPath)].timeListened++;
-  LogHandler.log('Incremented play count');
-  saveSongsToStorage();
-}
-
 Future<AudioHandler> initAudioHandler() async {
   final handler = await AudioService.init(
     builder: () => AudioPlayerHandler(),
@@ -46,24 +40,29 @@ class AudioPlayerHandler extends BaseAudioHandler {
   // Player
   AudioPlayer get player => _player;
   late final AudioPlayer _player;
+
   bool get playing => _player.playing;
 
   // Playlist
   late List<String> _playlist; // Only keep track of paths
   List<String> get playlist => _playlist;
+
   String get playlistName => _playlistName;
   String _playlistName = '';
 
   // Play mode
   var _shuffle = AudioServiceShuffleMode.none;
+
   bool get isShuffled => _shuffle == AudioServiceShuffleMode.all;
   var _repeat = AudioServiceRepeatMode.none;
+
   AudioServiceRepeatMode get repeatMode => _repeat;
 
   // Listen count
   Duration _prevPos = 0.ms, _totalDuration = 0.ms;
   int _listenedDuration = 0, _minTime = 0;
   bool _listened = false;
+
   double get minTimePercent => _minTime / _totalDuration.inMilliseconds;
 
   // Skip cooldown
@@ -104,7 +103,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
             _listenedDuration += interval;
           }
           if (!_listened && _listenedDuration >= _minTime) {
-            _incrementTimePlayed();
+            Globals.allSongs.firstWhere((e) => e.path == Globals.currentSongPath).incrementTimePlayed();
             _listened = true;
           }
         }
@@ -149,7 +148,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       Globals.currentSongPath = songPath;
       Globals.showMinimizedPlayer = true;
 
-      MusicTrack item = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
+      MusicTrack item = Globals.allSongs.firstWhere((e) => e.path == songPath);
 
       addMediaItem(MediaItem(
         id: songPath,

@@ -46,11 +46,10 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       ),
                     ),
                     onPressed: () async {
-                      final randomSong =
-                          Globals.allSongs[Random().nextInt(Globals.allSongs.length)].absolutePath;
+                      final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].path;
                       Globals.audioHandler.registerPlaylist(
                         'All songs',
-                        Globals.allSongs.map((e) => e.absolutePath).toList(),
+                        Globals.allSongs.map((e) => e.path).toList(),
                         randomSong,
                       );
                       await Navigator.of(context).push(
@@ -172,7 +171,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    '${Globals.allSongs[songIndex].artist} | ${Globals.allSongs[songIndex].album}',
+                    Globals.allSongs[songIndex].artist,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.grey[600],
@@ -182,13 +181,13 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                   onTap: () async {
                     Globals.audioHandler.registerPlaylist(
                       'All songs',
-                      Globals.allSongs.map((e) => e.absolutePath).toList(),
-                      Globals.allSongs[songIndex].absolutePath,
+                      Globals.allSongs.map((e) => e.path).toList(),
+                      Globals.allSongs[songIndex].path,
                     );
                     await Navigator.of(context).push(
                       await getMusicPlayerRoute(
                         context,
-                        Globals.allSongs[songIndex].absolutePath,
+                        Globals.allSongs[songIndex].path,
                       ),
                     );
                     setState(() {});
@@ -206,7 +205,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                         onPressed: () async {
                           await showSongOptionsMenu(
                             context,
-                            Globals.allSongs[songIndex].absolutePath,
+                            Globals.allSongs[songIndex].path,
                             setState,
                           );
                           setState(() {});

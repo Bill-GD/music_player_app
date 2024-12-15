@@ -3,47 +3,144 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:music_player_app/globals/database_handler.dart';
 
 import 'functions.dart';
 import 'log_handler.dart';
 import 'variables.dart';
 
 class MusicTrack {
-  String absolutePath;
-  String trackName, artist, album;
+  int id;
+  String path;
+  String trackName, artist;
   int timeListened;
   late DateTime timeAdded;
 
   MusicTrack(
-    this.absolutePath, {
+    this.path, {
+    this.id = -1,
     this.trackName = '',
     this.artist = 'Unknown',
-    this.album = 'Unknown',
+    // this.album = 'Unknown',
     this.timeListened = 0,
   }) {
-    trackName = trackName.isEmpty ? absolutePath.split('/').last.split('.mp3').first : trackName;
-    timeAdded = File(absolutePath).statSync().modified;
+    trackName = trackName.isEmpty ? path.split('/').last.split('.mp3').first : trackName;
+    timeAdded = File(path).statSync().modified;
   }
 
-  MusicTrack.fromJson(Map json)
-      : absolutePath = json['absolutePath'],
-        trackName = json['trackName'] ?? json['absolutePath'].split('/').last.split('.mp3').first,
+  MusicTrack.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        path = json['path'],
+        trackName = json['trackName'] ?? json['path'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
-        album = json['album'] ?? 'Unknown',
+        // album = json['album'] ?? 'Unknown',
         timeListened = json['timeListened'],
-        timeAdded =
-            DateTime.parse(json['timeAdded'] ?? File(json['absolutePath']).statSync().modified.toIso8601String());
+        timeAdded = DateTime.parse(json['timeAdded'] ?? File(json['path']).statSync().modified.toIso8601String());
 
-  MusicTrack.fromJsonString(String jsonString) : this.fromJson(json.decode(jsonString));
+  MusicTrack.fromJsonString(String jsonString) : this.fromJson(jsonDecode(jsonString));
 
   Map<String, dynamic> toJson() => {
-        'absolutePath': absolutePath,
+        'id': id,
+        'path': path,
         'trackName': trackName,
         'artist': artist,
-        'album': album,
+        // 'album': album,
         'timeListened': timeListened,
         'timeAdded': timeAdded.toIso8601String(),
       };
+
+  Future<void> incrementTimePlayed() async {
+    timeListened++;
+    await update();
+    LogHandler.log('Incremented play count');
+  }
+
+  Future<void> insert() async {
+    if (id >= 0) {
+      LogHandler.log('Trying to insert duplicate song id ($id)', LogLevel.error);
+      return;
+    }
+    await DatabaseHandler.db.insert(
+      'music_track',
+      {
+        'path': path,
+        'trackName': trackName,
+        'artist': artist,
+        'timeListened': timeListened,
+        'timeAdded': timeAdded.toIso8601String(),
+      },
+    );
+  }
+
+  Future<void> update() async {
+    if (id < 0) {
+      LogHandler.log('Trying to update song id (-1)', LogLevel.error);
+      return;
+    }
+    await DatabaseHandler.db.update(
+      'music_track',
+      toJson(),
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+}
+
+class Album {
+  final int id;
+  final String name;
+  DateTime? timeAdded;
+  final List<int> songs = const [];
+
+  Album({required this.name, this.id = -1, this.timeAdded}) {
+    timeAdded ??= DateTime.now();
+  }
+
+  Album.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        name = json['name'];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'timeAdded': timeAdded?.toIso8601String(),
+      };
+
+  Future<void> insert() async {
+    if (id >= 0) {
+      LogHandler.log('Trying to insert duplicate album id ($id)', LogLevel.error);
+      return;
+    }
+    await DatabaseHandler.db.insert(
+      'album',
+      {
+        'name': name,
+        'timeAdded': DateTime.now().toIso8601String(),
+      },
+    );
+    for (final si in songs) {
+      await DatabaseHandler.db.insert(
+        'album_tracks',
+        {
+          'track_id': id,
+          'album_id': si,
+        },
+      );
+    }
+  }
+
+  Future<void> update() async {
+    if (id < 0) {
+      LogHandler.log('Trying to update album id (-1)', LogLevel.error);
+      return;
+    }
+    await DatabaseHandler.db.update(
+      'music_track',
+      toJson(),
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
 
 /// Get all songs (from storage & saved)
@@ -51,69 +148,66 @@ Future<void> updateMusicData() async {
   await updateListOfSongs();
   updateArtistsList();
   updateAlbumList();
-  saveSongsToStorage();
 }
 
 /// Updates all songs with saved data
 Future<void> updateListOfSongs() async {
   List<MusicTrack> storageSongs = await _getSongsFromStorage();
-  List<MusicTrack>? savedSongs = _getSavedMusicData();
+  List<MusicTrack> savedSongs = await _getSavedMusicData();
 
-  if (savedSongs != null) {
-    LogHandler.log('Updating music data from saved');
-    for (int i = 0; i < storageSongs.length; i++) {
-      final matchingSong = savedSongs.firstWhereOrNull(
-        (e) => e.absolutePath == storageSongs[i].absolutePath,
-      );
+  LogHandler.log('Updating music data from saved');
+  for (int i = 0; i < storageSongs.length; i++) {
+    final matchingSong = savedSongs.firstWhereOrNull(
+      (e) => e.path == storageSongs[i].path,
+    );
 
-      if (matchingSong == null) continue;
+    if (matchingSong == null) continue;
 
-      storageSongs[i]
-        ..trackName = matchingSong.trackName
-        ..artist = matchingSong.artist
-        ..album = matchingSong.album
-        ..timeListened = matchingSong.timeListened;
-    }
+    storageSongs[i]
+      ..id = matchingSong.id
+      ..trackName = matchingSong.trackName
+      ..artist = matchingSong.artist
+      ..timeListened = matchingSong.timeListened;
   }
 
+  for (final s in storageSongs) {
+    if (s.id >= 0) {
+      await s.update();
+    } else {
+      await s.insert();
+    }
+  }
   Globals.allSongs = storageSongs;
 }
 
 Future<List<MusicTrack>> _getSongsFromStorage() async {
-  final downloadDir = Directory('/storage/emulated/0/Download');
+  final downloadDir = Directory(Globals.downloadPath);
   LogHandler.log('Getting music files from: ${downloadDir.path}');
   final mp3Files = downloadDir.listSync().where((e) => e.path.endsWith('.mp3')).toList();
   final filteredFiles = <MusicTrack>[];
 
   if (!Config.enableSongFiltering) {
-    return mp3Files.map((e) => MusicTrack(e.path)).toList();
+    return mp3Files.map((e) => MusicTrack(e.path.split(Globals.downloadPath).last)).toList();
   }
 
   LogHandler.log('Filtering out song with length < ${Config.lengthLimitMilliseconds ~/ 1000}s');
   for (final file in mp3Files) {
     final info = await MetadataRetriever.fromFile(File(file.path));
     if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
-      filteredFiles.add(MusicTrack(file.path));
+      filteredFiles.add(MusicTrack(file.path.split(Globals.downloadPath).last));
     }
   }
-
   return filteredFiles;
 }
 
-List<MusicTrack>? _getSavedMusicData() {
-  final file = File(Globals.jsonPath);
-  if (!file.existsSync()) return null;
-
-  LogHandler.log('Getting saved music data from: ${file.path}');
-  final List json = jsonDecode(file.readAsStringSync());
+Future<List<MusicTrack>> _getSavedMusicData() async {
+  LogHandler.log('Getting saved music data from database');
+  final json = await DatabaseHandler.db.rawQuery(
+    'select t.*, a.name album from music_track t'
+    'inner join album_tracks at on t.id = at.track_id'
+    'inner join album a on a.id = at.album_id;',
+  );
   return json.map((e) => MusicTrack.fromJson(e)).toList();
-}
-
-void saveSongsToStorage() {
-  File saveFile = File(Globals.jsonPath);
-
-  LogHandler.log('Saving updated music data to: ${saveFile.path}');
-  saveFile.writeAsStringSync(jsonEncode(Globals.allSongs));
 }
 
 void sortAllSongs([SortOptions? sortType]) {
@@ -146,19 +240,15 @@ void updateArtistsList() {
   );
 }
 
-void updateAlbumList() {
+Future<void> updateAlbumList() async {
   LogHandler.log('Getting list of albums');
-  final albums = <String, int>{}..addAll({
-      for (final song in Globals.allSongs) //
-        song.album: Globals.allSongs.where((s) => s.album == song.album).length,
-    });
-  Globals.albums = SplayTreeMap.from(
-    albums,
-    (key1, key2) => key1.toLowerCase().compareTo(key2.toLowerCase()),
-  );
-}
+  final albums = (await DatabaseHandler.db.query('album')).map(Album.fromJson).toList();
 
-void getFromDatabase() async {
-  // TODO migrate from local file
-  // openDatabase();
+  for (final e in albums) {
+    e.songs.addAll((await DatabaseHandler.db
+            .query('album_tracks', where: 'album_id = ?', whereArgs: [e.id], columns: ['track_id']))
+        .map((e) => e['track_id'] as int));
+  }
+  albums.sort((a, b) => a.name.compareTo(b.name));
+  Globals.albums = albums;
 }
