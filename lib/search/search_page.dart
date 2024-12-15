@@ -23,7 +23,7 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       filteredSongs = Globals.allSongs
           .where((song) =>
-              song.trackName.toLowerCase().contains(keyword.toLowerCase()) ||
+              song.name.toLowerCase().contains(keyword.toLowerCase()) ||
               song.artist.toLowerCase().contains(keyword.toLowerCase()))
           .map((e) => e.path)
           .toList();
@@ -72,7 +72,7 @@ class _SearchScreenState extends State<SearchScreen> {
             return ListTile(
               // contentPadding: const EdgeInsets.symmetric(horizontal: 30),
               title: Text(
-                song.trackName,
+                song.name,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),

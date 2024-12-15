@@ -13,14 +13,18 @@ class DatabaseHandler {
   static Database get db => _db;
 
   static Future<void> init() async {
+    final dbFile = File(_path);
+    if (!dbFile.existsSync()) dbFile.createSync(recursive: true);
     // if (await databaseExists(_path)) {
     _db = await openDatabase(
       _path,
-      version: 1, // prev = none
+      // prev = none
+      version: 1,
+      readOnly: false,
       onCreate: (db, __) async {
         await _createTables(db);
         await _migrateOldData(db);
-        LogHandler.log('Song count: ${await db.rawQuery('select count(*) from music_track')}');
+        LogHandler.log('Song count: ${(await db.rawQuery('select count(*) count from music_track')).first['count']}');
       },
       onUpgrade: (db, oldVersion, newVersion) async {},
       onOpen: (db) async {
@@ -40,14 +44,14 @@ class DatabaseHandler {
       'name text not null,'
       'artist text not null,'
       'timeListened integer default 0,'
-      'timeAdded datetime'
+      'timeAdded datetime not null'
       ');',
     );
     await db.execute(
       'create table if not exists album ('
       'id integer primary key,'
       'name text not null,'
-      'timeAdded datetime'
+      'timeAdded datetime not null'
       ');',
     );
     await db.execute(
@@ -82,16 +86,25 @@ class DatabaseHandler {
         'timeListened': t['timeListened'],
         'timeAdded': t['timeAdded'] ?? File(t['absolutePath']).statSync().modified.toIso8601String(),
       });
-      final albumID = await db.insert('album', <String, dynamic>{
-        'name': t['album'] ?? 'Unknown',
-        'timeAdded': DateTime.now().toIso8601String(),
-      });
+
+      final res = await db.query('album', where: 'name = ?', whereArgs: [t['album'] ?? 'Unknown']);
+      final hasAlbum = res.isNotEmpty;
+      int albumID;
+      if (hasAlbum) {
+        albumID = res.first['id'] as int;
+      } else {
+        albumID = await db.insert('album', <String, dynamic>{
+          'name': t['album'] ?? 'Unknown',
+          'timeAdded': DateTime.now().toIso8601String(),
+        });
+      }
+
       await db.insert('album_tracks', <String, dynamic>{
         'track_id': trackID,
         'album_id': albumID,
       });
     }
     LogHandler.log('Finished migrating old json data');
-    jsonFile.deleteSync();
+    // jsonFile.deleteSync(); // not deleting this yet
   }
 }

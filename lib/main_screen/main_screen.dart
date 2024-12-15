@@ -402,7 +402,7 @@ class _MainScreenState extends State<MainScreen> {
                       ListView.builder(
                         itemCount: Globals.albums.length,
                         itemBuilder: (context, albumIndex) {
-                          Album album = Globals.albums[albumIndex];
+                          final album = Globals.albums[albumIndex];
 
                           return OpenContainer(
                             closedElevation: 0,
@@ -414,6 +414,7 @@ class _MainScreenState extends State<MainScreen> {
                             closedBuilder: (context, action) {
                               final songCount = album.songs.length;
                               if (songCount <= 0) return const SizedBox.shrink();
+
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                                 title: Text(
@@ -475,7 +476,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         title: Text(
                           Globals.currentSongID >= 0
-                              ? Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)!.trackName
+                              ? Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)!.name
                               : 'None',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

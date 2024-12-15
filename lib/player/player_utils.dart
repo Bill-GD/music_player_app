@@ -153,7 +153,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     addMediaItem(MediaItem(
       id: '$songID',
-      title: item.trackName,
+      title: item.name,
       artist: item.artist,
       duration: duration,
     ));
