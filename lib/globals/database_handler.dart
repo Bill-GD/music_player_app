@@ -20,10 +20,11 @@ class DatabaseHandler {
       onCreate: (db, __) async {
         await _createTables(db);
         await _migrateOldData(db);
+        LogHandler.log('Song count: ${await db.rawQuery('select count(*) from music_track')}');
       },
       onUpgrade: (db, oldVersion, newVersion) async {},
       onOpen: (db) async {
-        LogHandler.log('Song count: ${await db.rawQuery('select count(*) from music_track')}');
+        LogHandler.log('Database opened');
       },
     );
     // } else {
@@ -34,7 +35,7 @@ class DatabaseHandler {
   static Future<void> _createTables(Database db) async {
     await db.execute(
       'create table if not exists music_track ('
-      'id integer primary key autoincrement,'
+      'id integer primary key,'
       'path text not null,' // the path is relative to /storage/emulated/0/Download, basically the file name only
       'name text not null,'
       'artist text not null,'
@@ -44,7 +45,7 @@ class DatabaseHandler {
     );
     await db.execute(
       'create table if not exists album ('
-      'id integer primary key autoincrement,'
+      'id integer primary key,'
       'name text not null,'
       'timeAdded datetime'
       ');',
@@ -67,10 +68,8 @@ class DatabaseHandler {
   static Future<void> _migrateOldData(Database db) async {
     LogHandler.log('Migrating old json data');
 
-    final jsonFile = File(Globals.jsonPath), dbFile = File(_path);
-
+    final jsonFile = File(Globals.jsonPath);
     if (!jsonFile.existsSync()) return;
-    if (jsonFile.statSync().modified.compareTo(dbFile.statSync().modified) < 0) return;
 
     final List json = jsonDecode(jsonFile.readAsStringSync());
 
@@ -93,5 +92,6 @@ class DatabaseHandler {
       });
     }
     LogHandler.log('Finished migrating old json data');
+    jsonFile.deleteSync();
   }
 }

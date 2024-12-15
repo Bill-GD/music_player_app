@@ -191,7 +191,7 @@ Future<void> showSongOptionsMenu(
   void Function(void Function()) setState, {
   bool showDeleteOption = true,
 }) async {
-  MusicTrack song = Globals.allSongs.firstWhere((e) => e.absolutePath == songPath);
+  MusicTrack song = Globals.allSongs.firstWhere((e) => e.path == songPath);
   await getBottomSheet(
     context,
     Text(

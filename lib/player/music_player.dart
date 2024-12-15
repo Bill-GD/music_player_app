@@ -54,7 +54,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
       : AnimatedIcons.play_pause;
 
   void updateSongInfo([String? songPath]) async {
-    song = Globals.allSongs.firstWhere((e) => e.absolutePath == (songPath ?? Globals.currentSongPath));
+    song = Globals.allSongs.firstWhere((e) => e.path == (songPath ?? Globals.currentSongPath));
     LogHandler.log('Update song info: ${song.trackName}');
 
     LogHandler.log('Updating player duration values');
@@ -116,7 +116,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                   showDeleteOption: false,
                 );
                 setState(() {
-                  song = Globals.allSongs.firstWhere((e) => e.absolutePath == song.absolutePath);
+                  song = Globals.allSongs.firstWhere((e) => e.path == song.path);
                 });
               },
             ),
@@ -183,11 +183,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                 ),
                               ),
                               title: Text(
-                                Globals.allSongs.firstWhere((e) => e.absolutePath == s).trackName,
+                                Globals.allSongs.firstWhere((e) => e.path == s).trackName,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               subtitle: Text(
-                                Globals.allSongs.firstWhere((e) => e.absolutePath == s).artist,
+                                Globals.allSongs.firstWhere((e) => e.path == s).artist,
                               ),
                             ),
                           )
