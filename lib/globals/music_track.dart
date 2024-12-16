@@ -120,7 +120,7 @@ class Album {
       'album',
       {
         'name': name,
-        'timeAdded': DateTime.now().toIso8601String(),
+        'timeAdded': timeAdded.toIso8601String(),
       },
     );
     for (final si in songs) {
@@ -140,8 +140,20 @@ class Album {
       return;
     }
     await DatabaseHandler.db.update(
-      'music_track',
+      'album',
       toJson(),
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> delete() async {
+    if (id < 0) {
+      LogHandler.log('Trying to delete album id (-1)', LogLevel.error);
+      return;
+    }
+    await DatabaseHandler.db.delete(
+      'album',
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -263,5 +275,6 @@ Future<void> updateAlbumList() async {
         .map((e) => e['track_id'] as int));
   }
   albums.sort((a, b) => a.name.compareTo(b.name));
+  // LogHandler.log('${albums.map((e) => e.toJson())}');
   Globals.albums = albums;
 }
