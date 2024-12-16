@@ -23,7 +23,7 @@ class AlbumSongs extends StatefulWidget {
 class _AlbumSongsState extends State<AlbumSongs> {
   String albumName = '';
   late List<MusicTrack> songs;
-  late final totalSongCount;
+  late final int totalSongCount;
 
   void getSongs() {
     songs = Globals.albums[widget.albumID].songs.map((e) => Globals.allSongs.firstWhere((s) => s.id == e)).toList();
@@ -70,6 +70,8 @@ class _AlbumSongsState extends State<AlbumSongs> {
                 ),
               ),
               onPressed: () async {
+                if (songs.isEmpty) return;
+
                 final randomSong = songs[Random().nextInt(songs.length)].id;
                 // get artistName or albumName depend on category
                 Globals.audioHandler.registerPlaylist(
