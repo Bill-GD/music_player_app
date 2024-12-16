@@ -16,7 +16,7 @@ void main() async {
   Globals.packageInfo = await PackageInfo.fromPlatform();
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
-  Globals.logPath = '${Globals.storagePath}/log.txt';
+  Globals.logPath = '${Globals.storagePath}/files/log.txt';
   Globals.jsonPath = '${Globals.storagePath}/files/tracks.json';
   Globals.dbPath = '${Globals.storagePath}/database/database.db';
 

@@ -17,9 +17,10 @@ import '../player/music_player.dart';
 import '../player/player_utils.dart';
 import '../search/search_page.dart';
 import '../setting/setting.dart';
-import '../songs/songs_list.dart';
+import '../songs/artist_songs.dart';
+import 'album_list.dart';
 import 'backup.dart';
-import 'category_songs.dart';
+import 'songs_list.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -375,7 +376,7 @@ class _MainScreenState extends State<MainScreen> {
                             openColor: Colors.transparent,
                             transitionDuration: 400.ms,
                             onClosed: (_) => setState(() {}),
-                            openBuilder: (context, action) => CategorySongsPage(artistName: artistName),
+                            openBuilder: (context, action) => ArtistSongs(artistName: artistName),
                             closedBuilder: (context, action) {
                               final songCount = Globals.artists[artistName];
                               if (songCount == null) return const SizedBox.shrink();
@@ -398,42 +399,7 @@ class _MainScreenState extends State<MainScreen> {
                           );
                         },
                       ),
-                      // album list
-                      ListView.builder(
-                        itemCount: Globals.albums.length,
-                        itemBuilder: (context, albumIndex) {
-                          final album = Globals.albums[albumIndex];
-
-                          return OpenContainer(
-                            closedElevation: 0,
-                            closedColor: Theme.of(context).colorScheme.background,
-                            openColor: Colors.transparent,
-                            transitionDuration: 400.ms,
-                            onClosed: (_) => setState(() {}),
-                            openBuilder: (context, action) => CategorySongsPage(albumID: albumIndex),
-                            closedBuilder: (context, action) {
-                              final songCount = album.songs.length;
-                              if (songCount <= 0) return const SizedBox.shrink();
-
-                              return ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                                title: Text(
-                                  album.name,
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                subtitle: Text(
-                                  '$songCount song${songCount > 1 ? "s" : ""}',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                onTap: action,
-                              );
-                            },
-                          );
-                        },
-                      ),
+                      const AlbumList(),
                     ],
                   ),
                 ),
