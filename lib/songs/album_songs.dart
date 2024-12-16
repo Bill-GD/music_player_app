@@ -1,7 +1,10 @@
 import 'dart:math';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:music_player_app/globals/functions.dart';
+import 'package:music_player_app/songs/add_album_song.dart';
 
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
@@ -20,10 +23,12 @@ class AlbumSongs extends StatefulWidget {
 class _AlbumSongsState extends State<AlbumSongs> {
   String albumName = '';
   late List<MusicTrack> songs;
+  late final totalSongCount;
 
   void getSongs() {
     songs = Globals.albums[widget.albumID].songs.map((e) => Globals.allSongs.firstWhere((s) => s.id == e)).toList();
     albumName = Globals.albums[widget.albumID].name;
+    totalSongCount = songs.length;
   }
 
   @override
@@ -81,67 +86,87 @@ class _AlbumSongsState extends State<AlbumSongs> {
               },
             ),
             Expanded(
-              child: StretchingOverscrollIndicator(
-                axisDirection: AxisDirection.down,
-                child: ListView.builder(
-                  itemCount: songs.length,
-                  itemBuilder: (context, songIndex) => ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                    leading: Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text((songIndex + 1).toString().padLeft(2, '0')),
-                        ],
-                      ),
-                    ),
-                    title: Text(
-                      songs[songIndex].name,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text(
-                      songs[songIndex].artist,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    onTap: () async {
-                      Globals.audioHandler.registerPlaylist(
-                        albumName,
-                        songs.map((e) => e.id).toList(),
-                        songs[songIndex].id,
-                      );
-                      await Navigator.of(context).push(
-                        await getMusicPlayerRoute(
-                          context,
-                          songs[songIndex].id,
-                        ),
-                      );
-                      setState(() {});
-                    },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert_rounded),
-                      onPressed: () async {
-                        await showSongOptionsMenu(
-                          context,
-                          songs[songIndex].id,
-                          setState,
+              child: ListView.builder(
+                itemCount: totalSongCount + 1,
+                itemBuilder: (context, songIndex) {
+                  final isNewTile = songIndex == totalSongCount;
+
+                  return isNewTile
+                      // add to album
+                      ? OpenContainer(
+                          closedElevation: 0,
+                          closedColor: Theme.of(context).colorScheme.background,
+                          openColor: Colors.transparent,
+                          transitionDuration: 400.ms,
+                          onClosed: (_) => setState(() {}),
+                          openBuilder: (_, __) => const AddAlbumSong(),
+                          closedBuilder: (_, action) {
+                            return ListTile(
+                              title: const Icon(Icons.add_rounded),
+                              onTap: action,
+                            );
+                          },
+                        )
+                      // song
+                      : ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                          leading: isNewTile
+                              ? null
+                              : Padding(
+                                  padding: const EdgeInsets.only(left: 16),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text((songIndex + 1).toString().padLeft(2, '0')),
+                                    ],
+                                  ),
+                                ),
+                          title: Text(
+                            songs[songIndex].name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            songs[songIndex].artist,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          onTap: () async {
+                            Globals.audioHandler.registerPlaylist(
+                              albumName,
+                              songs.map((e) => e.id).toList(),
+                              songs[songIndex].id,
+                            );
+                            await Navigator.of(context).push(
+                              await getMusicPlayerRoute(
+                                context,
+                                songs[songIndex].id,
+                              ),
+                            );
+                            setState(() {});
+                          },
+                          trailing: IconButton(
+                            icon: const Icon(Icons.more_vert_rounded),
+                            onPressed: () async {
+                              await showSongOptionsMenu(
+                                context,
+                                songs[songIndex].id,
+                                setState,
+                              );
+                              getSongs();
+                              if (songs.isEmpty && context.mounted) {
+                                Navigator.of(context).pop();
+                              } else {
+                                setState(() {});
+                              }
+                            },
+                          ),
                         );
-                        getSongs();
-                        if (songs.isEmpty && context.mounted) {
-                          Navigator.of(context).pop();
-                        } else {
-                          setState(() {});
-                        }
-                      },
-                    ),
-                  ),
-                ),
+                },
               ),
             ),
           ],
