@@ -15,7 +15,7 @@ class DatabaseHandler {
   static Future<void> init() async {
     final dbFile = File(_path);
     if (!dbFile.existsSync()) dbFile.createSync(recursive: true);
-    // if (await databaseExists(_path)) {
+
     _db = await openDatabase(
       _path,
       // prev = none
@@ -31,9 +31,6 @@ class DatabaseHandler {
         LogHandler.log('Database opened');
       },
     );
-    // } else {
-    //   LogHandler.log('Database doesnt exist', LogLevel.error);
-    // }
   }
 
   static Future<void> _createTables(Database db) async {
@@ -64,10 +61,6 @@ class DatabaseHandler {
       ');',
     );
   }
-
-  // static Future<void> _dropTables(Database db) async {
-  //   await db.execute('drop table music_track; drop table album; drop table album_tracks;');
-  // }
 
   static Future<void> _migrateOldData(Database db) async {
     LogHandler.log('Migrating old json data');

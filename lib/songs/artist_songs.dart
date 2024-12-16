@@ -8,38 +8,28 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 
-class CategorySongsPage extends StatefulWidget {
+class ArtistSongs extends StatefulWidget {
   final String artistName;
-  final int albumID;
 
-  const CategorySongsPage({super.key, this.artistName = '', this.albumID = -1});
+  const ArtistSongs({super.key, required this.artistName});
 
   @override
-  State<CategorySongsPage> createState() => _CategorySongsPageState();
+  State<ArtistSongs> createState() => _ArtistSongsState();
 }
 
-class _CategorySongsPageState extends State<CategorySongsPage> {
-  String albumName = '';
+class _ArtistSongsState extends State<ArtistSongs> {
   late List<MusicTrack> songs;
 
-  late bool categoryIsArtist;
-
   void getSongs() {
-    if (categoryIsArtist) {
-      songs = Globals.allSongs.where((s) => s.artist == widget.artistName).toList()
-        ..sort(
-          (track1, track2) => track1.name.toLowerCase().compareTo(track2.name.toLowerCase()),
-        );
-      return;
-    }
-    songs = Globals.albums[widget.albumID].songs.map((e) => Globals.allSongs.firstWhere((s) => s.id == e)).toList();
-    albumName = Globals.albums[widget.albumID].name;
+    songs = Globals.allSongs.where((s) => s.artist == widget.artistName).toList()
+      ..sort(
+        (track1, track2) => track1.name.toLowerCase().compareTo(track2.name.toLowerCase()),
+      );
   }
 
   @override
   void initState() {
     super.initState();
-    categoryIsArtist = widget.artistName.isNotEmpty;
     getSongs();
   }
 
@@ -54,7 +44,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
           ),
           centerTitle: true,
           title: Text(
-            categoryIsArtist ? widget.artistName : albumName,
+            widget.artistName,
             style: const TextStyle(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
@@ -79,7 +69,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                 final randomSong = songs[Random().nextInt(songs.length)].id;
                 // get artistName or albumName depend on category
                 Globals.audioHandler.registerPlaylist(
-                  categoryIsArtist ? widget.artistName : albumName,
+                  widget.artistName,
                   songs.map((e) => e.id).toList(),
                   randomSong,
                 );
@@ -123,7 +113,7 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
                     ),
                     onTap: () async {
                       Globals.audioHandler.registerPlaylist(
-                        categoryIsArtist ? widget.artistName : albumName,
+                        widget.artistName,
                         songs.map((e) => e.id).toList(),
                         songs[songIndex].id,
                       );
@@ -157,12 +147,6 @@ class _CategorySongsPageState extends State<CategorySongsPage> {
             ),
           ],
         ),
-        floatingActionButton: !categoryIsArtist
-            ? FloatingActionButton(
-                onPressed: () {},
-                child: const Icon(Icons.add_rounded),
-              )
-            : null,
       ),
     );
   }
