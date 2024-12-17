@@ -48,10 +48,14 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
                 ? () async {
                     // LogHandler.log('$order');
                     // LogHandler.log('${availableSongs.map((e) => e.id)}');
+                    final unknown = Globals.albums.firstWhere((e) => e.id == 1);
                     for (final i in range(1, songAddedCount)) {
-                      album.songs.add(availableSongs[order.indexOf(i)].id);
+                      final si = availableSongs[order.indexOf(i)].id;
+                      album.songs.add(si);
+                      unknown.songs.remove(si);
                     }
                     await album.update();
+                    await unknown.update();
                     await updateAlbumList();
                     if (context.mounted) Navigator.of(context).pop();
                   }
@@ -103,10 +107,10 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Text('$songAddedCount'),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {},
+      //   child: Text('$songAddedCount'),
+      // ),
     );
   }
 }

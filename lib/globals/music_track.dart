@@ -67,7 +67,7 @@ class MusicTrack {
       return;
     }
     id = await DatabaseHandler.db.insert(
-      'music_track',
+      Globals.songTable,
       {
         'path': path,
         'name': name,
@@ -84,7 +84,7 @@ class MusicTrack {
       return;
     }
     await DatabaseHandler.db.update(
-      'music_track',
+      Globals.songTable,
       toJson(),
       where: 'id = ?',
       whereArgs: [id],
@@ -97,12 +97,12 @@ class MusicTrack {
       return;
     }
     await DatabaseHandler.db.delete(
-      'music_track',
+      Globals.songTable,
       where: 'id = ?',
       whereArgs: [id],
     );
     await DatabaseHandler.db.delete(
-      'album_tracks',
+      Globals.albumSongsTable,
       where: 'track_id = ?',
       whereArgs: [id],
     );
@@ -110,23 +110,20 @@ class MusicTrack {
 
   Future<void> removeFromPlaylist(int albumID) async {
     final res = await DatabaseHandler.db.query(
-      'album_tracks',
-      where: 'track_id = ?',
-      whereArgs: [id],
-    );
-    if (res.length <= 1) {
-      await DatabaseHandler.db.update(
-        'album_tracks',
-        {'album_id': 1},
-        where: 'track_id = ?',
-        whereArgs: [id],
-      );
-      return;
-    }
-    await DatabaseHandler.db.delete(
-      'album_tracks',
+      Globals.albumSongsTable,
       where: 'track_id = ? and album_id = ?',
       whereArgs: [id, albumID],
+    );
+    await DatabaseHandler.db.delete(
+      Globals.albumSongsTable,
+      where: 'track_id = ? and album_id = ?',
+      whereArgs: [id, albumID],
+    );
+    await DatabaseHandler.db.rawUpdate(
+      'update ${Globals.albumSongsTable} '
+      'set track_order = track_order - 1 '
+      'where album_id = ? and track_order > ?',
+      [albumID, res.first['track_order']],
     );
   }
 }
@@ -156,7 +153,7 @@ class Album {
       return;
     }
     await DatabaseHandler.db.insert(
-      'album',
+      Globals.albumTable,
       {
         'name': name,
         'timeAdded': timeAdded.toIso8601String(),
@@ -164,10 +161,11 @@ class Album {
     );
     for (final si in songs) {
       await DatabaseHandler.db.insert(
-        'album_tracks',
+        Globals.albumSongsTable,
         {
           'track_id': id,
           'album_id': si,
+          'timeAdded': DateTime.now().toIso8601String(),
         },
       );
     }
@@ -179,19 +177,34 @@ class Album {
       return;
     }
     await DatabaseHandler.db.update(
-      'album',
+      Globals.albumTable,
       toJson(),
       where: 'id = ?',
       whereArgs: [id],
     );
 
-    for (final s in songs) {
-      await DatabaseHandler.db.update(
-        'album_tracks',
-        {'album_id': id},
-        where: 'track_id = ?',
-        whereArgs: [s],
-      );
+    for (final i in range(0, songs.length - 1)) {
+      // check if song is already in album
+      final exists = (await DatabaseHandler.db.query(
+        Globals.albumSongsTable,
+        where: 'track_id = ? and album_id = ?',
+        whereArgs: [songs[i], id],
+      ))
+          .isNotEmpty;
+      if (exists) {
+        await DatabaseHandler.db.update(
+          Globals.albumSongsTable,
+          {'track_order': i},
+          where: 'track_id = ? and album_id = ?',
+          whereArgs: [songs[i], id],
+        );
+        continue;
+      }
+      await DatabaseHandler.db.insert(Globals.albumSongsTable, {
+        'track_order': i,
+        'album_id': id,
+        'track_id': songs[i],
+      });
     }
   }
 
@@ -201,16 +214,19 @@ class Album {
       return;
     }
     await DatabaseHandler.db.delete(
-      'album',
+      Globals.albumTable,
       where: 'id = ?',
       whereArgs: [id],
     );
-    await DatabaseHandler.db.update(
-      'album_tracks',
-      {'album_id': 1},
-      where: 'album_id = ?',
-      whereArgs: [id],
-    );
+
+    final otherAlbums = Globals.albums.where((a) => a.id != 1 || a.id != id);
+    final unknown = Globals.albums.firstWhere((e) => e.id == 1);
+
+    for (final s in songs) {
+      if (otherAlbums.any((a) => a.songs.contains(s)) || unknown.songs.contains(s)) continue;
+      unknown.songs.add(s);
+    }
+    await unknown.update();
   }
 }
 
@@ -322,12 +338,18 @@ void updateArtistsList() {
 
 Future<void> updateAlbumList() async {
   LogHandler.log('Getting list of albums');
-  final albums = (await DatabaseHandler.db.query('album')).map(Album.fromJson).toList();
+  final albums = (await DatabaseHandler.db.query(Globals.albumTable)).map(Album.fromJson).toList();
 
-  for (final e in albums) {
-    e.songs.addAll((await DatabaseHandler.db
-            .query('album_tracks', where: 'album_id = ?', whereArgs: [e.id], columns: ['track_id']))
-        .map((e) => e['track_id'] as int));
+  for (final a in albums) {
+    var s = await DatabaseHandler.db.query(
+      Globals.albumSongsTable,
+      where: 'album_id = ?',
+      whereArgs: [a.id],
+      columns: ['track_order', 'track_id'],
+      orderBy: 'track_order',
+    );
+    LogHandler.log('$s');
+    a.songs.addAll(s.map((a) => a['track_id'] as int));
   }
   albums.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   // LogHandler.log('${albums.map((e) => e.toJson())}');
