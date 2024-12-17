@@ -66,7 +66,7 @@ class MusicTrack {
       LogHandler.log('Trying to insert duplicate song id ($id)', LogLevel.error);
       return;
     }
-    await DatabaseHandler.db.insert(
+    id = await DatabaseHandler.db.insert(
       'music_track',
       {
         'path': path,
@@ -191,6 +191,7 @@ Future<void> updateListOfSongs() async {
     if (s.id >= 0) {
       await s.update();
     } else {
+      LogHandler.log('Song ID: ${s.id} will be inserted');
       await s.insert();
     }
   }

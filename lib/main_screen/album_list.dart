@@ -38,7 +38,7 @@ class _AlbumListState extends State<AlbumList> {
               transitionDuration: 400.ms,
               onClosed: (_) => setState(() {}),
               openBuilder: (_, __) {
-                return isNewTile ? const AddAlbum() : AlbumSongs(albumID: albumIndex);
+                return isNewTile ? const AddAlbum() : AlbumSongs(albumID: album.id);
               },
               closedBuilder: (_, action) {
                 final songCount = album.songs.length;

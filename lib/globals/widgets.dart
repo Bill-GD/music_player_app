@@ -18,7 +18,7 @@ const TextStyle bottomSheetText = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
-Color? iconColor(BuildContext context) => Theme.of(context).iconTheme.color;
+Color? iconColor(BuildContext context, [double opacity = 1]) => Theme.of(context).iconTheme.color?.withOpacity(opacity);
 
 Text leadingText(BuildContext context, String text, [bool bold = true, double size = 18]) => Text(
       text,

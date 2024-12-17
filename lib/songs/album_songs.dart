@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:music_player_app/globals/functions.dart';
-import 'package:music_player_app/songs/add_album_song.dart';
 
+import '../globals/functions.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
+import 'add_album_song.dart';
 
 class AlbumSongs extends StatefulWidget {
   final int albumID;
@@ -21,13 +21,17 @@ class AlbumSongs extends StatefulWidget {
 }
 
 class _AlbumSongsState extends State<AlbumSongs> {
-  String albumName = '';
+  late Album album;
   late List<MusicTrack> songs;
   late final int totalSongCount;
 
   void getSongs() {
-    songs = Globals.albums[widget.albumID].songs.map((e) => Globals.allSongs.firstWhere((s) => s.id == e)).toList();
-    albumName = Globals.albums[widget.albumID].name;
+    album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
+    songs = album.songs
+        .map(
+          (e) => Globals.allSongs.firstWhere((s) => s.id == e),
+        )
+        .toList();
     totalSongCount = songs.length;
   }
 
@@ -48,10 +52,82 @@ class _AlbumSongsState extends State<AlbumSongs> {
           ),
           centerTitle: true,
           title: Text(
-            albumName,
+            album.name,
             style: const TextStyle(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                bool deleteAlbum = false;
+
+                await showGeneralDialog<bool>(
+                  context: context,
+                  transitionDuration: 300.ms,
+                  barrierDismissible: true,
+                  barrierLabel: '',
+                  transitionBuilder: (_, anim1, __, child) {
+                    return ScaleTransition(
+                      scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                      alignment: Alignment.bottomCenter,
+                      child: child,
+                    );
+                  },
+                  pageBuilder: (context, _, __) {
+                    return AlertDialog(
+                      contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      icon: Icon(
+                        Icons.warning_rounded,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 30,
+                      ),
+                      title: const Center(
+                        child: Text(
+                          'Delete Album',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      content: Text(
+                        dedent('''
+                        This CANNOT be undone.
+                        Are you sure you want to delete
+          
+                        ${album.name}'''),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      actionsAlignment: MainAxisAlignment.spaceAround,
+                      actions: [
+                        TextButton(
+                          onPressed: Navigator.of(context).pop,
+                          child: const Text('No'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            deleteAlbum = true;
+                            Navigator.of(context).pop(true);
+                          },
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                if (deleteAlbum) {
+                  await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
+                  await updateAlbumList();
+                  if (context.mounted) Navigator.of(context).pop();
+                }
+              },
+              icon: const Icon(Icons.delete_rounded),
+            )
+          ],
         ),
         body: Column(
           children: [
@@ -60,32 +136,32 @@ class _AlbumSongsState extends State<AlbumSongs> {
               icon: FaIcon(
                 Icons.play_circle_filled_rounded,
                 size: 30,
-                color: iconColor(context),
+                color: iconColor(context, songs.isEmpty ? 0.5 : 1),
               ),
               label: Text(
                 'Shuffle playback',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: iconColor(context),
+                  color: iconColor(context, songs.isEmpty ? 0.5 : 1),
                 ),
               ),
-              onPressed: () async {
-                if (songs.isEmpty) return;
-
-                final randomSong = songs[Random().nextInt(songs.length)].id;
-                // get artistName or albumName depend on category
-                Globals.audioHandler.registerPlaylist(
-                  albumName,
-                  songs.map((e) => e.id).toList(),
-                  randomSong,
-                );
-                await Navigator.of(context).push(
-                  await getMusicPlayerRoute(
-                    context,
-                    randomSong,
-                  ),
-                );
-              },
+              onPressed: songs.isEmpty
+                  ? null
+                  : () async {
+                      final randomSong = songs[Random().nextInt(songs.length)].id;
+                      // get artistName or album.name depend on category
+                      Globals.audioHandler.registerPlaylist(
+                        album.name,
+                        songs.map((e) => e.id).toList(),
+                        randomSong,
+                      );
+                      await Navigator.of(context).push(
+                        await getMusicPlayerRoute(
+                          context,
+                          randomSong,
+                        ),
+                      );
+                    },
             ),
             Expanded(
               child: ListView.builder(
@@ -139,7 +215,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                           ),
                           onTap: () async {
                             Globals.audioHandler.registerPlaylist(
-                              albumName,
+                              album.name,
                               songs.map((e) => e.id).toList(),
                               songs[songIndex].id,
                             );
@@ -172,6 +248,10 @@ class _AlbumSongsState extends State<AlbumSongs> {
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Text('${widget.albumID}'),
         ),
       ),
     );
