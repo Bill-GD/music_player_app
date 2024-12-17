@@ -177,8 +177,10 @@ class _AlbumSongsState extends State<AlbumSongs> {
                           closedColor: Theme.of(context).colorScheme.background,
                           openColor: Colors.transparent,
                           transitionDuration: 400.ms,
-                          onClosed: (_) => setState(() {}),
-                          openBuilder: (_, __) => const AddAlbumSong(),
+                          onClosed: (_) => setState(getSongs),
+                          openBuilder: (_, __) => AddAlbumSong(
+                            albumID: widget.albumID,
+                          ),
                           closedBuilder: (_, action) {
                             return ListTile(
                               title: const Icon(Icons.add_rounded),
@@ -235,6 +237,83 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                 context,
                                 songs[songIndex].id,
                                 setState,
+                                showDeleteOption: false,
+                                moreActions: [
+                                  ListTile(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+                                    title: const Text('Remove from playlist', style: bottomSheetText),
+                                    onTap: () async {
+                                      bool songRemoved = false;
+                                      await showGeneralDialog(
+                                        context: context,
+                                        transitionDuration: 300.ms,
+                                        barrierDismissible: true,
+                                        barrierLabel: '',
+                                        transitionBuilder: (_, anim1, __, child) {
+                                          return ScaleTransition(
+                                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                                            alignment: Alignment.bottomCenter,
+                                            child: child,
+                                          );
+                                        },
+                                        pageBuilder: (context, _, __) {
+                                          return AlertDialog(
+                                            contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            ),
+                                            icon: Icon(
+                                              Icons.warning_rounded,
+                                              color: Theme.of(context).colorScheme.error,
+                                              size: 30,
+                                            ),
+                                            title: const Center(
+                                              child: Text(
+                                                'Delete Song',
+                                                style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                            content: Text(
+                                              dedent('''
+                                              Are you sure you want to remove
+                                
+                                              ${songs[songIndex].name}
+                                              
+                                              from album '${album.name}\''''),
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(fontSize: 16),
+                                            ),
+                                            actionsAlignment: MainAxisAlignment.spaceAround,
+                                            actions: [
+                                              TextButton(
+                                                child: const Text('No'),
+                                                onPressed: () => Navigator.of(context).pop(),
+                                              ),
+                                              TextButton(
+                                                child: const Text('Yes'),
+                                                onPressed: () async {
+                                                  songRemoved = true;
+                                                  songs[songIndex].removeFromPlaylist(widget.albumID);
+                                                  if (context.mounted) Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                      if (songRemoved) {
+                                        await updateAlbumList();
+                                        if (context.mounted) Navigator.of(context).pop();
+                                      }
+                                    },
+                                  ),
+                                ],
                               );
                               getSongs();
                               if (songs.isEmpty && context.mounted) {

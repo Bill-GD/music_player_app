@@ -90,6 +90,45 @@ class MusicTrack {
       whereArgs: [id],
     );
   }
+
+  Future<void> delete() async {
+    if (id < 0) {
+      LogHandler.log('Trying to delete song id (-1)', LogLevel.error);
+      return;
+    }
+    await DatabaseHandler.db.delete(
+      'music_track',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    await DatabaseHandler.db.delete(
+      'album_tracks',
+      where: 'track_id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> removeFromPlaylist(int albumID) async {
+    final res = await DatabaseHandler.db.query(
+      'album_tracks',
+      where: 'track_id = ?',
+      whereArgs: [id],
+    );
+    if (res.length <= 1) {
+      await DatabaseHandler.db.update(
+        'album_tracks',
+        {'album_id': 1},
+        where: 'track_id = ?',
+        whereArgs: [id],
+      );
+      return;
+    }
+    await DatabaseHandler.db.delete(
+      'album_tracks',
+      where: 'track_id = ? and album_id = ?',
+      whereArgs: [id, albumID],
+    );
+  }
 }
 
 class Album {
@@ -145,6 +184,15 @@ class Album {
       where: 'id = ?',
       whereArgs: [id],
     );
+
+    for (final s in songs) {
+      await DatabaseHandler.db.update(
+        'album_tracks',
+        {'album_id': id},
+        where: 'track_id = ?',
+        whereArgs: [s],
+      );
+    }
   }
 
   Future<void> delete() async {
