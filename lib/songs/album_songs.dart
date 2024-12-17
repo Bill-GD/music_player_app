@@ -23,7 +23,7 @@ class AlbumSongs extends StatefulWidget {
 class _AlbumSongsState extends State<AlbumSongs> {
   late Album album;
   late List<MusicTrack> songs;
-  late final int totalSongCount;
+  late int totalSongCount;
 
   void getSongs() {
     album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
@@ -57,76 +57,77 @@ class _AlbumSongsState extends State<AlbumSongs> {
             textAlign: TextAlign.center,
           ),
           actions: [
-            IconButton(
-              onPressed: () async {
-                bool deleteAlbum = false;
+            if (album.name != 'Unknown')
+              IconButton(
+                onPressed: () async {
+                  bool deleteAlbum = false;
 
-                await showGeneralDialog<bool>(
-                  context: context,
-                  transitionDuration: 300.ms,
-                  barrierDismissible: true,
-                  barrierLabel: '',
-                  transitionBuilder: (_, anim1, __, child) {
-                    return ScaleTransition(
-                      scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                      alignment: Alignment.bottomCenter,
-                      child: child,
-                    );
-                  },
-                  pageBuilder: (context, _, __) {
-                    return AlertDialog(
-                      contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      icon: Icon(
-                        Icons.warning_rounded,
-                        color: Theme.of(context).colorScheme.error,
-                        size: 30,
-                      ),
-                      title: const Center(
-                        child: Text(
-                          'Delete Album',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
+                  await showGeneralDialog<bool>(
+                    context: context,
+                    transitionDuration: 300.ms,
+                    barrierDismissible: true,
+                    barrierLabel: '',
+                    transitionBuilder: (_, anim1, __, child) {
+                      return ScaleTransition(
+                        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                        alignment: Alignment.bottomCenter,
+                        child: child,
+                      );
+                    },
+                    pageBuilder: (context, _, __) {
+                      return AlertDialog(
+                        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        icon: Icon(
+                          Icons.warning_rounded,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 30,
+                        ),
+                        title: const Center(
+                          child: Text(
+                            'Delete Album',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                      ),
-                      content: Text(
-                        dedent('''
+                        content: Text(
+                          dedent('''
                         This CANNOT be undone.
                         Are you sure you want to delete
           
                         ${album.name}'''),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      actionsAlignment: MainAxisAlignment.spaceAround,
-                      actions: [
-                        TextButton(
-                          onPressed: Navigator.of(context).pop,
-                          child: const Text('No'),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            deleteAlbum = true;
-                            Navigator.of(context).pop(true);
-                          },
-                          child: const Text('Yes'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                if (deleteAlbum) {
-                  await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
-                  await updateAlbumList();
-                  if (context.mounted) Navigator.of(context).pop();
-                }
-              },
-              icon: const Icon(Icons.delete_rounded),
-            )
+                        actionsAlignment: MainAxisAlignment.spaceAround,
+                        actions: [
+                          TextButton(
+                            onPressed: Navigator.of(context).pop,
+                            child: const Text('No'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              deleteAlbum = true;
+                              Navigator.of(context).pop(true);
+                            },
+                            child: const Text('Yes'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  if (deleteAlbum) {
+                    await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
+                    await updateAlbumList();
+                    if (context.mounted) Navigator.of(context).pop();
+                  }
+                },
+                icon: const Icon(Icons.delete_rounded),
+              )
           ],
         ),
         body: Column(

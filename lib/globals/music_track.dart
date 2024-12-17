@@ -157,6 +157,12 @@ class Album {
       where: 'id = ?',
       whereArgs: [id],
     );
+    await DatabaseHandler.db.update(
+      'album_tracks',
+      {'album_id': 1},
+      where: 'album_id = ?',
+      whereArgs: [id],
+    );
   }
 }
 
@@ -275,7 +281,7 @@ Future<void> updateAlbumList() async {
             .query('album_tracks', where: 'album_id = ?', whereArgs: [e.id], columns: ['track_id']))
         .map((e) => e['track_id'] as int));
   }
-  albums.sort((a, b) => a.name.compareTo(b.name));
+  albums.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   // LogHandler.log('${albums.map((e) => e.toJson())}');
   Globals.albums = albums;
 }
