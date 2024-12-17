@@ -189,6 +189,7 @@ Future<void> showSongOptionsMenu(
   BuildContext context,
   int songID,
   void Function(void Function()) setState, {
+  List<Widget>? moreActions,
   bool showDeleteOption = true,
 }) async {
   MusicTrack song = Globals.allSongs.firstWhere((e) => e.id == songID);
@@ -234,6 +235,7 @@ Future<void> showSongOptionsMenu(
           }
         },
       ),
+      ...?moreActions,
       if (showDeleteOption)
         ListTile(
           shape: RoundedRectangleBorder(
@@ -298,6 +300,7 @@ Future<void> showSongOptionsMenu(
                           Globals.showMinimizedPlayer = false;
                         }
                         Globals.audioHandler.pause();
+                        await song.delete();
                         File(song.path).deleteSync();
                         songDeleted = true;
                         if (context.mounted) Navigator.of(context).pop();
