@@ -166,11 +166,11 @@ class _AlbumSongsState extends State<AlbumSongs> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: totalSongCount + 1,
+                itemCount: totalSongCount + (album.id == 1 ? 0 : 1),
                 itemBuilder: (context, songIndex) {
                   final isNewTile = songIndex == totalSongCount;
 
-                  return isNewTile
+                  return isNewTile && album.id != 1
                       // add to album
                       ? OpenContainer(
                           closedElevation: 0,
