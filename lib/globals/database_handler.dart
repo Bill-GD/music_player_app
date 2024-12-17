@@ -56,8 +56,8 @@ class DatabaseHandler {
       'track_id integer not null,'
       'album_id integer not null,'
       'primary key (track_id, album_id),'
-      'foreign key (track_id) references music_track (id) on delete cascade,'
-      'foreign key (album_id) references album (id) on delete cascade'
+      'foreign key (track_id) references music_track (id),'
+      'foreign key (album_id) references album (id)'
       ');',
     );
   }
