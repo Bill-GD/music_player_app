@@ -1,5 +1,0 @@
-- The play/pause button is now animated
-- Improved playlist button gesture detection
-- When dragging song, the playlist will scroll if dragged over the limits
-- Added icon showing which song is playing
-- The playlist will auto scroll to the current song

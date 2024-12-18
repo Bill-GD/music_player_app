@@ -56,7 +56,7 @@ jobs:
             build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-armeabi-v7a.apk
             build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-x86_64.apk
             build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}.apk
-          body_path: release_notes.txt
+          body_path: release_notes.md
           token: ${{ secrets.API_GITHUB_TOKEN }}
           name: v${{ env.VERSION }}
           tag_name: v${{ env.VERSION }}

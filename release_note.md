@@ -1,0 +1,8 @@
+- Reworked album
+  - Albums can be managed individually (create, view, modify, delete)
+  - Album songs can be managed (add, view, update, remove)
+  - A song can be in multiple albums
+  - A song not in any album will be put in the default album 'Unknown'
+- Added a popup to view app log
+- Downloading from SoundCloud is temporary disabled
+- Updated some text input
