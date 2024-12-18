@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-import 'package:music_player_app/globals/database_handler.dart';
 
+import 'database_handler.dart';
 import 'functions.dart';
 import 'log_handler.dart';
 import 'variables.dart';

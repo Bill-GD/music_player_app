@@ -59,6 +59,7 @@ dependencies:
 dev_dependencies:
   # change_app_package_name: <=1.1.0
   # flutter_launcher_icons: <=0.13.1
+  import_sorter: ^4.6.0
   flutter_test:
     sdk: flutter
 
@@ -69,6 +70,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
 
+import_sorter:
+  comments: false
 # flutter_icons:
 #   image_path: 'assets/images/icon.png'
 #   android: true
