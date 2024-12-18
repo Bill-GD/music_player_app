@@ -64,6 +64,27 @@ extension WhereOrNull<E> on Iterable<E> {
   }
 }
 
+const _monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+extension DateString on DateTime {
+  String toDateString() {
+    return '$_formatDay ${_monthNames[month - 1]} $year, ${hour.padIntLeft(2, '0')}:${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}';
+  }
+
+  String get _formatDay {
+    switch (day) {
+      case 1:
+        return '${day}st';
+      case 2:
+        return '${day}nd';
+      case 3:
+        return '${day}rd';
+      default:
+        return '${day}th';
+    }
+  }
+}
+
 /// From https://pub.dev/packages/dedent, modified to not use extra packages
 String dedent(String text) {
   final whitespaceOnlyRe = RegExp(r'^[ \t]+$', multiLine: true);

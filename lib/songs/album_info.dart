@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 
 import '../globals/functions.dart';
-import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
-class SongInfo extends StatefulWidget {
-  final int songID;
+class AlbumInfo extends StatefulWidget {
+  final int albumID;
 
-  const SongInfo({super.key, required this.songID});
+  const AlbumInfo({super.key, required this.albumID});
 
   @override
-  State<SongInfo> createState() => _SongInfoState();
+  State<AlbumInfo> createState() => _AlbumInfoState();
 }
 
-class _SongInfoState extends State<SongInfo> {
-  final _songController = TextEditingController(), _artistController = TextEditingController();
+class _AlbumInfoState extends State<AlbumInfo> {
+  final albumController = TextEditingController();
+  String errorText = '';
+  bool canChange = false;
 
-  late MusicTrack song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
+  late final album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
 
   @override
   void dispose() {
     super.dispose();
-    _songController.dispose();
-    _artistController.dispose();
+    albumController.dispose();
   }
 
   @override
@@ -36,43 +36,26 @@ class _SongInfoState extends State<SongInfo> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: const Text(
-            'Edit song info',
+            'Edit album info',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           centerTitle: true,
           actions: [
             IconButton(
               icon: const Icon(Icons.check_rounded, size: 30),
-              onPressed: () async {
-                bool needsUpdate = false;
-                FocusManager.instance.primaryFocus?.unfocus();
-                _songController.text = _songController.text.trim();
-                _artistController.text = _artistController.text.trim();
-                // only update if changed
-                if (_songController.text != song.name || _artistController.text != song.artist) {
-                  needsUpdate = true;
+              onPressed: canChange
+                  ? () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
 
-                  song.name = _songController.text.isEmpty
-                      ? song.path.split('/').last.split('.mp3').first
-                      : _songController.text;
+                      album.name = albumController.text;
+                      Globals.audioHandler.updatePlaylistName(album.name);
+                      await album.update();
 
-                  song.artist = _artistController.text.isEmpty
-                      ? 'Unknown' //
-                      : _artistController.text;
-
-                  if (widget.songID == Globals.currentSongID) {
-                    Globals.audioHandler.updateNotificationInfo(
-                      songID: widget.songID,
-                      trackName: _songController.text,
-                      artist: _artistController.text,
-                    );
-                  }
-                  await song.update();
-                }
-                if (context.mounted) {
-                  Navigator.of(context).pop(needsUpdate);
-                }
-              },
+                      if (context.mounted) {
+                        Navigator.of(context).pop(true);
+                      }
+                    }
+                  : null,
             ),
           ],
         ),
@@ -91,44 +74,29 @@ class _SongInfoState extends State<SongInfo> {
                 ),
                 child: Row(
                   children: [
-                    leadingText(context, 'Song'),
+                    leadingText(context, 'Name'),
                     Expanded(
                       child: TextField(
-                        controller: _songController..text = song.name,
+                        controller: albumController..text = album.name,
+                        readOnly: album.name == 'Unknown',
+                        onChanged: (val) {
+                          albumController.text = val.trim();
+                          if (![album.name, 'Unknown'].contains(albumController.text) && //
+                              albumController.text.isNotEmpty) {
+                            canChange = true;
+                            errorText = '';
+                          } else {
+                            canChange = false;
+                            errorText = 'Name is invalid';
+                          }
+                          setState(() {});
+                        },
                         decoration: textFieldDecoration(
                           context,
                           fillColor: Theme.of(context).colorScheme.background,
                           border: InputBorder.none,
                           suffixIcon: const Icon(Icons.edit_rounded),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  border: BorderDirectional(
-                    bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    leadingText(context, 'Artist'),
-                    Expanded(
-                      child: TextField(
-                        controller: _artistController..text = song.artist,
-                        decoration: textFieldDecoration(
-                          context,
-                          fillColor: Theme.of(context).colorScheme.background,
-                          border: InputBorder.none,
-                          suffixIcon: const Icon(Icons.edit_rounded),
+                          errorText: errorText.isNotEmpty ? errorText : null,
                         ),
                       ),
                     ),
@@ -152,7 +120,7 @@ class _SongInfoState extends State<SongInfo> {
                     child: TextFormField(
                       readOnly: true,
                       scrollPadding: const EdgeInsets.only(right: 0),
-                      initialValue: song.id.toString(),
+                      initialValue: album.id.toString(),
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,
@@ -167,12 +135,12 @@ class _SongInfoState extends State<SongInfo> {
               padding: const EdgeInsets.only(left: 30, right: 15),
               child: Row(
                 children: [
-                  leadingText(context, 'Time Played'),
+                  leadingText(context, 'Song count'),
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
                       scrollPadding: const EdgeInsets.only(right: 0),
-                      initialValue: song.timeListened.toString(),
+                      initialValue: album.songs.length.toString(),
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,
@@ -192,27 +160,7 @@ class _SongInfoState extends State<SongInfo> {
                     child: TextFormField(
                       readOnly: true,
                       scrollPadding: const EdgeInsets.only(right: 0),
-                      initialValue: song.timeAdded.toDateString(),
-                      decoration: textFieldDecoration(
-                        context,
-                        fillColor: Theme.of(context).colorScheme.background,
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 15),
-              child: Row(
-                children: [
-                  leadingText(context, 'Path'),
-                  Expanded(
-                    child: TextFormField(
-                      readOnly: true,
-                      scrollPadding: const EdgeInsets.only(right: 0),
-                      initialValue: song.fullPath,
+                      initialValue: album.timeAdded.toDateString(),
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.background,

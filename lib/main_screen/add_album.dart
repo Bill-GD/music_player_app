@@ -35,7 +35,7 @@ class _AddAlbumState extends State<AddAlbum> {
           IconButton(
             onPressed: canAdd
                 ? () async {
-                    await Album(name: albumNameController.text.trim(), timeAdded: DateTime.now()).insert();
+                    await Album(name: albumNameController.text, timeAdded: DateTime.now()).insert();
                     await updateAlbumList();
                     if (context.mounted) Navigator.of(context).pop();
                   }
@@ -49,13 +49,15 @@ class _AddAlbumState extends State<AddAlbum> {
         child: TextField(
           controller: albumNameController,
           onChanged: (val) {
-            if (val.trim().isEmpty) {
+            val = val.trim();
+            if (val.isEmpty) {
               errorText = "Name can't be empty";
               canAdd = false;
-            } else if (names.contains(val.trim())) {
+            } else if (names.contains(val)) {
               errorText = 'This name is already taken';
               canAdd = false;
             } else {
+              albumNameController.text = val;
               errorText = '';
               canAdd = true;
             }

@@ -207,7 +207,7 @@ Future<void> showSongOptionsMenu(
           borderRadius: BorderRadius.circular(30),
         ),
         leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
-        title: const Text('Song Info', style: bottomSheetText),
+        title: const Text('Song info', style: bottomSheetText),
         onTap: () async {
           bool? needsUpdate = await Navigator.of(context).push(
             PageRouteBuilder<bool>(
@@ -270,7 +270,7 @@ Future<void> showSongOptionsMenu(
                   ),
                   title: const Center(
                     child: Text(
-                      'Delete Song',
+                      'Delete song',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,

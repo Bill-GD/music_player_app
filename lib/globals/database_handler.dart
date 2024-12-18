@@ -65,10 +65,10 @@ class DatabaseHandler {
   }
 
   static Future<void> _migrateOldData(Database db) async {
-    LogHandler.log('Migrating old json data');
-
     final jsonFile = File(Globals.jsonPath);
     if (!jsonFile.existsSync()) return;
+
+    LogHandler.log('Migrating old json data');
 
     final List json = jsonDecode(jsonFile.readAsStringSync());
 
