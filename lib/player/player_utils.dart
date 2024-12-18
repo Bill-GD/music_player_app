@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
-// ignore: unused_import
-import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../globals/functions.dart';

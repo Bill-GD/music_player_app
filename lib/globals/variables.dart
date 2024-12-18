@@ -1,8 +1,8 @@
-import 'package:music_player_app/globals/log_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../player/player_utils.dart';
+import 'log_handler.dart';
 import 'music_track.dart';
 
 class Globals {
