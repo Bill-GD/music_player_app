@@ -60,8 +60,6 @@ class _AlbumSongsState extends State<AlbumSongs> {
           actions: [
             IconButton(
               onPressed: () async {
-                bool deleteAlbum = false;
-
                 await getBottomSheet(
                   context,
                   Text(
@@ -112,6 +110,8 @@ class _AlbumSongsState extends State<AlbumSongs> {
                         leading: Icon(Icons.delete_rounded, color: iconColor(context)),
                         title: const Text('Delete album', style: bottomSheetText),
                         onTap: () async {
+                          bool deleteAlbum = false;
+
                           await showGeneralDialog<bool>(
                             context: context,
                             transitionDuration: 300.ms,
@@ -160,9 +160,11 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                     child: const Text('No'),
                                   ),
                                   TextButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       deleteAlbum = true;
-                                      Navigator.of(context).pop(true);
+                                      await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
+                                      await updateAlbumList();
+                                      if (context.mounted) Navigator.of(context).pop(true);
                                     },
                                     child: const Text('Yes'),
                                   ),
@@ -170,15 +172,14 @@ class _AlbumSongsState extends State<AlbumSongs> {
                               );
                             },
                           );
+                          if (deleteAlbum && context.mounted) {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          }
                         },
                       )
                   ],
                 );
-                if (deleteAlbum) {
-                  await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
-                  await updateAlbumList();
-                  if (context.mounted) Navigator.of(context).pop();
-                }
               },
               icon: const Icon(Icons.more_vert_rounded),
             ),
@@ -354,7 +355,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                                   child: const Text('Yes'),
                                                   onPressed: () async {
                                                     songRemoved = true;
-                                                    songs[songIndex].removeFromPlaylist(widget.albumID);
+                                                    await songs[songIndex].removeFromPlaylist(widget.albumID);
                                                     if (context.mounted) Navigator.of(context).pop();
                                                   },
                                                 ),

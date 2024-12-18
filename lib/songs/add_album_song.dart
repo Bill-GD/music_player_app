@@ -107,10 +107,6 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
           },
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {},
-      //   child: Text('$songAddedCount'),
-      // ),
     );
   }
 }

@@ -49,15 +49,13 @@ class _AddAlbumState extends State<AddAlbum> {
         child: TextField(
           controller: albumNameController,
           onChanged: (val) {
-            val = val.trim();
-            if (val.isEmpty) {
+            if (val.trim().isEmpty) {
               errorText = "Name can't be empty";
               canAdd = false;
-            } else if (names.contains(val)) {
+            } else if (names.contains(val.trim())) {
               errorText = 'This name is already taken';
               canAdd = false;
             } else {
-              albumNameController.text = val;
               errorText = '';
               canAdd = true;
             }
