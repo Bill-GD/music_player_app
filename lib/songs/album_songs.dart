@@ -10,6 +10,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 import 'add_album_song.dart';
+import 'album_info.dart';
 
 class AlbumSongs extends StatefulWidget {
   final int albumID;
@@ -57,77 +58,130 @@ class _AlbumSongsState extends State<AlbumSongs> {
             textAlign: TextAlign.center,
           ),
           actions: [
-            if (album.name != 'Unknown')
-              IconButton(
-                onPressed: () async {
-                  bool deleteAlbum = false;
+            IconButton(
+              onPressed: () async {
+                bool deleteAlbum = false;
 
-                  await showGeneralDialog<bool>(
-                    context: context,
-                    transitionDuration: 300.ms,
-                    barrierDismissible: true,
-                    barrierLabel: '',
-                    transitionBuilder: (_, anim1, __, child) {
-                      return ScaleTransition(
-                        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                        alignment: Alignment.bottomCenter,
-                        child: child,
-                      );
-                    },
-                    pageBuilder: (context, _, __) {
-                      return AlertDialog(
-                        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        icon: Icon(
-                          Icons.warning_rounded,
-                          color: Theme.of(context).colorScheme.error,
-                          size: 30,
-                        ),
-                        title: const Center(
-                          child: Text(
-                            'Delete Album',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
+                await getBottomSheet(
+                  context,
+                  Text(
+                    album.name,
+                    style: bottomSheetTitle,
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                  ),
+                  [
+                    ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
+                      title: const Text('Album info', style: bottomSheetText),
+                      onTap: () async {
+                        bool? needsUpdate = await Navigator.of(context).push(
+                          PageRouteBuilder<bool>(
+                            transitionDuration: 400.ms,
+                            transitionsBuilder: (_, anim, __, child) {
+                              return ScaleTransition(
+                                alignment: Alignment.bottomCenter,
+                                scale: Tween<double>(
+                                  begin: 0,
+                                  end: 1,
+                                ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(anim),
+                                child: child,
+                              );
+                            },
+                            pageBuilder: (_, __, ___) => AlbumInfo(
+                              albumID: widget.albumID,
                             ),
                           ),
+                        );
+                        if (needsUpdate == true) {
+                          setState(() {
+                            updateAlbumList();
+                          });
+                          if (context.mounted) Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                    if (album.id != 1)
+                      ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        content: Text(
-                          dedent('''
-                        This CANNOT be undone.
-                        Are you sure you want to delete
-          
-                        ${album.name}'''),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        actionsAlignment: MainAxisAlignment.spaceAround,
-                        actions: [
-                          TextButton(
-                            onPressed: Navigator.of(context).pop,
-                            child: const Text('No'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              deleteAlbum = true;
-                              Navigator.of(context).pop(true);
+                        leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+                        title: const Text('Delete album', style: bottomSheetText),
+                        onTap: () async {
+                          await showGeneralDialog<bool>(
+                            context: context,
+                            transitionDuration: 300.ms,
+                            barrierDismissible: true,
+                            barrierLabel: '',
+                            transitionBuilder: (_, anim1, __, child) {
+                              return ScaleTransition(
+                                scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                                alignment: Alignment.bottomCenter,
+                                child: child,
+                              );
                             },
-                            child: const Text('Yes'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                  if (deleteAlbum) {
-                    await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
-                    await updateAlbumList();
-                    if (context.mounted) Navigator.of(context).pop();
-                  }
-                },
-                icon: const Icon(Icons.delete_rounded),
-              )
+                            pageBuilder: (context, _, __) {
+                              return AlertDialog(
+                                contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                ),
+                                icon: Icon(
+                                  Icons.warning_rounded,
+                                  color: Theme.of(context).colorScheme.error,
+                                  size: 30,
+                                ),
+                                title: const Center(
+                                  child: Text(
+                                    'Delete Album',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                content: Text(
+                                  dedent('''
+                                  This CANNOT be undone.
+                                  Are you sure you want to delete
+                    
+                                  ${album.name}'''),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                actionsAlignment: MainAxisAlignment.spaceAround,
+                                actions: [
+                                  TextButton(
+                                    onPressed: Navigator.of(context).pop,
+                                    child: const Text('No'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      deleteAlbum = true;
+                                      Navigator.of(context).pop(true);
+                                    },
+                                    child: const Text('Yes'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      )
+                  ],
+                );
+                if (deleteAlbum) {
+                  await Globals.albums.firstWhereOrNull((a) => a.id == widget.albumID)?.delete();
+                  await updateAlbumList();
+                  if (context.mounted) Navigator.of(context).pop();
+                }
+              },
+              icon: const Icon(Icons.more_vert_rounded),
+            ),
           ],
         ),
         body: Column(
@@ -239,80 +293,81 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                 setState,
                                 showDeleteOption: false,
                                 moreActions: [
-                                  ListTile(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    leading: Icon(Icons.delete_rounded, color: iconColor(context)),
-                                    title: const Text('Remove from playlist', style: bottomSheetText),
-                                    onTap: () async {
-                                      bool songRemoved = false;
-                                      await showGeneralDialog(
-                                        context: context,
-                                        transitionDuration: 300.ms,
-                                        barrierDismissible: true,
-                                        barrierLabel: '',
-                                        transitionBuilder: (_, anim1, __, child) {
-                                          return ScaleTransition(
-                                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                                            alignment: Alignment.bottomCenter,
-                                            child: child,
-                                          );
-                                        },
-                                        pageBuilder: (context, _, __) {
-                                          return AlertDialog(
-                                            contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-                                            shape: const RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                                            ),
-                                            icon: Icon(
-                                              Icons.warning_rounded,
-                                              color: Theme.of(context).colorScheme.error,
-                                              size: 30,
-                                            ),
-                                            title: const Center(
-                                              child: Text(
-                                                'Delete Song',
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.w700,
+                                  if (album.id != 1)
+                                    ListTile(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+                                      title: const Text('Remove from playlist', style: bottomSheetText),
+                                      onTap: () async {
+                                        bool songRemoved = false;
+                                        await showGeneralDialog(
+                                          context: context,
+                                          transitionDuration: 300.ms,
+                                          barrierDismissible: true,
+                                          barrierLabel: '',
+                                          transitionBuilder: (_, anim1, __, child) {
+                                            return ScaleTransition(
+                                              scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                                              alignment: Alignment.bottomCenter,
+                                              child: child,
+                                            );
+                                          },
+                                          pageBuilder: (context, _, __) {
+                                            return AlertDialog(
+                                              contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                                              shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              ),
+                                              icon: Icon(
+                                                Icons.warning_rounded,
+                                                color: Theme.of(context).colorScheme.error,
+                                                size: 30,
+                                              ),
+                                              title: const Center(
+                                                child: Text(
+                                                  'Delete Song',
+                                                  style: TextStyle(
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            content: Text(
-                                              dedent('''
+                                              content: Text(
+                                                dedent('''
                                               Are you sure you want to remove
                                 
                                               ${songs[songIndex].name}
                                               
                                               from album '${album.name}\''''),
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(fontSize: 16),
-                                            ),
-                                            actionsAlignment: MainAxisAlignment.spaceAround,
-                                            actions: [
-                                              TextButton(
-                                                child: const Text('No'),
-                                                onPressed: () => Navigator.of(context).pop(),
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(fontSize: 16),
                                               ),
-                                              TextButton(
-                                                child: const Text('Yes'),
-                                                onPressed: () async {
-                                                  songRemoved = true;
-                                                  songs[songIndex].removeFromPlaylist(widget.albumID);
-                                                  if (context.mounted) Navigator.of(context).pop();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                      if (songRemoved) {
-                                        await updateAlbumList();
-                                        if (context.mounted) Navigator.of(context).pop();
-                                      }
-                                    },
-                                  ),
+                                              actionsAlignment: MainAxisAlignment.spaceAround,
+                                              actions: [
+                                                TextButton(
+                                                  child: const Text('No'),
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                ),
+                                                TextButton(
+                                                  child: const Text('Yes'),
+                                                  onPressed: () async {
+                                                    songRemoved = true;
+                                                    songs[songIndex].removeFromPlaylist(widget.albumID);
+                                                    if (context.mounted) Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                        if (songRemoved) {
+                                          await updateAlbumList();
+                                          if (context.mounted) Navigator.of(context).pop();
+                                        }
+                                      },
+                                    ),
                                 ],
                               );
                               getSongs();

@@ -184,6 +184,10 @@ class AudioPlayerHandler extends BaseAudioHandler {
     }
   }
 
+  void updatePlaylistName(String newName) {
+    _playlistName = newName;
+  }
+
   Future<void> registerPlaylist(String name, List<int> list, int beginIdx) async {
     _playlist = list;
 

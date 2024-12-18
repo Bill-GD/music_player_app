@@ -80,7 +80,7 @@ class MusicTrack {
 
   Future<void> update() async {
     if (id < 0) {
-      LogHandler.log('Trying to update song id (-1)', LogLevel.error);
+      LogHandler.log('Trying to update song id -1', LogLevel.error);
       return;
     }
     await DatabaseHandler.db.update(
@@ -93,7 +93,7 @@ class MusicTrack {
 
   Future<void> delete() async {
     if (id < 0) {
-      LogHandler.log('Trying to delete song id (-1)', LogLevel.error);
+      LogHandler.log('Trying to delete song id -1', LogLevel.error);
       return;
     }
     await DatabaseHandler.db.delete(
@@ -129,15 +129,15 @@ class MusicTrack {
 }
 
 class Album {
-  final int id;
-  final String name;
+  int id;
+  String name;
   DateTime timeAdded;
   List<int> songs = [];
 
   Album({required this.name, this.id = -1, required this.timeAdded});
 
   Album.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
+      : id = json['id'] ?? -1,
         name = json['name'],
         timeAdded = DateTime.parse(json['timeAdded']);
 
@@ -152,20 +152,21 @@ class Album {
       LogHandler.log('Trying to insert duplicate album id ($id)', LogLevel.error);
       return;
     }
-    await DatabaseHandler.db.insert(
+    id = await DatabaseHandler.db.insert(
       Globals.albumTable,
       {
         'name': name,
         'timeAdded': timeAdded.toIso8601String(),
       },
     );
-    for (final si in songs) {
+    LogHandler.log('Inserted album -> new id: $id');
+    for (final i in range(0, songs.length - 1)) {
       await DatabaseHandler.db.insert(
         Globals.albumSongsTable,
         {
-          'track_id': id,
-          'album_id': si,
-          'timeAdded': DateTime.now().toIso8601String(),
+          'track_order': i,
+          'track_id': songs[i],
+          'album_id': id,
         },
       );
     }
@@ -173,9 +174,10 @@ class Album {
 
   Future<void> update() async {
     if (id < 0) {
-      LogHandler.log('Trying to update album id (-1)', LogLevel.error);
+      LogHandler.log('Trying to update album id -1', LogLevel.error);
       return;
     }
+    LogHandler.log('Updating album ($id)');
     await DatabaseHandler.db.update(
       Globals.albumTable,
       toJson(),
@@ -210,9 +212,10 @@ class Album {
 
   Future<void> delete() async {
     if (id < 0) {
-      LogHandler.log('Trying to delete album id (-1)', LogLevel.error);
+      LogHandler.log('Trying to delete album id -1', LogLevel.error);
       return;
     }
+    LogHandler.log('Deleting album ($id)');
     await DatabaseHandler.db.delete(
       Globals.albumTable,
       where: 'id = ?',
@@ -261,7 +264,7 @@ Future<void> updateListOfSongs() async {
     if (s.id >= 0) {
       await s.update();
     } else {
-      LogHandler.log('Song ID: ${s.id} will be inserted');
+      // LogHandler.log('Song ID: ${s.id} will be inserted');
       await s.insert();
     }
   }
@@ -325,7 +328,7 @@ void sortAllSongs([SortOptions? sortType]) {
 }
 
 void updateArtistsList() {
-  LogHandler.log('Getting list of artists');
+  LogHandler.log('Updating artist list');
   final artists = <String, int>{}..addAll({
       for (final song in Globals.allSongs) //
         song.artist: Globals.allSongs.where((s) => s.artist == song.artist).length,
@@ -337,10 +340,20 @@ void updateArtistsList() {
 }
 
 Future<void> updateAlbumList() async {
-  LogHandler.log('Getting list of albums');
+  LogHandler.log('Updating album list');
   final albums = (await DatabaseHandler.db.query(Globals.albumTable)).map(Album.fromJson).toList();
 
+  if (albums.isEmpty) {
+    LogHandler.log("No album exists, creating default album 'Unknown'");
+    final unknown = Album(name: 'Unknown', id: -1, timeAdded: DateTime.now())
+      ..songs = Globals.allSongs.map((e) => e.id).toList()
+      ..insert();
+    Globals.albums = [unknown];
+    return;
+  }
+
   for (final a in albums) {
+    LogHandler.log("Getting album '${a.name}' (${a.id}) songs");
     var s = await DatabaseHandler.db.query(
       Globals.albumSongsTable,
       where: 'album_id = ?',
@@ -348,7 +361,7 @@ Future<void> updateAlbumList() async {
       columns: ['track_order', 'track_id'],
       orderBy: 'track_order',
     );
-    LogHandler.log('$s');
+    // LogHandler.log('$s');
     a.songs.addAll(s.map((a) => a['track_id'] as int));
   }
   albums.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
