@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../globals/functions.dart';
+import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
@@ -14,11 +15,17 @@ class AlbumInfo extends StatefulWidget {
 }
 
 class _AlbumInfoState extends State<AlbumInfo> {
-  final albumController = TextEditingController();
+  late final TextEditingController albumController;
+  late final Album album;
   String errorText = '';
   bool canChange = false;
 
-  late final album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
+  @override
+  void initState() {
+    super.initState();
+    album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
+    albumController = TextEditingController(text: album.name);
+  }
 
   @override
   void dispose() {
@@ -47,7 +54,7 @@ class _AlbumInfoState extends State<AlbumInfo> {
                   ? () async {
                       FocusManager.instance.primaryFocus?.unfocus();
 
-                      album.name = albumController.text;
+                      album.name = albumController.text.trim();
                       Globals.audioHandler.updatePlaylistName(album.name);
                       await album.update();
 
@@ -65,42 +72,35 @@ class _AlbumInfoState extends State<AlbumInfo> {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  border: BorderDirectional(
-                    bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
+                child: TextField(
+                  controller: albumController,
+                  readOnly: album.name == 'Unknown',
+                  onChanged: (val) {
+                    if (![album.name, 'Unknown'].contains(val.trim()) && //
+                        val.trim().isNotEmpty) {
+                      canChange = true;
+                      errorText = '';
+                    } else {
+                      canChange = false;
+                      errorText = 'Name is invalid';
+                    }
+                    setState(() {});
+                  },
+                  decoration: textFieldDecoration(
+                    context,
+                    labelText: 'Name',
+                    fillColor: Theme.of(context).colorScheme.background,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
+                    errorText: errorText.isNotEmpty ? errorText : null,
+                    suffixIcon: widget.albumID == 1
+                        ? null
+                        : const Padding(
+                            padding: EdgeInsets.only(right: 12),
+                            child: Icon(Icons.edit_rounded),
+                          ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    leadingText(context, 'Name'),
-                    Expanded(
-                      child: TextField(
-                        controller: albumController..text = album.name,
-                        readOnly: album.name == 'Unknown',
-                        onChanged: (val) {
-                          albumController.text = val.trim();
-                          if (![album.name, 'Unknown'].contains(albumController.text) && //
-                              albumController.text.isNotEmpty) {
-                            canChange = true;
-                            errorText = '';
-                          } else {
-                            canChange = false;
-                            errorText = 'Name is invalid';
-                          }
-                          setState(() {});
-                        },
-                        decoration: textFieldDecoration(
-                          context,
-                          fillColor: Theme.of(context).colorScheme.background,
-                          border: InputBorder.none,
-                          suffixIcon: const Icon(Icons.edit_rounded),
-                          errorText: errorText.isNotEmpty ? errorText : null,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ),

@@ -76,6 +76,7 @@ class MusicTrack {
         'timeAdded': timeAdded.toIso8601String(),
       },
     );
+    LogHandler.log('Inserted song -> new id: $id');
   }
 
   Future<void> update() async {
@@ -83,6 +84,7 @@ class MusicTrack {
       LogHandler.log('Trying to update song id -1', LogLevel.error);
       return;
     }
+    LogHandler.log('Updating song ($id)');
     await DatabaseHandler.db.update(
       Globals.songTable,
       toJson(),
@@ -106,25 +108,37 @@ class MusicTrack {
       where: 'track_id = ?',
       whereArgs: [id],
     );
+    LogHandler.log('Deleting song ($id)');
   }
 
   Future<void> removeFromPlaylist(int albumID) async {
+    LogHandler.log('Removing song ($id) from album ($albumID)');
+
     final res = await DatabaseHandler.db.query(
       Globals.albumSongsTable,
       where: 'track_id = ? and album_id = ?',
       whereArgs: [id, albumID],
     );
+
     await DatabaseHandler.db.delete(
       Globals.albumSongsTable,
       where: 'track_id = ? and album_id = ?',
       whereArgs: [id, albumID],
     );
+
     await DatabaseHandler.db.rawUpdate(
       'update ${Globals.albumSongsTable} '
       'set track_order = track_order - 1 '
       'where album_id = ? and track_order > ?',
       [albumID, res.first['track_order']],
     );
+
+    final otherAlbums = Globals.albums.where((a) => a.id != 1 && a.id != albumID);
+    final unknown = Globals.albums.firstWhere((e) => e.id == 1);
+
+    if (otherAlbums.any((a) => a.songs.contains(id)) || unknown.songs.contains(id)) return;
+    unknown.songs.add(id);
+    await unknown.update();
   }
 }
 
@@ -178,6 +192,7 @@ class Album {
       return;
     }
     LogHandler.log('Updating album ($id)');
+
     await DatabaseHandler.db.update(
       Globals.albumTable,
       toJson(),
@@ -185,23 +200,13 @@ class Album {
       whereArgs: [id],
     );
 
+    await DatabaseHandler.db.delete(
+      Globals.albumSongsTable,
+      where: 'album_id = ?',
+      whereArgs: [id],
+    );
+
     for (final i in range(0, songs.length - 1)) {
-      // check if song is already in album
-      final exists = (await DatabaseHandler.db.query(
-        Globals.albumSongsTable,
-        where: 'track_id = ? and album_id = ?',
-        whereArgs: [songs[i], id],
-      ))
-          .isNotEmpty;
-      if (exists) {
-        await DatabaseHandler.db.update(
-          Globals.albumSongsTable,
-          {'track_order': i},
-          where: 'track_id = ? and album_id = ?',
-          whereArgs: [songs[i], id],
-        );
-        continue;
-      }
       await DatabaseHandler.db.insert(Globals.albumSongsTable, {
         'track_order': i,
         'album_id': id,
@@ -221,8 +226,13 @@ class Album {
       where: 'id = ?',
       whereArgs: [id],
     );
+    await DatabaseHandler.db.delete(
+      Globals.albumSongsTable,
+      where: 'album_id = ?',
+      whereArgs: [id],
+    );
 
-    final otherAlbums = Globals.albums.where((a) => a.id != 1 || a.id != id);
+    final otherAlbums = Globals.albums.where((a) => a.id != 1 && a.id != id);
     final unknown = Globals.albums.firstWhere((e) => e.id == 1);
 
     for (final s in songs) {

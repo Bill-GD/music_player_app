@@ -82,28 +82,20 @@ class _SongInfoState extends State<SongInfo> {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  border: BorderDirectional(
-                    bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
+                child: TextField(
+                  controller: _songController..text = song.name,
+                  decoration: textFieldDecoration(
+                    context,
+                    labelText: 'Name',
+                    fillColor: Theme.of(context).colorScheme.background,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    suffixIcon: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Icon(Icons.edit_rounded),
                     ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    leadingText(context, 'Song'),
-                    Expanded(
-                      child: TextField(
-                        controller: _songController..text = song.name,
-                        decoration: textFieldDecoration(
-                          context,
-                          fillColor: Theme.of(context).colorScheme.background,
-                          border: InputBorder.none,
-                          suffixIcon: const Icon(Icons.edit_rounded),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -111,28 +103,20 @@ class _SongInfoState extends State<SongInfo> {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  border: BorderDirectional(
-                    bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
+                child: TextField(
+                  controller: _artistController..text = song.artist,
+                  decoration: textFieldDecoration(
+                    context,
+                    labelText: 'Artist',
+                    fillColor: Theme.of(context).colorScheme.background,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    suffixIcon: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Icon(Icons.edit_rounded),
                     ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    leadingText(context, 'Artist'),
-                    Expanded(
-                      child: TextField(
-                        controller: _artistController..text = song.artist,
-                        decoration: textFieldDecoration(
-                          context,
-                          fillColor: Theme.of(context).colorScheme.background,
-                          border: InputBorder.none,
-                          suffixIcon: const Icon(Icons.edit_rounded),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ),
