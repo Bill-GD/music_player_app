@@ -1,0 +1,64 @@
+name: Build and create a release
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    if: startsWith(github.event.head_commit.message, 'release:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.18.0
+        with:
+          flutter-version: 3.19.5
+          channel: stable
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APKs
+        run: flutter build apk
+      - name: Build split APKs
+        run: flutter build apk --split-per-abi
+
+      - name: Extract version from pubspec.yaml
+        # grep lines starts with (^) string 'version: ' -> cut with delimiter, element 2 -> trim return char
+        run: |
+          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
+      - name: Create version string for binaries
+        run: |
+          version_bin=$(echo "${{ env.VERSION }}" | sed 's/\./_/g')
+          echo "VERSION_BIN=$version_bin" >> $GITHUB_ENV
+      - name: Update binary names
+        run: |
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-arm64-v8a.apk
+          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-armeabi-v7a.apk
+          mv build/app/outputs/flutter-apk/app-x86_64-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-x86_64.apk
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}.apk
+      # upload artifacts
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-arm64-v8a.apk
+            build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-armeabi-v7a.apk
+            build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-x86_64.apk
+            build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}.apk
+          body_path: release_notes.txt
+          token: ${{ secrets.API_GITHUB_TOKEN }}
+          name: v${{ env.VERSION }}
+          tag_name: v${{ env.VERSION }}
+          generate_release_notes: true
+      # create release
