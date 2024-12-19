@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../globals/functions.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
+import '../globals/widgets.dart';
 
 class AddAlbumSong extends StatefulWidget {
   final int albumID;
@@ -17,8 +18,10 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
   late final Album album;
   late final List<MusicTrack> availableSongs;
   late final List<int> order;
+  final searchController = TextEditingController();
   bool canAdd = false;
   int songAddedCount = 0;
+  String searchText = '';
 
   @override
   void initState() {
@@ -64,48 +67,81 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView.builder(
-          itemCount: availableSongs.length,
-          itemBuilder: (context, songIndex) {
-            return CheckboxListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              value: order[songIndex] != -1,
-              secondary: Text(
-                order[songIndex] < 0 ? '' : order[songIndex].padIntLeft(2, '0'),
-                style: const TextStyle(fontSize: 14),
-              ),
-              title: Text(
-                '${availableSongs[songIndex].id}. ${availableSongs[songIndex].name}',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                availableSongs[songIndex].artist,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            child: TextField(
+              controller: searchController,
               onChanged: (val) {
-                if (val == true) {
-                  order[songIndex] = ++songAddedCount;
-                } else {
-                  // order.map((e) => e > songAddedCount ? e - 1 : e);
-                  for (int i = 0; i < order.length; i++) {
-                    if (order[i] > order[songIndex]) order[i]--;
-                  }
-                  order[songIndex] = -1;
-                  songAddedCount--;
-                }
-                canAdd = order.any((e) => e != -1);
+                searchText = val;
                 setState(() {});
               },
-            );
-          },
-        ),
+              decoration: textFieldDecoration(
+                context,
+                labelText: 'Search',
+                hintText: 'Search names and artists',
+                fillColor: Theme.of(context).colorScheme.background,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView.builder(
+                itemCount: availableSongs.length,
+                itemBuilder: (context, songIndex) {
+                  final song = availableSongs[songIndex];
+                  final tile = CheckboxListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    value: order[songIndex] != -1,
+                    secondary: Text(
+                      order[songIndex] < 0 ? '' : order[songIndex].padIntLeft(2, '0'),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    title: Text(
+                      song.name,
+                      // '${song.id}. ${song.name}',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      song.artist,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onChanged: (val) {
+                      if (val == true) {
+                        order[songIndex] = ++songAddedCount;
+                      } else {
+                        // order.map((e) => e > songAddedCount ? e - 1 : e);
+                        for (int i = 0; i < order.length; i++) {
+                          if (order[i] > order[songIndex]) order[i]--;
+                        }
+                        order[songIndex] = -1;
+                        songAddedCount--;
+                      }
+                      canAdd = order.any((e) => e != -1);
+                      setState(() {});
+                    },
+                  );
+                  if (searchText.isEmpty) return tile;
+                  return song.name.toLowerCase().contains(searchText.toLowerCase()) ||
+                          song.artist.toLowerCase().contains(searchText.toLowerCase())
+                      ? tile
+                      : const SizedBox.shrink();
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

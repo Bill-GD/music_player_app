@@ -1,16 +1,3 @@
-- Changed storage: json file to SQLite
-- Added logging & log viewer popup
-- Reworked album
-  - Albums can be managed (create, read, modify, delete)
-  - Album songs can be managed (add, read, update, remove)
-  - A song can be in multiple albums
-  - A song not in any album will be put in the default album 'Unknown'
-- Updated data classes for sqlite change
-  - Separated Song and Album (many-to-many), each interfaced with database to insert, update, delete
-  - Uses id for identification instead of song full path
-  - Stored song path is relative
-- Extracted album list from main screen
-- Disabled SoundCloud downloader
-- Updated visual of some editable `TextField`s
-- Moved info page date format to global
-- Added GitHub Actions for build and release automation
+- Added search text field when adding songs to album
+- Fixed exiting album page after removing last song
+- Fixed wrong confirm title when removing album song dialog

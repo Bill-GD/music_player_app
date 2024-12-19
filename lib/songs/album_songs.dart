@@ -317,7 +317,8 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                           },
                                           pageBuilder: (context, _, __) {
                                             return AlertDialog(
-                                              contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+                                              contentPadding:
+                                                  const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 15),
                                               shape: const RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.all(Radius.circular(10)),
                                               ),
@@ -328,7 +329,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                               ),
                                               title: const Center(
                                                 child: Text(
-                                                  'Delete Song',
+                                                  'Remove from album',
                                                   style: TextStyle(
                                                     fontSize: 24,
                                                     fontWeight: FontWeight.w700,
@@ -372,11 +373,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                 ],
                               );
                               getSongs();
-                              if (songs.isEmpty && context.mounted) {
-                                Navigator.of(context).pop();
-                              } else {
-                                setState(() {});
-                              }
+                              setState(() {});
                             },
                           ),
                         );
