@@ -27,7 +27,10 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
   void initState() {
     super.initState();
     album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
-    availableSongs = Globals.allSongs.where((e) => !album.songs.contains(e.id)).toList();
+    availableSongs = Globals.allSongs
+        .where((e) => !album.songs.contains(e.id)) //
+        .toList()
+      ..sort((a, b) => a.id - b.id);
     order = List.generate(availableSongs.length, (_) => -1);
   }
 

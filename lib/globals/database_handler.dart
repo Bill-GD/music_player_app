@@ -64,6 +64,13 @@ class DatabaseHandler {
     );
   }
 
+  static Future<void> clearAllData() async {
+    LogHandler.log('IMPORTANT! Deleting all data! This is irreversible if used without backup!');
+    await _db.delete(Globals.songTable);
+    await _db.delete(Globals.albumTable);
+    await _db.delete(Globals.albumSongsTable);
+  }
+
   static Future<void> _migrateOldData(Database db) async {
     final jsonFile = File(Globals.jsonPath);
     if (!jsonFile.existsSync()) return;

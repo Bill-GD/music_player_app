@@ -1,3 +1,8 @@
 - Added search text field when adding songs to album
 - Fixed exiting album page after removing last song
 - Fixed wrong confirm title when removing album song dialog
+- Moved add new album/song to top & fixed related issues
+- Extracted `showSnackBar` to `showToast`
+- Updated backup to support new storage structure (SQLite)
+- Added clear all data from database method
+- Songs-to-add-to-album no longer dependent on global sorting option
