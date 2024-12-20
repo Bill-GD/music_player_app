@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
 import 'package:animations/animations.dart';
+import 'package:flutter/material.dart';
 
 import '../globals/functions.dart';
 import '../globals/music_track.dart';
@@ -29,8 +28,8 @@ class _AlbumListState extends State<AlbumList> {
         child: ListView.builder(
           itemCount: Globals.albums.length + 1,
           itemBuilder: (context, albumIndex) {
-            final album = Globals.albums[min(albumIndex, Globals.albums.length - 1)];
-            final isNewTile = albumIndex == Globals.albums.length;
+            final isNewTile = albumIndex == 0;
+            final album = Globals.albums[min(isNewTile ? 0 : albumIndex - 1, Globals.albums.length - 1)];
 
             return OpenContainer(
               closedElevation: 0,

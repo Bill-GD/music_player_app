@@ -223,160 +223,163 @@ class _AlbumSongsState extends State<AlbumSongs> {
               child: ListView.builder(
                 itemCount: totalSongCount + (album.id == 1 ? 0 : 1),
                 itemBuilder: (context, songIndex) {
-                  final isNewTile = songIndex == totalSongCount;
+                  final isNewTile = album.id == 1 ? false : songIndex == 0;
+                  final song = isNewTile ? null : songs[songIndex - (album.id == 1 ? 0 : 1)];
 
-                  return isNewTile && album.id != 1
-                      // add to album
-                      ? OpenContainer(
-                          closedElevation: 0,
-                          closedColor: Theme.of(context).colorScheme.background,
-                          openColor: Colors.transparent,
-                          transitionDuration: 400.ms,
-                          onClosed: (_) => setState(getSongs),
-                          openBuilder: (_, __) => AddAlbumSong(
-                            albumID: widget.albumID,
-                          ),
-                          closedBuilder: (_, action) {
-                            return ListTile(
-                              title: const Icon(Icons.add_rounded),
-                              onTap: action,
-                            );
-                          },
-                        )
-                      // song
-                      : ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                          leading: isNewTile
-                              ? null
-                              : Padding(
-                                  padding: const EdgeInsets.only(left: 16),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text((songIndex + 1).toString().padLeft(2, '0')),
-                                    ],
-                                  ),
-                                ),
-                          title: Text(
-                            songs[songIndex].name,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: Text(
-                            songs[songIndex].artist,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w400,
+                  if (isNewTile) {
+                    if (album.id == 1) return const SizedBox.shrink();
+
+                    // add to album
+                    return OpenContainer(
+                      closedElevation: 0,
+                      closedColor: Theme.of(context).colorScheme.background,
+                      openColor: Colors.transparent,
+                      transitionDuration: 400.ms,
+                      onClosed: (_) => setState(getSongs),
+                      openBuilder: (_, __) => AddAlbumSong(
+                        albumID: widget.albumID,
+                      ),
+                      closedBuilder: (_, action) {
+                        return ListTile(
+                          title: const Icon(Icons.add_rounded),
+                          onTap: action,
+                        );
+                      },
+                    );
+                  }
+                  // song tile
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    leading: isNewTile
+                        ? null
+                        : Padding(
+                            padding: const EdgeInsets.only(left: 16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text((songIndex + (album.id == 1 ? 1 : 0)).toString().padLeft(2, '0')),
+                              ],
                             ),
                           ),
-                          onTap: () async {
-                            Globals.audioHandler.registerPlaylist(
-                              album.name,
-                              songs.map((e) => e.id).toList(),
-                              songs[songIndex].id,
-                            );
-                            await Navigator.of(context).push(
-                              await getMusicPlayerRoute(
-                                context,
-                                songs[songIndex].id,
-                              ),
-                            );
-                            setState(() {});
-                          },
-                          trailing: IconButton(
-                            icon: const Icon(Icons.more_vert_rounded),
-                            onPressed: () async {
-                              await showSongOptionsMenu(
-                                context,
-                                songs[songIndex].id,
-                                setState,
-                                showDeleteOption: false,
-                                moreActions: [
-                                  if (album.id != 1)
-                                    ListTile(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      leading: Icon(Icons.delete_rounded, color: iconColor(context)),
-                                      title: const Text('Remove from playlist', style: bottomSheetText),
-                                      onTap: () async {
-                                        bool songRemoved = false;
-                                        await showGeneralDialog(
-                                          context: context,
-                                          transitionDuration: 300.ms,
-                                          barrierDismissible: true,
-                                          barrierLabel: '',
-                                          transitionBuilder: (_, anim1, __, child) {
-                                            return ScaleTransition(
-                                              scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                                              alignment: Alignment.bottomCenter,
-                                              child: child,
-                                            );
-                                          },
-                                          pageBuilder: (context, _, __) {
-                                            return AlertDialog(
-                                              contentPadding:
-                                                  const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 15),
-                                              shape: const RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                              ),
-                                              icon: Icon(
-                                                Icons.warning_rounded,
-                                                color: Theme.of(context).colorScheme.error,
-                                                size: 30,
-                                              ),
-                                              title: const Center(
-                                                child: Text(
-                                                  'Remove from album',
-                                                  style: TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                              ),
-                                              content: Text(
-                                                dedent('''
+                    title: Text(
+                      song!.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      song.artist,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onTap: () async {
+                      Globals.audioHandler.registerPlaylist(
+                        album.name,
+                        songs.map((e) => e.id).toList(),
+                        song.id,
+                      );
+                      await Navigator.of(context).push(
+                        await getMusicPlayerRoute(
+                          context,
+                          song.id,
+                        ),
+                      );
+                      setState(() {});
+                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.more_vert_rounded),
+                      onPressed: () async {
+                        await showSongOptionsMenu(
+                          context,
+                          song.id,
+                          setState,
+                          showDeleteOption: false,
+                          moreActions: [
+                            if (album.id != 1)
+                              ListTile(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+                                title: const Text('Remove from playlist', style: bottomSheetText),
+                                onTap: () async {
+                                  bool songRemoved = false;
+                                  await showGeneralDialog(
+                                    context: context,
+                                    transitionDuration: 300.ms,
+                                    barrierDismissible: true,
+                                    barrierLabel: '',
+                                    transitionBuilder: (_, anim1, __, child) {
+                                      return ScaleTransition(
+                                        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                                        alignment: Alignment.bottomCenter,
+                                        child: child,
+                                      );
+                                    },
+                                    pageBuilder: (context, _, __) {
+                                      return AlertDialog(
+                                        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 15),
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        ),
+                                        icon: Icon(
+                                          Icons.warning_rounded,
+                                          color: Theme.of(context).colorScheme.error,
+                                          size: 30,
+                                        ),
+                                        title: const Center(
+                                          child: Text(
+                                            'Remove from album',
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                        content: Text(
+                                          dedent('''
                                               Are you sure you want to remove
                                 
-                                              ${songs[songIndex].name}
+                                              ${song.name}
                                               
                                               from album '${album.name}\''''),
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              actionsAlignment: MainAxisAlignment.spaceAround,
-                                              actions: [
-                                                TextButton(
-                                                  child: const Text('No'),
-                                                  onPressed: () => Navigator.of(context).pop(),
-                                                ),
-                                                TextButton(
-                                                  child: const Text('Yes'),
-                                                  onPressed: () async {
-                                                    songRemoved = true;
-                                                    await songs[songIndex].removeFromPlaylist(widget.albumID);
-                                                    if (context.mounted) Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                        if (songRemoved) {
-                                          await updateAlbumList();
-                                          if (context.mounted) Navigator.of(context).pop();
-                                        }
-                                      },
-                                    ),
-                                ],
-                              );
-                              getSongs();
-                              setState(() {});
-                            },
-                          ),
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                        actionsAlignment: MainAxisAlignment.spaceAround,
+                                        actions: [
+                                          TextButton(
+                                            child: const Text('No'),
+                                            onPressed: () => Navigator.of(context).pop(),
+                                          ),
+                                          TextButton(
+                                            child: const Text('Yes'),
+                                            onPressed: () async {
+                                              songRemoved = true;
+                                              await song.removeFromPlaylist(widget.albumID);
+                                              if (context.mounted) Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  if (songRemoved) {
+                                    await updateAlbumList();
+                                    if (context.mounted) Navigator.of(context).pop();
+                                  }
+                                },
+                              ),
+                          ],
                         );
+                        getSongs();
+                        setState(() {});
+                      },
+                    ),
+                  );
                 },
               ),
             ),
