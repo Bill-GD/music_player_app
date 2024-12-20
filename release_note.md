@@ -1,5 +1,6 @@
 - Added search text input when adding songs to album
 - Fixed wrong confirm text when removing song from album
 - Moved add new album/song to top of their respective pages
-- Updated backup feature with the reworked album
-- Songs to add to album list's order will stays consistent
+- Updated backup feature to work with the reworked album
+- Songs-to-add-to-album list's order will stays consistent
+- Added button to open GitHub repo if you're interested

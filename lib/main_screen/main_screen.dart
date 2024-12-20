@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:animations/animations.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
@@ -349,6 +349,18 @@ class _MainScreenState extends State<MainScreen> {
                           pageBuilder: (context, _, __) => AboutDialog(
                             applicationName: Globals.packageInfo.appName,
                             applicationVersion: 'v${Globals.packageInfo.version}',
+                            children: [
+                              TextButton.icon(
+                                onPressed: () async {
+                                  const url = 'https://github.com/Bill-GD/music_player_app';
+                                  final canLaunch = await canLaunchUrl(Uri.parse(url));
+                                  LogHandler.log('Can launch URL: $canLaunch');
+                                  if (canLaunch) launchUrl(Uri.parse(url));
+                                },
+                                icon: const Icon(Icons.code_rounded),
+                                label: const Text('Source code'),
+                              ),
+                            ],
                           ),
                         ),
                       ),

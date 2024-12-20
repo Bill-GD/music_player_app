@@ -6,3 +6,4 @@
 - Updated backup to support new storage structure (SQLite)
 - Added clear all data from database method
 - Songs-to-add-to-album no longer dependent on global sorting option
+- Added GitHub redirect button in about dialog
