@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../globals/functions.dart';
@@ -35,9 +34,7 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   if (resultAuthor.isEmpty) {
     LogHandler.log("Couldn't find author: $author");
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Couldn't find author: $author")),
-      );
+      showToast(context, "Couldn't find author: $author");
     }
     return null;
   }
@@ -63,9 +60,7 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   if (trackData == null) {
     LogHandler.log("Couldn't find song: ${url.split('/').elementAt(4)}");
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Couldn't find song: ${url.split('/').elementAt(4)}")),
-      );
+      showToast(context, "Couldn't find song: ${url.split('/').elementAt(4)}");
     }
     return null;
   }
@@ -105,9 +100,7 @@ Future<void> downloadSoundCloudMP3(
   if (file.existsSync() && file.lengthSync() > 0) {
     LogHandler.log('File with the same name already exists');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File with the same name already exists')),
-      );
+      showToast(context, 'File with the same name already exists');
     }
     return;
   }
@@ -120,9 +113,7 @@ Future<void> downloadSoundCloudMP3(
     );
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Finished downloading')),
-      );
+      showToast(context, 'Finished downloading');
     }
   } on Exception catch (e) {
     LogHandler.log(e.toString());

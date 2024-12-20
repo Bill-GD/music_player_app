@@ -1,8 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/functions.dart';
@@ -34,9 +33,7 @@ Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String u
     if (context.mounted) {
       switch (e.runtimeType) {
         case VideoUnavailableException:
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Video not available')),
-          );
+          showToast(context, 'Video not available');
           break;
         default:
           // ScaffoldMessenger.of(context).showSnackBar(
@@ -58,9 +55,7 @@ Future<void> downloadYoutubeMP3(
 
   if (file.existsSync() && file.lengthSync() > 0) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File with the same name already exists')),
-      );
+      showToast(context, 'File with the same name already exists');
     }
     return;
   }
@@ -77,16 +72,12 @@ Future<void> downloadYoutubeMP3(
     );
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Finished downloading')),
-      );
+      showToast(context, 'Finished downloading');
     }
   } on Exception catch (e) {
     LogHandler.log(e.toString());
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An Error occurred while downloading')),
-      );
+      showToast(context, 'An Error occurred while downloading');
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 extension DurationExtension on Duration {
   String toStringNoMilliseconds() {
     final inString = toString().split('.').first.padLeft(8, '0');
@@ -21,6 +23,10 @@ String getSizeString(double bytes) {
     unitIndex++;
   }
   return '${bytes.toStringAsFixed(2)} ${units[unitIndex]}';
+}
+
+void showToast(BuildContext context, String msg) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 }
 
 /// [start] and [end] are inclusive

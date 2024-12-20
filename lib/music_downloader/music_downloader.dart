@@ -2,9 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -91,9 +90,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
               if (_isDownloading) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('App is downloading music, please wait')),
-                );
+                g.showToast(context, 'App is downloading music, please wait');
                 return;
               }
               Navigator.of(context).pop(_hasDownloaded);

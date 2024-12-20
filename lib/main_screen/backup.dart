@@ -157,9 +157,7 @@ class _BackupScreenState extends State<BackupScreen> {
 
                       LogHandler.log('Recovering back up data from: ${bu.path}');
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Data recovered successfully')),
-                        );
+                        showToast(context, 'Data recovered successfully');
                       }
                       setState(() => getFileStats());
                     },
