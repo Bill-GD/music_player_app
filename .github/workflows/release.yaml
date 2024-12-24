@@ -34,10 +34,16 @@ jobs:
         run: flutter build apk --split-per-abi
 
       - name: Extract version from pubspec.yaml
-        # grep lines starts with (^) string 'version: ' -> cut with delimiter, element 2 -> trim return char
         run: |
-          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
-          echo "VERSION=$version" >> $GITHUB_ENV
+          version_str=$(grep '^version: ' pubspec.yaml | awk '{ print $2 }')
+          version_part=$(echo $version_str | cut -d '+' -f 1)
+          build_part=$(echo $version_str | cut -d '+' -f 2)
+          if [[ "$build_part" -eq 0 ]]; then
+            echo "VERSION=$version_part" >> $GITHUB_ENV
+          else
+            echo "VERSION=${version_part}.${build_part}" >> $GITHUB_ENV
+          fi
+
       - name: Create version string for binaries
         run: |
           version_bin=$(echo "${{ env.VERSION }}" | sed 's/\./_/g')
