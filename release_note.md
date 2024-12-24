@@ -1,6 +1,2 @@
-- Added search text input when adding songs to album
-- Fixed wrong confirm text when removing song from album
-- Moved add new album/song to top of their respective pages
-- Updated backup feature to work with the reworked album
-- Songs-to-add-to-album list's order will stays consistent
-- Added button to open GitHub repo if you're interested
+- Added a feature where the app can back up data on launch (configurable)
+- Added a button that allows playing playlist in original order and without shuffle

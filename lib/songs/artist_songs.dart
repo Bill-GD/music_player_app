@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/music_track.dart';
@@ -52,35 +51,77 @@ class _ArtistSongsState extends State<ArtistSongs> {
         ),
         body: Column(
           children: [
-            TextButton.icon(
-              style: const ButtonStyle(splashFactory: NoSplash.splashFactory),
-              icon: FaIcon(
-                Icons.play_circle_filled_rounded,
-                size: 30,
-                color: iconColor(context),
-              ),
-              label: Text(
-                'Shuffle playback',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: iconColor(context),
-                ),
-              ),
-              onPressed: () async {
-                final randomSong = songs[Random().nextInt(songs.length)].id;
-                // get artistName or albumName depend on category
-                Globals.audioHandler.registerPlaylist(
-                  widget.artistName,
-                  songs.map((e) => e.id).toList(),
-                  randomSong,
-                );
-                await Navigator.of(context).push(
-                  await getMusicPlayerRoute(
-                    context,
-                    randomSong,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton.icon(
+                  style: const ButtonStyle(splashFactory: NoSplash.splashFactory),
+                  icon: FaIcon(
+                    FontAwesomeIcons.shuffle,
+                    size: 25,
+                    color: iconColor(context, songs.isEmpty ? 0.5 : 1),
                   ),
-                );
-              },
+                  label: Text(
+                    'Shuffle playback',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: iconColor(context, songs.isEmpty ? 0.5 : 1),
+                    ),
+                  ),
+                  onPressed: songs.isEmpty
+                      ? null
+                      : () async {
+                          final randomSong = songs[Random().nextInt(songs.length)].id;
+                          if (!Globals.audioHandler.isShuffled) {
+                            Globals.audioHandler.changeShuffleMode();
+                          }
+                          // get artistName or album.name depend on category
+                          Globals.audioHandler.registerPlaylist(
+                            widget.artistName,
+                            songs.map((e) => e.id).toList(),
+                            randomSong,
+                          );
+                          await Navigator.of(context).push(
+                            await getMusicPlayerRoute(
+                              context,
+                              randomSong,
+                            ),
+                          );
+                        },
+                ),
+                TextButton.icon(
+                  style: const ButtonStyle(splashFactory: NoSplash.splashFactory),
+                  icon: FaIcon(
+                    Icons.play_circle_filled_rounded,
+                    size: 30,
+                    color: iconColor(context, songs.isEmpty ? 0.5 : 1),
+                  ),
+                  label: Text(
+                    'Play sequentially',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: iconColor(context, songs.isEmpty ? 0.5 : 1),
+                    ),
+                  ),
+                  onPressed: songs.isEmpty
+                      ? null
+                      : () async {
+                          final first = songs[0].id;
+                          if (Globals.audioHandler.isShuffled) {
+                            Globals.audioHandler.changeShuffleMode();
+                          }
+                          // get artistName or album.name depend on category
+                          Globals.audioHandler.registerPlaylist(
+                            widget.artistName,
+                            songs.map((e) => e.id).toList(),
+                            first,
+                          );
+                          await Navigator.of(context).push(
+                            await getMusicPlayerRoute(context, first),
+                          );
+                        },
+                ),
+              ],
             ),
             Expanded(
               child: StretchingOverscrollIndicator(

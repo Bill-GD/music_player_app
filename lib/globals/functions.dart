@@ -1,4 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+
+import 'database_handler.dart';
+import 'log_handler.dart';
+import 'variables.dart';
 
 extension DurationExtension on Duration {
   String toStringNoMilliseconds() {
@@ -27,6 +34,25 @@ String getSizeString(double bytes) {
 
 void showToast(BuildContext context, String msg) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+}
+
+Future<void> backupData(BuildContext context, File bu) async {
+  if (!File(Globals.dbPath).existsSync()) {
+    showToast(context, 'No data to backup');
+    return;
+  }
+  if (!bu.existsSync()) bu.createSync();
+  LogHandler.log('Backing up data to: ${bu.path}');
+
+  // TODO query & write to backup
+  final data = {
+    'songs': await DatabaseHandler.db.query(Globals.songTable),
+    'albums': await DatabaseHandler.db.query(Globals.albumTable),
+    'album_songs': await DatabaseHandler.db.query(Globals.albumSongsTable),
+  };
+
+  bu.writeAsStringSync(jsonEncode(data));
+  if (context.mounted) showToast(context, 'Data backed up successfully');
 }
 
 /// [start] and [end] are inclusive

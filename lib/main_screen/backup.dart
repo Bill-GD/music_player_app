@@ -18,7 +18,7 @@ class BackupScreen extends StatefulWidget {
 }
 
 class _BackupScreenState extends State<BackupScreen> {
-  final bu = File('/storage/emulated/0/Android/music_hub_backup.json');
+  final bu = File(Globals.backupPath);
   late FileStat dataStat, buStat;
 
   @override
@@ -60,22 +60,7 @@ class _BackupScreenState extends State<BackupScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      if (!File(Globals.dbPath).existsSync()) {
-                        showToast(context, 'No data to backup');
-                        return;
-                      }
-                      if (!bu.existsSync()) bu.createSync();
-                      LogHandler.log('Backing up data to: ${bu.path}');
-
-                      // TODO query & write to backup
-                      final data = {
-                        'songs': await DatabaseHandler.db.query(Globals.songTable),
-                        'albums': await DatabaseHandler.db.query(Globals.albumTable),
-                        'album_songs': await DatabaseHandler.db.query(Globals.albumSongsTable),
-                      };
-
-                      bu.writeAsStringSync(jsonEncode(data));
-                      if (context.mounted) showToast(context, 'Data backed up successfully');
+                      await backupData(context, bu);
                       setState(() => getFileStats());
                     },
                     child: const Text('Backup Data'),

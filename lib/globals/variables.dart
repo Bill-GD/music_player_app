@@ -34,6 +34,7 @@ class Globals {
   static late final String jsonPath;
   static late final String dbPath;
   static late final String logPath;
+  static late final String backupPath;
 
   /// The path to the app's storage directory.
   static const String downloadPath = '/storage/emulated/0/Download/';
@@ -61,6 +62,9 @@ class Config {
   /// The delay between song changes, default `0` milliseconds. Range `[0, 500]`.
   static int delayMilliseconds = 0;
 
+  /// Whether the app should backup data on launch.
+  static bool backupOnLaunch = false;
+
   static String getSortOptionString() {
     switch (currentSortOption) {
       case SortOptions.name:
@@ -81,6 +85,7 @@ class Config {
     await prefs.setBool('autoPlayNewSong', autoPlayNewSong);
     await prefs.setDouble('volume', volume);
     await prefs.setInt('delayMilliseconds', delayMilliseconds);
+    await prefs.setBool('backupOnLaunch', backupOnLaunch);
     await prefs.setBool('isShuffled', Globals.audioHandler.isShuffled);
     await prefs.setString('repeatMode', Globals.audioHandler.repeatMode.name);
     LogHandler.log('Config saved');
@@ -99,6 +104,7 @@ class Config {
     autoPlayNewSong = prefs.getBool('autoPlayNewSong') ?? true;
     volume = (prefs.getDouble('volume') ?? 1).clamp(0, 1);
     delayMilliseconds = prefs.getInt('delayMilliseconds') ?? 0;
+    backupOnLaunch = prefs.getBool('backupOnLaunch') ?? false;
 
     Globals.audioHandler.loadConfig(
       prefs.getBool('isShuffled'),

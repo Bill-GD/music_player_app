@@ -68,6 +68,7 @@ class _MainScreenState extends State<MainScreen> {
         LogHandler.log('Storage permission is granted');
         await updateMusicData();
         sortAllSongs();
+        if (Config.backupOnLaunch && mounted) backupData(context, File(Globals.backupPath));
         setState(() => isLoading = false);
       }
     });

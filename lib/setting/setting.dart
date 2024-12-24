@@ -18,6 +18,7 @@ class _SettingsPageState extends State<SettingsPage> {
   int ignoreTimeLimit = Config.lengthLimitMilliseconds ~/ 1e3;
   bool autoPlay = Config.autoPlayNewSong;
   int delayBetween = Config.delayMilliseconds;
+  bool autoBackup = Config.backupOnLaunch;
   double volume = Config.volume;
 
   @override
@@ -50,6 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 hasChanges = (ignoreShortFile != Config.enableSongFiltering ||
                     ignoreTimeLimit != Config.lengthLimitMilliseconds ~/ 1e3 ||
                     autoPlay != Config.autoPlayNewSong ||
+                    autoBackup != Config.backupOnLaunch ||
                     delayBetween != Config.delayMilliseconds ||
                     volume != Config.volume);
 
@@ -70,8 +72,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? 'Enable auto play\n'
                         : 'Disable auto play\n'
                     : '';
-                changes +=
-                    delayBetween != Config.delayMilliseconds ? 'Delay between songs: $delayBetween ms\n' : '';
+
+                changes += autoBackup != Config.backupOnLaunch
+                    ? autoBackup
+                        ? 'Enable auto backup\n'
+                        : 'Disable auto backup\n'
+                    : '';
+                changes += delayBetween != Config.delayMilliseconds ? 'Delay between songs: $delayBetween ms\n' : '';
                 changes += volume != Config.volume ? 'Volume: x$volume\n' : '';
 
                 if (hasChanges) {
@@ -119,6 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
                               Config.autoPlayNewSong = autoPlay;
                               Config.delayMilliseconds = delayBetween;
+                              Config.backupOnLaunch = autoBackup;
                               Config.volume = volume;
                               Globals.audioHandler.setVolume(Config.volume);
                               await Config.saveConfig();
@@ -296,6 +304,33 @@ class _SettingsPageState extends State<SettingsPage> {
               label: volume.toString(),
               onChanged: (value) => setState(() => volume = value),
               divisions: 10,
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 40, bottom: 10),
+              child: const Text(
+                'App Setting',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+            ),
+            SwitchListTile(
+              title: Row(
+                children: [
+                  leadingText(context, 'Backup data on launch', false, 16),
+                  getSettingOptionInfo(
+                    context,
+                    'Will backup on app launch',
+                    dedent('''
+                    If enabled, whenever you open the app, it will automatically backup the data for you.
+                    Note that if the current data is outdated, any backed up new data will be lost.
+                    If you want better control, you should do this manually by turning this off.
+                    '''),
+                  ),
+                ],
+              ),
+              value: autoBackup,
+              onChanged: (value) {
+                setState(() => autoBackup = value);
+              },
             ),
           ],
         ),
