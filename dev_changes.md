@@ -1,3 +1,1 @@
-- Fixed wrong pubspec version format
-- Configurable auto data backup on launch
-- Added button to start playlist in order (disables shuffle)
+- Added signature for app using keystore

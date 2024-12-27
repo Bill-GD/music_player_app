@@ -25,13 +25,28 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Cleaning build
+        run: flutter clean
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/upload-keystore.jks
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build APKs
-        run: flutter build apk
+        run: flutter build apk --release
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       - name: Build split APKs
-        run: flutter build apk --split-per-abi
+        run: flutter build apk --split-per-abi --release
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
 
       - name: Extract version from pubspec.yaml
         run: |

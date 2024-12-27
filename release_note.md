@@ -1,2 +1,1 @@
-- Added a feature where the app can back up data on launch (configurable)
-- Added a button that allows playing playlist in original order and without shuffle
+- App is now signed, hopefully newer versions don't necessitate re-installation
