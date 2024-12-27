@@ -180,7 +180,7 @@ class _MainScreenState extends State<MainScreen> {
                         ListTile(
                           contentPadding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
                           title: Text(
-                            Globals.packageInfo.appName,
+                            Globals.appName,
                             style: bottomSheetTitle.copyWith(fontSize: 24),
                           ),
                         ),
@@ -330,7 +330,8 @@ class _MainScreenState extends State<MainScreen> {
                       alignment: Alignment.bottomLeft,
                       child: GestureDetector(
                         child: Text(
-                          'v${Globals.packageInfo.version}',
+                          'v${Globals.appVersion}',
+                          // 'v${Globals.packageInfo.version}',
                           style: TextStyle(
                             color: Colors.grey.withOpacity(0.5),
                           ),
@@ -348,8 +349,9 @@ class _MainScreenState extends State<MainScreen> {
                             );
                           },
                           pageBuilder: (context, _, __) => AboutDialog(
-                            applicationName: Globals.packageInfo.appName,
-                            applicationVersion: 'v${Globals.packageInfo.version}',
+                            applicationName: Globals.appName,
+                            applicationVersion: 'v${Globals.appVersion}',
+                            // applicationVersion: 'v${Globals.packageInfo.version}',
                             children: [
                               TextButton.icon(
                                 onPressed: () async {

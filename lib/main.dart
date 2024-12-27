@@ -13,7 +13,14 @@ import 'player/player_utils.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Globals.packageInfo = await PackageInfo.fromPlatform();
+  final packageInfo = await PackageInfo.fromPlatform();
+  Globals.appName = packageInfo.appName;
+  String verString = packageInfo.version;
+  if (int.parse(packageInfo.buildNumber) != 0) {
+    verString += '.${packageInfo.buildNumber}';
+  }
+  Globals.appVersion = verString;
+
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
   Globals.logPath = '${Globals.storagePath}/files/log.txt';

@@ -1,4 +1,3 @@
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../player/player_utils.dart';
@@ -17,7 +16,8 @@ class Globals {
 
   static late final AudioPlayerHandler audioHandler;
 
-  static late final PackageInfo packageInfo;
+  static late final String appName;
+  static late final String appVersion;
 
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;
