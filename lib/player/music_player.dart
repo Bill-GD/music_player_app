@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/functions.dart';
@@ -164,7 +163,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                     playlistSheet(
                       context,
                       title: Text(
-                        Globals.audioHandler.playlistName,
+                        Globals.audioHandler.playlistDisplayName,
                         style: bottomSheetTitle,
                         textAlign: TextAlign.center,
                         softWrap: true,
@@ -229,7 +228,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                         const Icon(Icons.search_rounded),
                         const SizedBox(width: 5),
                         Text(
-                          Globals.audioHandler.playlistName,
+                          Globals.audioHandler.playlistDisplayName,
                           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                         ),
                       ],

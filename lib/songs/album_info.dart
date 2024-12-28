@@ -55,7 +55,7 @@ class _AlbumInfoState extends State<AlbumInfo> {
                       FocusManager.instance.primaryFocus?.unfocus();
 
                       album.name = albumController.text.trim();
-                      Globals.audioHandler.updatePlaylistName(album.name);
+                      Globals.audioHandler.playlistName = album.name;
                       await album.update();
 
                       if (context.mounted) {

@@ -19,22 +19,25 @@ class DatabaseHandler {
 
     _db = await openDatabase(
       _path,
-      // prev = none
-      version: 1,
+      // prev = 1
+      version: 2,
       readOnly: false,
       onCreate: (db, __) async {
         await _createTables(db);
         await _migrateOldData(db);
         LogHandler.log('Song count: ${(await db.rawQuery('select count(*) count from music_track')).first['count']}');
       },
-      onUpgrade: (db, oldVersion, newVersion) async {},
+      onUpgrade: (db, _, newVersion) async {
+        await _createTables(db, newVersion);
+      },
       onOpen: (db) async {
         LogHandler.log('Database opened');
       },
     );
   }
 
-  static Future<void> _createTables(Database db) async {
+  static Future<void> _createTables(Database db, [int? newVersion]) async {
+    LogHandler.log('Creating tables');
     await db.execute(
       'create table if not exists ${Globals.songTable} ('
       'id integer primary key,'
@@ -62,10 +65,23 @@ class DatabaseHandler {
       'foreign key (album_id) references album (id)'
       ');',
     );
+    if (newVersion == null) return;
+
+    if (newVersion == 2) {
+      LogHandler.log('Creating ${Globals.playlistTable} table');
+      await db.execute(
+        'create table if not exists ${Globals.playlistTable} ('
+        'id integer primary key,'
+        'list_name text not null,'
+        'song_id integer not null,'
+        'is_current integer not null default 0'
+        ');',
+      );
+    }
   }
 
   static Future<void> clearAllData() async {
-    LogHandler.log('IMPORTANT! Deleting all data! This is irreversible if used without backup!');
+    LogHandler.log('IMPORTANT! Deleting all data! This is irreversible if used without backing up first!');
     await _db.delete(Globals.songTable);
     await _db.delete(Globals.albumTable);
     await _db.delete(Globals.albumSongsTable);

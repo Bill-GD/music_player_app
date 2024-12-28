@@ -15,11 +15,12 @@ void main() async {
 
   final packageInfo = await PackageInfo.fromPlatform();
   Globals.appName = packageInfo.appName;
-  String verString = packageInfo.version;
-  if (int.parse(packageInfo.buildNumber) != 0) {
-    verString += '.${packageInfo.buildNumber}';
-  }
-  Globals.appVersion = verString;
+  Globals.appVersion = packageInfo.version;
+  // String verString = packageInfo.version;
+  // if (int.parse(packageInfo.buildNumber) != 0) {
+  //   verString += '.${packageInfo.buildNumber}';
+  // }
+  // Globals.appVersion = verString;
 
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
@@ -31,6 +32,8 @@ void main() async {
   LogHandler.init();
   await Config.loadConfig();
   await DatabaseHandler.init();
+
+  await Globals.audioHandler.recoverSavedPlaylist();
 
   runApp(const MusicPlayerApp());
 }

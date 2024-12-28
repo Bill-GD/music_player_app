@@ -22,7 +22,7 @@ class LogHandler {
       '[${_time()}] [$prefix] $content\n',
       mode: FileMode.append,
     );
-    debugPrint('[$prefix] $content');
+    debugPrint('[${_time()}] [$prefix] $content');
   }
 
   static String _time() {

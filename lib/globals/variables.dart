@@ -25,9 +25,10 @@ class Globals {
   /// ID of the currently selected/playing song.
   static int currentSongID = -1;
 
-  static String songTable = 'music_track';
-  static String albumTable = 'album';
-  static String albumSongsTable = 'album_tracks';
+  static const String songTable = 'music_track';
+  static const String albumTable = 'album';
+  static const String albumSongsTable = 'album_tracks';
+  static const String playlistTable = 'playlist';
 
   /// The path to the app's storage directory.
   static late final String storagePath;

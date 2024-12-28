@@ -52,12 +52,13 @@ jobs:
         run: |
           version_str=$(grep '^version: ' pubspec.yaml | awk '{ print $2 }')
           version_part=$(echo $version_str | cut -d '+' -f 1)
-          build_part=$(echo $version_str | cut -d '+' -f 2)
-          if [[ "$build_part" -eq 0 ]]; then
-            echo "VERSION=$version_part" >> $GITHUB_ENV
-          else
-            echo "VERSION=${version_part}.${build_part}" >> $GITHUB_ENV
-          fi
+          echo "VERSION=$version_part" >> $GITHUB_ENV
+#          build_part=$(echo $version_str | cut -d '+' -f 2)
+#          if [[ "$build_part" -eq 0 ]]; then
+#            echo "VERSION=$version_part" >> $GITHUB_ENV
+#          else
+#            echo "VERSION=${version_part}.${build_part}" >> $GITHUB_ENV
+#          fi
 
       - name: Create version string for binaries
         run: |

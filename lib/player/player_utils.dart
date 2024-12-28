@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:music_player_app/globals/database_handler.dart';
 
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
@@ -45,8 +46,11 @@ class AudioPlayerHandler extends BaseAudioHandler {
   late List<int> _playlist; // Only keep track of IDs
   List<int> get playlist => _playlist;
 
-  String get playlistName => _playlistName;
-  String _playlistName = '';
+  int get songCount => _playlist.length;
+
+  String playlistName = '';
+
+  String get playlistDisplayName => '$playlistName ($songCount song${songCount > 1 ? 's' : ''})';
 
   // Play mode
   var _shuffle = AudioServiceShuffleMode.none;
@@ -182,32 +186,70 @@ class AudioPlayerHandler extends BaseAudioHandler {
     }
   }
 
-  void updatePlaylistName(String newName) {
-    _playlistName = newName;
-  }
-
-  Future<void> registerPlaylist(String name, List<int> list, int beginIdx) async {
+  Future<void> registerPlaylist(String name, List<int> list, int beginSongID, {bool saveList = true}) async {
     _playlist = list;
 
     if (_shuffle == AudioServiceShuffleMode.all) {
-      _shufflePlaylist(begin: beginIdx);
+      _shufflePlaylist(beginSongID: beginSongID);
     }
 
     int songCount = _playlist.length;
-    _playlistName = '$name ($songCount song${songCount > 1 ? 's' : ''})';
-    LogHandler.log('Got playlist: $songCount songs');
+    playlistName = name;
+    if (saveList) savePlaylist();
+    LogHandler.log('Registered playlist: $playlistName ($songCount songs)');
   }
 
-  void _shufflePlaylist({bool currentToStart = true, int begin = -1}) {
+  Future<void> recoverSavedPlaylist() async {
+    var res = List<Map<String, Object?>>.from(await DatabaseHandler.db.query(Globals.playlistTable, orderBy: 'id'));
+    if (res.isEmpty) return;
+
+    res.sort((a, b) => (a['id'] as int) - (b['id'] as int));
+    Globals.currentSongID = res.firstWhereOrNull((e) => (e['is_current'] as int) == 1)?['song_id'] as int? ?? -1;
+    final songList = res.map((e) => e['song_id'] as int).toList();
+
+    await registerPlaylist(
+      res[0]['list_name'] as String,
+      songList,
+      songList[0],
+      saveList: false,
+    );
+    LogHandler.log('Recovered saved playlist: ${res[0]['list_name']}');
+    LogHandler.log('Recovered list: $songList');
+  }
+
+  void savePlaylist() {
+    LogHandler.log('Saving playlist: $playlistDisplayName');
+    DatabaseHandler.db.delete(Globals.playlistTable).then(
+      (_) {
+        final data = _playlist.map(
+          (e) => <String, Object?>{
+            'list_name': playlistName,
+            'song_id': e,
+            'is_current': Globals.currentSongID == e ? 1 : 0,
+          },
+        );
+        LogHandler.log('Saving playlist: $data');
+
+        for (final e in data) {
+          DatabaseHandler.db.insert(
+            Globals.playlistTable,
+            e,
+          );
+        }
+      },
+    );
+  }
+
+  void _shufflePlaylist({bool currentToStart = true, int beginSongID = -1}) {
     LogHandler.log('Shuffling playlist');
     _playlist.shuffle();
 
     if (currentToStart) {
-      if (begin < 0) {
+      if (beginSongID < 0) {
         LogHandler.log('A begin song should be selected');
       } else {
-        _playlist.removeWhere((e) => e == begin);
-        _playlist.insert(0, begin);
+        _playlist.removeWhere((e) => e == beginSongID);
+        _playlist.insert(0, beginSongID);
       }
     }
     LogHandler.log('Current playlist song index: ${_playlist.indexWhere((e) => e == Globals.currentSongID)}');
@@ -262,8 +304,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
         ? AudioServiceShuffleMode.none //
         : AudioServiceShuffleMode.all;
 
-    _shufflePlaylist(begin: Globals.currentSongID);
-    LogHandler.log('Change shuffle: $isShuffled');
+    _shufflePlaylist(beginSongID: Globals.currentSongID);
+    LogHandler.log('Changed shuffle: $isShuffled');
     Config.saveConfig();
   }
 

@@ -69,6 +69,7 @@ class _MainScreenState extends State<MainScreen> {
         await updateMusicData();
         sortAllSongs();
         if (Config.backupOnLaunch && mounted) backupData(context, File(Globals.backupPath));
+        Globals.showMinimizedPlayer = Globals.currentSongID >= 0;
         setState(() => isLoading = false);
       }
     });
@@ -88,9 +89,9 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Globals.currentSongID < 0) {
-      Globals.showMinimizedPlayer = false;
-    }
+    // if (Globals.currentSongID < 0) {
+    //   Globals.showMinimizedPlayer = false;
+    // }
 
     return SafeArea(
       child: DefaultTabController(
@@ -403,7 +404,7 @@ class _MainScreenState extends State<MainScreen> {
                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 subtitle: Text(
-                                  '$songCount song${songCount > 1 ? "s" : ""}',
+                                  '$songCount song${songCount > 1 ? 's' : ''}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.w400,
@@ -421,7 +422,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
           // mini player
           bottomNavigationBar: Visibility(
-            visible: Globals.showMinimizedPlayer && Globals.currentSongID >= 0,
+            visible: Globals.showMinimizedPlayer,
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
@@ -457,8 +458,8 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         title: Text(
-                          Globals.currentSongID >= 0
-                              ? Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)!.name
+                          Globals.currentSongID >= 0 && !isLoading
+                              ? Globals.allSongs.firstWhere((e) => e.id == Globals.currentSongID).name
                               : 'None',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -467,19 +468,21 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         subtitle: Text(
-                          Globals.currentSongID >= 0
-                              ? Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)!.artist
+                          Globals.currentSongID >= 0 && !isLoading
+                              ? Globals.allSongs.firstWhere((e) => e.id == Globals.currentSongID).artist
                               : 'None',
                         ),
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            await getMusicPlayerRoute(
-                              context,
-                              Globals.currentSongID,
-                            ),
-                          );
-                          setState(() {});
-                        },
+                        onTap: isLoading
+                            ? null
+                            : () async {
+                                await Navigator.of(context).push(
+                                  await getMusicPlayerRoute(
+                                    context,
+                                    Globals.currentSongID,
+                                  ),
+                                );
+                                setState(() {});
+                              },
                       ),
                     ),
                   ),
