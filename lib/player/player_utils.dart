@@ -36,6 +36,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
   final _onSongChangeController = StreamController<bool>.broadcast();
   late Stream<bool> onSongChange;
 
+  final _onPlayingChangeController = StreamController<bool>.broadcast();
+  late Stream<bool> onPlayingChange;
+
   // Player
   AudioPlayer get player => _player;
   late final AudioPlayer _player;
@@ -72,6 +75,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   AudioPlayerHandler() {
     onSongChange = _onSongChangeController.stream;
+    onPlayingChange = _onPlayingChangeController.stream;
 
     _playlist = [];
 
@@ -218,6 +222,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     }
 
     final songList = res.map((e) => e['song_id'] as int).toList();
+    LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: $currentID');
 
     await registerPlaylist(
       res[0]['list_name'] as String,
@@ -228,7 +233,6 @@ class AudioPlayerHandler extends BaseAudioHandler {
     );
     await setPlayerSong(currentID, shouldPlay: false);
     Globals.savedPlaylistName = '${res[0]['list_name']}';
-    LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: ${Globals.currentSongID}');
   }
 
   void savePlaylist(int currentID) {
@@ -330,6 +334,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       seek(0.ms);
     }
     _player.play();
+    _onPlayingChangeController.add(true);
   }
 
   /// Only from _player
@@ -363,10 +368,16 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   @override
-  Future<void> pause() async => _player.pause();
+  Future<void> pause() async {
+    _player.pause();
+    _onPlayingChangeController.add(false);
+  }
 
   @override
-  Future<void> stop() async => _player.stop();
+  Future<void> stop() async {
+    _player.stop();
+    _onPlayingChangeController.add(false);
+  }
 
   @override
   Future<void> seek(Duration position) async => _player.seek(position);

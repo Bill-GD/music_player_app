@@ -30,9 +30,9 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   bool isLoading = true, isDarkTheme = false;
-
+  late final AnimationController animController;
   int _childParam = 0;
 
   void updateChildren() {
@@ -63,6 +63,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
+    Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
+
     _checkStoragePermission().then((storagePermissionStatus) async {
       if (storagePermissionStatus.isGranted) {
         LogHandler.log('Storage permission is granted');
@@ -80,6 +83,13 @@ class _MainScreenState extends State<MainScreen> {
     });
     Globals.audioHandler.player.positionStream.listen((current) {
       setState(() {});
+    });
+    Globals.audioHandler.onPlayingChange.listen((playing) {
+      if (playing) {
+        animController.forward(from: 0);
+      } else {
+        animController.reverse(from: 1);
+      }
     });
   }
 
@@ -504,10 +514,9 @@ class _MainScreenState extends State<MainScreen> {
                           Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
                           setState(() {});
                         },
-                        icon: Icon(
-                          Globals.audioHandler.playing
-                              ? Icons.pause_rounded //
-                              : Icons.play_arrow_rounded,
+                        icon: AnimatedIcon(
+                          icon: AnimatedIcons.play_pause,
+                          progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
                           color: Theme.of(context).colorScheme.primary,
                           size: 30,
                         ),

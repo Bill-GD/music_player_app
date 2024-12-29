@@ -42,23 +42,18 @@ class MusicPlayerPage extends StatefulWidget {
 
 class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderStateMixin {
   int currentDuration = 0, maxDuration = 0;
-  late StreamSubscription<Duration> posStream;
-  late StreamSubscription<bool> songChangeStream;
+  final List<StreamSubscription> subs = [];
   late MusicTrack song;
   late final AnimationController animController;
   late final ScrollController playlistScrollController;
-  AnimatedIconData playIcon = Globals.audioHandler.playing
-      ? AnimatedIcons.pause_play //
-      : AnimatedIcons.play_pause;
 
   void updateSongInfo([int? songID]) async {
     song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
     LogHandler.log('Updating player info');
 
-    // LogHandler.log('Updating player duration values');
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
-    animController = AnimationController(duration: 500.ms, reverseDuration: 500.ms, vsync: this);
+    animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
     playlistScrollController = ScrollController();
     setState(() {});
   }
@@ -69,22 +64,31 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
     // Initial player state, KEEP IT
     updateSongInfo(widget.songID);
+    Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
 
-    songChangeStream = Globals.audioHandler.onSongChange.listen((changed) {
+    subs.add(Globals.audioHandler.onSongChange.listen((changed) {
       if (!changed) return;
       LogHandler.log('Song changed detected');
       updateSongInfo();
-    });
-    posStream = Globals.audioHandler.player.positionStream.listen((current) {
+    }));
+    subs.add(Globals.audioHandler.player.positionStream.listen((current) {
       currentDuration = current.inMilliseconds;
       setState(() {});
-    });
+    }));
+    subs.add(Globals.audioHandler.onPlayingChange.listen((playing) {
+      if (playing) {
+        animController.forward(from: 0);
+      } else {
+        animController.reverse(from: 1);
+      }
+    }));
   }
 
   @override
   void dispose() {
-    posStream.cancel();
-    songChangeStream.cancel();
+    for (final e in subs) {
+      e.cancel();
+    }
     animController.dispose();
     playlistScrollController.dispose();
     super.dispose();
@@ -297,7 +301,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       IconButton(
                         onPressed: () async {
                           await Globals.audioHandler.skipToPrevious();
-                          playIcon = Globals.audioHandler.playing ? AnimatedIcons.play_pause : AnimatedIcons.pause_play;
                         },
                         icon: Icon(
                           Icons.skip_previous_rounded,
@@ -312,18 +315,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                         ),
                         child: IconButton(
                           onPressed: () {
-                            playIcon = AnimatedIcons.pause_play;
-                            if (Globals.audioHandler.playing) {
-                              Globals.audioHandler.pause();
-                              animController.forward(from: 0);
-                            } else {
-                              Globals.audioHandler.play();
-                              animController.reverse(from: 1);
-                            }
+                            Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
                             setState(() {});
                           },
                           icon: AnimatedIcon(
-                            icon: playIcon,
+                            icon: AnimatedIcons.play_pause,
                             progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
                             color: Theme.of(context).colorScheme.primary,
                             size: 70,
@@ -333,7 +329,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       IconButton(
                         onPressed: () async {
                           await Globals.audioHandler.skipToNext();
-                          playIcon = Globals.audioHandler.playing ? AnimatedIcons.play_pause : AnimatedIcons.pause_play;
                         },
                         icon: Icon(
                           Icons.skip_next_rounded,
