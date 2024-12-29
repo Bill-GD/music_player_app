@@ -18,6 +18,7 @@ class Globals {
 
   static late final String appName;
   static late final String appVersion;
+  static late final String appBuildNum;
 
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;

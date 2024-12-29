@@ -357,23 +357,24 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                               child: child,
                             );
                           },
-                          pageBuilder: (context, _, __) => AboutDialog(
-                            applicationName: Globals.appName,
-                            applicationVersion: 'v${Globals.appVersion}',
-                            // applicationVersion: 'v${Globals.packageInfo.version}',
-                            children: [
-                              TextButton.icon(
-                                onPressed: () async {
-                                  const url = 'https://github.com/Bill-GD/music_player_app';
-                                  final canLaunch = await canLaunchUrl(Uri.parse(url));
-                                  LogHandler.log('Can launch URL: $canLaunch');
-                                  if (canLaunch) launchUrl(Uri.parse(url));
-                                },
-                                icon: const Icon(Icons.code_rounded),
-                                label: const Text('Source code'),
-                              ),
-                            ],
-                          ),
+                          pageBuilder: (context, _, __) {
+                            return AboutDialog(
+                              applicationName: Globals.appName,
+                              applicationVersion: 'v${Globals.appVersion} - ${Globals.appBuildNum}',
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () async {
+                                    const url = 'https://github.com/Bill-GD/music_player_app';
+                                    final canLaunch = await canLaunchUrl(Uri.parse(url));
+                                    LogHandler.log('Can launch URL: $canLaunch');
+                                    if (canLaunch) launchUrl(Uri.parse(url));
+                                  },
+                                  icon: const Icon(Icons.code_rounded),
+                                  label: const Text('Source code'),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),

@@ -16,11 +16,7 @@ void main() async {
   final packageInfo = await PackageInfo.fromPlatform();
   Globals.appName = packageInfo.appName;
   Globals.appVersion = packageInfo.version;
-  // String verString = packageInfo.version;
-  // if (int.parse(packageInfo.buildNumber) != 0) {
-  //   verString += '.${packageInfo.buildNumber}';
-  // }
-  // Globals.appVersion = verString;
+  Globals.appBuildNum = packageInfo.buildNumber;
 
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
