@@ -142,7 +142,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     Duration? duration = _player.duration;
 
     if (songID == Globals.currentSongID && Globals.currentSongID >= 0) return;
-    LogHandler.log('Attempting to switch: $songID');
+    LogHandler.log('Attempting to switch to: $songID');
 
     MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
 
@@ -187,10 +187,16 @@ class AudioPlayerHandler extends BaseAudioHandler {
     }
   }
 
-  Future<void> registerPlaylist(String name, List<int> list, int beginSongID, {bool saveList = true}) async {
+  Future<void> registerPlaylist(
+    String name,
+    List<int> list,
+    int beginSongID, {
+    bool saveList = true,
+    bool shouldShuffle = true,
+  }) async {
     _playlist = list;
 
-    if (_shuffle == AudioServiceShuffleMode.all) {
+    if (shouldShuffle && _shuffle == AudioServiceShuffleMode.all) {
       _shufflePlaylist(beginSongID: beginSongID);
     }
 
@@ -201,19 +207,26 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   Future<void> recoverSavedPlaylist() async {
-    var res = List<Map<String, Object?>>.from(await DatabaseHandler.db.query(Globals.playlistTable, orderBy: 'id'));
-    if (res.isEmpty) return;
+    final res = await DatabaseHandler.db.query(Globals.playlistTable, orderBy: 'id');
+    if (res.isEmpty) {
+      LogHandler.log('No saved playlist');
+      return;
+    }
 
-    res.sort((a, b) => (a['id'] as int) - (b['id'] as int));
     final currentID = res.firstWhereOrNull((e) => (e['is_current'] as int) == 1)?['song_id'] as int? ?? -1;
-    if (currentID < 0) return;
+    if (currentID < 0) {
+      LogHandler.log('No song is the current song');
+      return;
+    }
 
     final songList = res.map((e) => e['song_id'] as int).toList();
+
     await registerPlaylist(
       res[0]['list_name'] as String,
       songList,
       songList[0],
       saveList: false,
+      shouldShuffle: false,
     );
     await setPlayerSong(currentID, shouldPlay: false);
     LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: ${Globals.currentSongID}');
