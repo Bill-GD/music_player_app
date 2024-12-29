@@ -146,7 +146,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
 
-    LogHandler.log('Switching to a different song: ${item.name} (${item.id})');
+    LogHandler.log('Switching song: (${item.id}): ${item.name}');
     duration = await _player.setAudioSource(
       AudioSource.uri(Uri.parse(Uri.encodeComponent(item.fullPath))),
     );
@@ -209,14 +209,12 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> recoverSavedPlaylist() async {
     final res = await DatabaseHandler.db.query(Globals.playlistTable, orderBy: 'id');
     if (res.isEmpty) {
-      LogHandler.log('No saved playlist');
-      return;
+      return LogHandler.log('No saved playlist');
     }
 
     final currentID = res.firstWhereOrNull((e) => (e['is_current'] as int) == 1)?['song_id'] as int? ?? -1;
     if (currentID < 0) {
-      LogHandler.log('No song is the current song');
-      return;
+      return LogHandler.log('No song is the current song');
     }
 
     final songList = res.map((e) => e['song_id'] as int).toList();
@@ -229,21 +227,23 @@ class AudioPlayerHandler extends BaseAudioHandler {
       shouldShuffle: false,
     );
     await setPlayerSong(currentID, shouldPlay: false);
+    Globals.savedPlaylistName = '${res[0]['list_name']}';
     LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: ${Globals.currentSongID}');
   }
 
   void savePlaylist(int currentID) {
-    LogHandler.log('Saving playlist: $playlistDisplayName');
     DatabaseHandler.db.delete(Globals.playlistTable).then(
       (_) {
+        LogHandler.log('Saving playlist ($playlistName): $playlist, current: $currentID');
+        Globals.savedPlaylistName = playlistName;
+
         final data = _playlist.map(
           (e) => <String, Object?>{
-            'list_name': playlistName,
+            'list_name': playlistName.trim(),
             'song_id': e,
             'is_current': e == currentID ? 1 : 0,
           },
         );
-        LogHandler.log('Saving playlist ($playlistName): $playlist, current: $currentID');
 
         for (final e in data) {
           DatabaseHandler.db.insert(
@@ -252,6 +252,25 @@ class AudioPlayerHandler extends BaseAudioHandler {
           );
         }
       },
+    );
+  }
+
+  Future<void> updateSavedPlaylist(int oldID, int newID) async {
+    if (playlistName != Globals.savedPlaylistName) return savePlaylist(newID);
+
+    LogHandler.log('Update current ID of saved: $oldID -> $newID');
+
+    DatabaseHandler.db.update(
+      Globals.playlistTable,
+      {'is_current': 0},
+      where: 'song_id = ?',
+      whereArgs: [oldID],
+    );
+    DatabaseHandler.db.update(
+      Globals.playlistTable,
+      {'is_current': 1},
+      where: 'song_id = ?',
+      whereArgs: [newID],
     );
   }
 
@@ -272,12 +291,12 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   void moveSong(int from, int to) {
     if (from < 0 || from >= _playlist.length || to < 0 || to >= _playlist.length) {
-      LogHandler.log('Invalid move song index');
-      return;
+      return LogHandler.log('Invalid move song index');
     }
 
     int songIdx = _playlist.removeAt(from);
     _playlist.insert(to, songIdx);
+    savePlaylist(Globals.currentSongID);
   }
 
   Future<void> addMediaItem(MediaItem item) async => mediaItem.add(item);
@@ -361,27 +380,26 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (_playlist.isEmpty) {
       pause();
-      LogHandler.log('Playlist is empty, this should not be the case');
-      return;
+      return LogHandler.log('Playlist is empty, this should not be the case');
     }
 
     if (_playlist.length == 1) {
-      LogHandler.log('Playlist only contains one song, skipping action');
-      return;
+      return LogHandler.log('Playlist only contains one song, skipping action');
     }
 
     int currentIndex = _playlist.indexWhere((e) => e == Globals.currentSongID);
 
     if (currentIndex < 0) {
       pause();
-      LogHandler.log('Can\'t find song in playlist, this should not be the case');
-      return;
+      return LogHandler.log('Can\'t find song in playlist, this should not be the case');
     }
 
-    await Future.delayed(
-      Config.delayMilliseconds.ms,
-      () => LogHandler.log('Delayed for ${Config.delayMilliseconds}ms'),
-    );
+    if (Config.delayMilliseconds > 0) {
+      await Future.delayed(
+        Config.delayMilliseconds.ms,
+        () => LogHandler.log('Delayed for ${Config.delayMilliseconds}ms'),
+      );
+    }
 
     if (currentIndex == _playlist.length - 1) {
       switch (_repeat) {
@@ -389,6 +407,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
           LogHandler.log('Repeat all');
           if (isShuffled) _shufflePlaylist(currentToStart: false);
           await setPlayerSong(_playlist[0]);
+          await updateSavedPlaylist(currentIndex, 0);
           break;
         case AudioServiceRepeatMode.none:
           if (_player.processingState == ProcessingState.completed) {
@@ -398,10 +417,12 @@ class AudioPlayerHandler extends BaseAudioHandler {
           break;
         default:
           await setPlayerSong(_playlist[0]);
+          await updateSavedPlaylist(currentIndex, 0);
           break;
       }
     } else {
       await setPlayerSong(_playlist[currentIndex + 1]);
+      await updateSavedPlaylist(_playlist[currentIndex], _playlist[currentIndex + 1]);
     }
     _skipping = false;
   }
@@ -415,25 +436,24 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (_playlist.isEmpty) {
       pause();
-      LogHandler.log('Playlist is empty, this should not be the case');
-      return;
+      return LogHandler.log('Playlist is empty, this should not be the case');
     }
 
     if (_playlist.length == 1) {
-      LogHandler.log('Playlist only contains one song, skipping action');
-      return;
+      return LogHandler.log('Playlist only contains one song, skipping action');
     }
 
     int currentIndex = _playlist.indexWhere((e) => e == Globals.currentSongID);
 
     if (currentIndex < 0) {
       pause();
-      LogHandler.log('Can\'t find song in playlist, this should not be the case');
-      return;
+      return LogHandler.log('Can\'t find song in playlist, this should not be the case');
     }
 
-    currentIndex = currentIndex == 0 ? _playlist.length : currentIndex;
-    await setPlayerSong(_playlist[currentIndex - 1]);
+    final newIndex = (currentIndex == 0 ? _playlist.length : currentIndex) - 1;
+
+    await updateSavedPlaylist(currentIndex, newIndex);
+    await setPlayerSong(_playlist[newIndex]);
 
     _skipping = false;
   }

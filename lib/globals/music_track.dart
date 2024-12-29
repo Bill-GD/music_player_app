@@ -63,8 +63,7 @@ class MusicTrack {
 
   Future<void> insert() async {
     if (id >= 0) {
-      LogHandler.log('Trying to insert duplicate song id ($id)', LogLevel.error);
-      return;
+      return LogHandler.log('Trying to insert duplicate song id ($id)', LogLevel.error);
     }
     id = await DatabaseHandler.db.insert(
       Globals.songTable,
@@ -81,8 +80,7 @@ class MusicTrack {
 
   Future<void> update() async {
     if (id < 0) {
-      LogHandler.log('Trying to update song id -1', LogLevel.error);
-      return;
+      return LogHandler.log('Trying to update song id -1', LogLevel.error);
     }
     LogHandler.log('Updating song ($id)');
     await DatabaseHandler.db.update(
@@ -95,8 +93,7 @@ class MusicTrack {
 
   Future<void> delete() async {
     if (id < 0) {
-      LogHandler.log('Trying to delete song id -1', LogLevel.error);
-      return;
+      return LogHandler.log('Trying to delete song id -1', LogLevel.error);
     }
     await DatabaseHandler.db.delete(
       Globals.songTable,
@@ -163,8 +160,7 @@ class Album {
 
   Future<void> insert() async {
     if (id >= 0) {
-      LogHandler.log('Trying to insert duplicate album id ($id)', LogLevel.error);
-      return;
+      return LogHandler.log('Trying to insert duplicate album id ($id)', LogLevel.error);
     }
     id = await DatabaseHandler.db.insert(
       Globals.albumTable,
@@ -188,8 +184,7 @@ class Album {
 
   Future<void> update() async {
     if (id < 0) {
-      LogHandler.log('Trying to update album id -1', LogLevel.error);
-      return;
+      return LogHandler.log('Trying to update album id -1', LogLevel.error);
     }
     LogHandler.log('Updating album ($id)');
 
@@ -217,8 +212,7 @@ class Album {
 
   Future<void> delete() async {
     if (id < 0) {
-      LogHandler.log('Trying to delete album id -1', LogLevel.error);
-      return;
+      return LogHandler.log('Trying to delete album id -1', LogLevel.error);
     }
     LogHandler.log('Deleting album ($id)');
     await DatabaseHandler.db.delete(

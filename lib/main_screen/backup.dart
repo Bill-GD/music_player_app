@@ -69,8 +69,7 @@ class _BackupScreenState extends State<BackupScreen> {
                   ElevatedButton(
                     onPressed: () async {
                       if (!bu.existsSync()) {
-                        showToast(context, 'No backup data found');
-                        return;
+                        return showToast(context, 'No backup data found');
                       }
 
                       final res = await showGeneralDialog<bool>(

@@ -38,8 +38,7 @@ void showToast(BuildContext context, String msg) {
 
 Future<void> backupData(BuildContext context, File bu) async {
   if (!File(Globals.dbPath).existsSync()) {
-    showToast(context, 'No data to backup');
-    return;
+    return showToast(context, 'No data to backup');
   }
   if (!bu.existsSync()) bu.createSync();
   LogHandler.log('Backing up data to: ${bu.path}');

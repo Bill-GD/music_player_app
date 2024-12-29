@@ -90,8 +90,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
               if (_isDownloading) {
-                g.showToast(context, 'App is downloading music, please wait');
-                return;
+                return g.showToast(context, 'App is downloading music, please wait');
               }
               Navigator.of(context).pop(_hasDownloaded);
             },

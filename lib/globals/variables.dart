@@ -25,6 +25,8 @@ class Globals {
   /// ID of the currently selected/playing song.
   static int currentSongID = -1;
 
+  static String? savedPlaylistName;
+
   static const String songTable = 'music_track';
   static const String albumTable = 'album';
   static const String albumSongsTable = 'album_tracks';

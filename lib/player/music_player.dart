@@ -53,9 +53,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
   void updateSongInfo([int? songID]) async {
     song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
-    LogHandler.log('Update player info: ${song.name}');
+    LogHandler.log('Updating player info');
 
-    LogHandler.log('Updating player duration values');
+    // LogHandler.log('Updating player duration values');
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
     animController = AnimationController(duration: 500.ms, reverseDuration: 500.ms, vsync: this);
@@ -71,10 +71,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
     updateSongInfo(widget.songID);
 
     songChangeStream = Globals.audioHandler.onSongChange.listen((changed) {
-      if (changed) {
-        LogHandler.log('Detected song change, updating player');
-        updateSongInfo();
-      }
+      if (!changed) return;
+      LogHandler.log('Song changed detected');
+      updateSongInfo();
     });
     posStream = Globals.audioHandler.player.positionStream.listen((current) {
       currentDuration = current.inMilliseconds;
@@ -191,14 +190,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                           )
                           .toList(),
                       scrollController: playlistScrollController,
-                      onReorder: (o, n) {
+                      onReorder: (oIdx, nIdx) {
                         LogHandler.log(
-                          'Old song id: ${Globals.audioHandler.playlist[o]}',
-                        );
-                        LogHandler.log(
-                          'New song id: ${Globals.audioHandler.playlist[n]}',
-                        );
-                        Globals.audioHandler.moveSong(o, n);
+                            'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})');
+                        Globals.audioHandler.moveSong(oIdx, nIdx);
                       },
                     );
 

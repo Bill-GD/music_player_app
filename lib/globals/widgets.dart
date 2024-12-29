@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/functions.dart';
@@ -106,10 +105,10 @@ Future<void> playlistSheet(
               child: ReorderableListView(
                 scrollController: scrollController,
                 // reverse: true,
-                onReorder: (o, n) {
-                  if (n > o) n--;
-                  onReorder?.call(o, n);
-                  content.insert(n, content.removeAt(o));
+                onReorder: (oIdx, nIdx) {
+                  if (nIdx > oIdx) nIdx--;
+                  onReorder?.call(oIdx, nIdx);
+                  content.insert(nIdx, content.removeAt(oIdx));
 
                   for (int i = 0; i < content.length; i++) {
                     content[i] = ListTile(
