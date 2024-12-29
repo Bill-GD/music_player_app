@@ -1,1 +1,2 @@
 - Added signature for app using keystore
+- Saves & recover current playlist with current song

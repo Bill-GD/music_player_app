@@ -33,8 +33,6 @@ void main() async {
   await Config.loadConfig();
   await DatabaseHandler.init();
 
-  await Globals.audioHandler.recoverSavedPlaylist();
-
   runApp(const MusicPlayerApp());
 }
 

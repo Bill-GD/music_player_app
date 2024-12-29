@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_player_app/globals/database_handler.dart';
 
+import '../globals/database_handler.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
@@ -138,14 +138,15 @@ class AudioPlayerHandler extends BaseAudioHandler {
     );
   }
 
-  Future<void> setPlayerSong(int songID) async {
+  Future<void> setPlayerSong(int songID, {bool shouldPlay = true}) async {
     Duration? duration = _player.duration;
 
     if (songID == Globals.currentSongID && Globals.currentSongID >= 0) return;
+    LogHandler.log('Attempting to switch: $songID');
 
     MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
 
-    LogHandler.log('Switching to a different song: ${item.path}');
+    LogHandler.log('Switching to a different song: ${item.name} (${item.id})');
     duration = await _player.setAudioSource(
       AudioSource.uri(Uri.parse(Uri.encodeComponent(item.fullPath))),
     );
@@ -179,7 +180,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       LogHandler.log('Min listen time: $_minTime / ${_totalDuration.inMilliseconds} ms');
     }
 
-    if (Config.autoPlayNewSong) {
+    if (shouldPlay && Config.autoPlayNewSong) {
       play();
     } else {
       pause();
@@ -195,7 +196,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     int songCount = _playlist.length;
     playlistName = name;
-    if (saveList) savePlaylist();
+    if (saveList) savePlaylist(beginSongID);
     LogHandler.log('Registered playlist: $playlistName ($songCount songs)');
   }
 
@@ -204,20 +205,21 @@ class AudioPlayerHandler extends BaseAudioHandler {
     if (res.isEmpty) return;
 
     res.sort((a, b) => (a['id'] as int) - (b['id'] as int));
-    Globals.currentSongID = res.firstWhereOrNull((e) => (e['is_current'] as int) == 1)?['song_id'] as int? ?? -1;
-    final songList = res.map((e) => e['song_id'] as int).toList();
+    final currentID = res.firstWhereOrNull((e) => (e['is_current'] as int) == 1)?['song_id'] as int? ?? -1;
+    if (currentID < 0) return;
 
+    final songList = res.map((e) => e['song_id'] as int).toList();
     await registerPlaylist(
       res[0]['list_name'] as String,
       songList,
       songList[0],
       saveList: false,
     );
-    LogHandler.log('Recovered saved playlist: ${res[0]['list_name']}');
-    LogHandler.log('Recovered list: $songList');
+    await setPlayerSong(currentID, shouldPlay: false);
+    LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: ${Globals.currentSongID}');
   }
 
-  void savePlaylist() {
+  void savePlaylist(int currentID) {
     LogHandler.log('Saving playlist: $playlistDisplayName');
     DatabaseHandler.db.delete(Globals.playlistTable).then(
       (_) {
@@ -225,10 +227,10 @@ class AudioPlayerHandler extends BaseAudioHandler {
           (e) => <String, Object?>{
             'list_name': playlistName,
             'song_id': e,
-            'is_current': Globals.currentSongID == e ? 1 : 0,
+            'is_current': e == currentID ? 1 : 0,
           },
         );
-        LogHandler.log('Saving playlist: $data');
+        LogHandler.log('Saving playlist ($playlistName): $playlist, current: $currentID');
 
         for (final e in data) {
           DatabaseHandler.db.insert(

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/music_track.dart';
@@ -49,6 +48,10 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                     ),
                     onPressed: () async {
                       final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].id;
+                      if (!Globals.audioHandler.isShuffled) {
+                        Globals.audioHandler.changeShuffleMode();
+                      }
+
                       Globals.audioHandler.registerPlaylist(
                         'All songs',
                         Globals.allSongs.map((e) => e.id).toList(),

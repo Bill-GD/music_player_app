@@ -1,1 +1,2 @@
 - App is now signed, hopefully newer versions don't necessitate re-installation
+- Added feature that saves currently listening playlist for next session

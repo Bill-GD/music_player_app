@@ -68,8 +68,10 @@ class _MainScreenState extends State<MainScreen> {
         LogHandler.log('Storage permission is granted');
         await updateMusicData();
         sortAllSongs();
+
         if (Config.backupOnLaunch && mounted) backupData(context, File(Globals.backupPath));
-        Globals.showMinimizedPlayer = Globals.currentSongID >= 0;
+        await Globals.audioHandler.recoverSavedPlaylist();
+
         setState(() => isLoading = false);
       }
     });
@@ -89,10 +91,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // if (Globals.currentSongID < 0) {
-    //   Globals.showMinimizedPlayer = false;
-    // }
-
     return SafeArea(
       child: DefaultTabController(
         length: 3,
@@ -312,7 +310,7 @@ class _MainScreenState extends State<MainScreen> {
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.of(context).pop(),
-                                      child: const Text('Ok'),
+                                      child: const Text('OK'),
                                     ),
                                   ],
                                 );

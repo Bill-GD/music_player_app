@@ -14,10 +14,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import 'player_utils.dart';
 
-Future<Route> getMusicPlayerRoute(
-  BuildContext context,
-  int songID,
-) async {
+Future<Route> getMusicPlayerRoute(BuildContext context, int songID) async {
   await Globals.audioHandler.setPlayerSong(songID);
   return PageRouteBuilder(
     pageBuilder: (context, _, __) => MusicPlayerPage(songID: songID),
@@ -56,7 +53,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
   void updateSongInfo([int? songID]) async {
     song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
-    LogHandler.log('Update song info: ${song.name}');
+    LogHandler.log('Update player info: ${song.name}');
 
     LogHandler.log('Updating player duration values');
     currentDuration = getCurrentDuration();
