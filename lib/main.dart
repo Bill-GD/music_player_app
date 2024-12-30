@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -7,6 +9,7 @@ import 'package:theme_provider/theme_provider.dart';
 import 'globals/database_handler.dart';
 import 'globals/log_handler.dart';
 import 'globals/variables.dart';
+import 'globals/widgets.dart';
 import 'main_screen/main_screen.dart';
 import 'player/player_utils.dart';
 
@@ -29,11 +32,28 @@ void main() async {
   await Config.loadConfig();
   await DatabaseHandler.init();
 
-  runApp(const MusicPlayerApp());
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  PlatformDispatcher.instance.onError = (e, s) {
+    LogHandler.log(e.toString(), LogLevel.error);
+    final curContext = navigatorKey.currentContext;
+    if (curContext == null) return false;
+
+    showPopupMessage(
+      curContext,
+      title: e.toString(),
+      content: s.toString(),
+      centerContent: false,
+    );
+    return true;
+  };
+
+  runApp(MusicPlayerApp(navKey: navigatorKey));
 }
 
 class MusicPlayerApp extends StatelessWidget {
-  const MusicPlayerApp({super.key});
+  final GlobalKey<NavigatorState> navKey;
+
+  const MusicPlayerApp({super.key, required this.navKey});
 
   @override
   Widget build(BuildContext context) {
@@ -69,15 +89,18 @@ class MusicPlayerApp extends StatelessWidget {
       ],
       child: ThemeConsumer(
         child: Builder(
-          builder: (context) => MaterialApp(
-            theme: ThemeProvider.themeOf(context).data,
-            title: 'Music Hub',
-            home: const MainScreen(),
-            // setup route to use Navigator.pushNamed to wait page navigation (pause previous page until return)
-            // routes: {
-            //   '/music_downloader': (context) => const MusicDownloader(),
-            // },
-          ),
+          builder: (context) {
+            return MaterialApp(
+              navigatorKey: navKey,
+              theme: ThemeProvider.themeOf(context).data,
+              title: 'Music Hub',
+              home: const MainScreen(),
+              // setup route to use Navigator.pushNamed to wait page navigation (pause previous page until return)
+              // routes: {
+              //   '/music_downloader': (context) => const MusicDownloader(),
+              // },
+            );
+          },
         ),
       ),
     );

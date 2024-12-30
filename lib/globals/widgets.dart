@@ -245,70 +245,43 @@ Future<void> showSongOptionsMenu(
           title: const Text('Delete', style: bottomSheetText),
           onTap: () async {
             bool songDeleted = false;
-            await showGeneralDialog(
-              context: context,
-              transitionDuration: 300.ms,
-              barrierDismissible: true,
-              barrierLabel: '',
-              transitionBuilder: (_, anim1, __, child) {
-                return ScaleTransition(
-                  scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                  alignment: Alignment.bottomCenter,
-                  child: child,
-                );
-              },
-              pageBuilder: (context, _, __) {
-                return AlertDialog(
-                  contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  icon: Icon(
-                    Icons.warning_rounded,
-                    color: Theme.of(context).colorScheme.error,
-                    size: 30,
-                  ),
-                  title: const Center(
-                    child: Text(
-                      'Delete song',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  content: Text(
-                    dedent('''
+            await dialogWithActions(
+              context,
+              icon: Icon(
+                Icons.warning_rounded,
+                color: Theme.of(context).colorScheme.error,
+                size: 30,
+              ),
+              title: 'Delete song',
+              titleFontSize: 24,
+              content: dedent('''
                       This CANNOT be undone.
                       Are you sure you want to delete
         
                       ${song.name}'''),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  actionsAlignment: MainAxisAlignment.spaceAround,
-                  actions: [
-                    TextButton(
-                      child: const Text('No'),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    TextButton(
-                      child: const Text('Yes'),
-                      onPressed: () async {
-                        if (Globals.currentSongID == songID) {
-                          Globals.currentSongID = -1;
-                          Globals.showMinimizedPlayer = false;
-                        }
-                        Globals.audioHandler.pause();
-                        await song.delete();
-                        File(song.path).deleteSync();
-                        songDeleted = true;
-                        if (context.mounted) Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
+              contentFontSize: 16,
+              time: 300.ms,
+              scaleAlignment: Alignment.bottomCenter,
+              actions: [
+                TextButton(
+                  child: const Text('No'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: const Text('Yes'),
+                  onPressed: () async {
+                    if (Globals.currentSongID == songID) {
+                      Globals.currentSongID = -1;
+                      Globals.showMinimizedPlayer = false;
+                    }
+                    Globals.audioHandler.pause();
+                    await song.delete();
+                    File(song.path).deleteSync();
+                    songDeleted = true;
+                    if (context.mounted) Navigator.of(context).pop();
+                  },
+                ),
+              ],
             );
             if (songDeleted) {
               await updateMusicData();
@@ -322,54 +295,102 @@ Future<void> showSongOptionsMenu(
 }
 
 Future<void> showErrorPopup(BuildContext context, String error) async {
-  await showGeneralDialog(
-    context: context,
-    transitionDuration: 300.ms,
+  await dialogWithActions(
+    context,
     barrierDismissible: true,
+    time: 300.ms,
+    icon: Icon(
+      Icons.error_rounded,
+      color: Theme.of(context).colorScheme.error,
+      size: 30,
+    ),
+    title: 'Error',
+    titleFontSize: 24,
+    content: dedent('''
+            An error occurred while performing the operation.
+            Error: $error'''),
+    contentFontSize: 16,
+    actions: [
+      TextButton(
+        child: const Text('OK'),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    ],
+  );
+}
+
+Future<void> showPopupMessage(
+  BuildContext context, {
+  required String title,
+  required String content,
+  Duration time = const Duration(milliseconds: 200),
+  bool centerContent = true,
+  double horizontalPadding = 50,
+  bool enableButton = true,
+  bool barrierDismissible = true,
+}) async {
+  await dialogWithActions<void>(
+    context,
+    title: title,
+    titleFontSize: 24,
+    content: content,
+    contentFontSize: 16,
+    centerContent: centerContent,
+    time: time,
+    actions: [
+      TextButton(
+        onPressed: enableButton ? () => Navigator.of(context).pop() : null,
+        child: const Text('OK'),
+      ),
+    ],
+    horizontalPadding: horizontalPadding,
+    barrierDismissible: barrierDismissible,
+  );
+}
+
+Future<T?> dialogWithActions<T>(
+  BuildContext context, {
+  Icon? icon,
+  required String title,
+  required double titleFontSize,
+  required String content,
+  required double contentFontSize,
+  bool centerContent = true,
+  List<Widget> actions = const [],
+  required Duration time,
+  Alignment scaleAlignment = Alignment.center,
+  double horizontalPadding = 50,
+  bool barrierDismissible = true,
+}) async {
+  return await showGeneralDialog<T>(
+    context: context,
+    transitionDuration: time,
+    barrierDismissible: barrierDismissible,
     barrierLabel: '',
     transitionBuilder: (_, anim1, __, child) {
       return ScaleTransition(
         scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-        alignment: Alignment.center,
+        alignment: scaleAlignment,
         child: child,
       );
     },
-    pageBuilder: (context, _, __) {
+    pageBuilder: (_, __, ___) {
       return AlertDialog(
-        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        icon: icon,
+        title: Text(title, textAlign: TextAlign.center),
+        titleTextStyle: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.w700),
+        content: Text(
+          dedent(content),
+          textAlign: centerContent ? TextAlign.center : null,
+        ),
+        contentTextStyle: TextStyle(fontSize: contentFontSize),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: actions,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        icon: Icon(
-          Icons.error_rounded,
-          color: Theme.of(context).colorScheme.error,
-          size: 30,
-        ),
-        title: const Center(
-          child: Text(
-            'Error',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: Text(
-            dedent('''
-            An error occurred while performing the operation.
-            Error: $error'''),
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
-        actionsAlignment: MainAxisAlignment.spaceAround,
-        actions: [
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
+        insetPadding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       );
     },
   );
