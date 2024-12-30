@@ -1,6 +1,3 @@
-- Added signature for app using keystore
-- Saves & recover current playlist with current song
-- Added flags in methods to overwrite normal behavior: shouldPlay, shouldShuffle
-- Updated some log messages
-- Fixed and reworked play/pause animated icons (mini player now has animated icon)
-- Added app build number in about dialog
+- Fixed not saving playlist after shuffling
+- Tweaked some log messages
+- Pause player if ended but no repeat
