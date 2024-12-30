@@ -351,7 +351,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
         ? AudioServiceShuffleMode.none //
         : AudioServiceShuffleMode.all;
 
-    _shufflePlaylist(beginSongID: Globals.currentSongID);
+    if (isShuffled) _shufflePlaylist(beginSongID: Globals.currentSongID);
     LogHandler.log('Changed shuffle: $isShuffled');
     Config.saveConfig();
   }

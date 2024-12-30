@@ -1,3 +1,1 @@
-- Fixed not saving playlist after shuffling
-- Tweaked some log messages
-- Pause player if ended but no repeat
+- No longer shuffle when turning off

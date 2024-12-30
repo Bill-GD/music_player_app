@@ -1,1 +1,1 @@
-- Fixed not saving playlist after shuffling
+- No longer shuffle when turning shuffle off
