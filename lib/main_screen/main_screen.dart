@@ -370,7 +370,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                                     if (canLaunch) launchUrl(Uri.parse(url));
                                   },
                                   icon: const Icon(Icons.code_rounded),
-                                  label: const Text('Source code'),
+                                  label: const Text('GitHub repo'),
                                 ),
                               ],
                             );

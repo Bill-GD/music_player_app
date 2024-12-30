@@ -57,8 +57,8 @@ class MusicTrack {
 
   Future<void> incrementTimePlayed() async {
     timeListened++;
-    await update();
-    LogHandler.log('Incremented play count');
+    LogHandler.log('Play count +1 for ($id)');
+    await update(false);
   }
 
   Future<void> insert() async {
@@ -78,11 +78,11 @@ class MusicTrack {
     LogHandler.log('Inserted song -> new id: $id');
   }
 
-  Future<void> update() async {
+  Future<void> update([bool log = true]) async {
     if (id < 0) {
       return LogHandler.log('Trying to update song id -1', LogLevel.error);
     }
-    LogHandler.log('Updating song ($id)');
+    if (log) LogHandler.log('Updating song: $id');
     await DatabaseHandler.db.update(
       Globals.songTable,
       toJson(),
@@ -105,7 +105,7 @@ class MusicTrack {
       where: 'track_id = ?',
       whereArgs: [id],
     );
-    LogHandler.log('Deleting song ($id)');
+    LogHandler.log('Deleting song: $id');
   }
 
   Future<void> removeFromPlaylist(int albumID) async {
@@ -186,7 +186,7 @@ class Album {
     if (id < 0) {
       return LogHandler.log('Trying to update album id -1', LogLevel.error);
     }
-    LogHandler.log('Updating album ($id)');
+    LogHandler.log('Update album ($id)');
 
     await DatabaseHandler.db.update(
       Globals.albumTable,
@@ -264,11 +264,14 @@ Future<void> updateListOfSongs() async {
       ..timeListened = matchingSong.timeListened;
   }
 
+  final updateCount = storageSongs.where((e) => e.id >= 0).length;
+  final insertCount = storageSongs.length - updateCount;
+
+  LogHandler.log('Finishing getting songs: $updateCount updates, $insertCount inserts');
   for (final s in storageSongs) {
     if (s.id >= 0) {
-      await s.update();
+      await s.update(false);
     } else {
-      // LogHandler.log('Song ID: ${s.id} will be inserted');
       await s.insert();
     }
   }
@@ -277,7 +280,7 @@ Future<void> updateListOfSongs() async {
 
 Future<List<MusicTrack>> _getSongsFromStorage() async {
   final downloadDir = Directory(Globals.downloadPath);
-  LogHandler.log('Getting music files from: ${downloadDir.path}');
+  LogHandler.log('Getting mp3 files from: ${downloadDir.path}');
   final mp3Files = downloadDir.listSync().where((e) => e.path.endsWith('.mp3')).toList();
   final filteredFiles = <MusicTrack>[];
 
@@ -290,7 +293,7 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
     }).toList();
   }
 
-  LogHandler.log('Filtering out song with length < ${Config.lengthLimitMilliseconds ~/ 1000}s');
+  LogHandler.log('Filtering songs shorter than ${Config.lengthLimitMilliseconds ~/ 1000}s');
   for (final file in mp3Files) {
     final info = await MetadataRetriever.fromFile(File(file.path));
     if (info.trackDuration! >= Config.lengthLimitMilliseconds) {
@@ -304,7 +307,7 @@ Future<List<MusicTrack>> _getSongsFromStorage() async {
 }
 
 Future<List<MusicTrack>> _getSavedMusicData() async {
-  LogHandler.log('Getting saved music data from database');
+  LogHandler.log('Getting data from database');
   final json = await DatabaseHandler.db.rawQuery(
     'select t.*, a.name album from music_track t '
     'inner join album_tracks at on t.id = at.track_id '
@@ -316,7 +319,7 @@ Future<List<MusicTrack>> _getSavedMusicData() async {
 void sortAllSongs([SortOptions? sortType]) {
   final tracks = List<MusicTrack>.from(Globals.allSongs);
   Config.currentSortOption = sortType ?? Config.currentSortOption;
-  LogHandler.log('Sorting all tracks: ${Config.currentSortOption.name}');
+  LogHandler.log('Sorting all songs: ${Config.currentSortOption.name}');
   switch (Config.currentSortOption) {
     case SortOptions.name:
       tracks.sort((track1, track2) => track1.name.toLowerCase().compareTo(track2.name.toLowerCase()));

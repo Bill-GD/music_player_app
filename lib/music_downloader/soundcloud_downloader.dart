@@ -98,9 +98,9 @@ Future<void> downloadSoundCloudMP3(
   final file = File('/storage/emulated/0/Download/${sanitizeFilePath(videoTitle)}.mp3');
 
   if (file.existsSync() && file.lengthSync() > 0) {
-    LogHandler.log('File with the same name already exists');
+    LogHandler.log('Duplicate file name, canceled download');
     if (context.mounted) {
-      showToast(context, 'File with the same name already exists');
+      showToast(context, 'Duplicate file name, canceled download');
     }
     return;
   }
@@ -116,7 +116,7 @@ Future<void> downloadSoundCloudMP3(
       showToast(context, 'Finished downloading');
     }
   } on Exception catch (e) {
-    LogHandler.log(e.toString());
+    LogHandler.log(e.toString(), LogLevel.error);
     if (context.mounted) {
       showErrorPopup(context, e.toString());
     }

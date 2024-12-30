@@ -85,11 +85,18 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     _player.processingStateStream.listen((state) async {
       if (state == ProcessingState.completed) {
-        if (_repeat == AudioServiceRepeatMode.one) {
-          LogHandler.log('Repeat one, restarting song');
-          await seek(0.ms);
-        } else {
-          skipToNext();
+        switch (_repeat) {
+          case AudioServiceRepeatMode.one:
+            LogHandler.log('Repeat one, restarting song');
+            await seek(0.ms);
+            break;
+          case AudioServiceRepeatMode.all:
+            skipToNext();
+            break;
+          case AudioServiceRepeatMode.none:
+            pause();
+          default:
+            break;
         }
       }
     });
@@ -150,7 +157,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
 
-    LogHandler.log('Switching song: (${item.id}): ${item.name}');
+    LogHandler.log('Switching song: (${item.id}) ${item.name}');
     duration = await _player.setAudioSource(
       AudioSource.uri(Uri.parse(Uri.encodeComponent(item.fullPath))),
     );
@@ -218,7 +225,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     final currentID = res.firstWhereOrNull((e) => (e['is_current'] as int) == 1)?['song_id'] as int? ?? -1;
     if (currentID < 0) {
-      return LogHandler.log('No song is the current song');
+      return LogHandler.log('There is no current song', LogLevel.error);
     }
 
     final songList = res.map((e) => e['song_id'] as int).toList();
@@ -284,10 +291,11 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (currentToStart) {
       if (beginSongID < 0) {
-        LogHandler.log('A begin song should be selected');
+        LogHandler.log('A begin song should be selected', LogLevel.error);
       } else {
         _playlist.removeWhere((e) => e == beginSongID);
         _playlist.insert(0, beginSongID);
+        savePlaylist(beginSongID);
       }
     }
     LogHandler.log('Current playlist song index: ${_playlist.indexWhere((e) => e == Globals.currentSongID)}');
@@ -295,7 +303,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   void moveSong(int from, int to) {
     if (from < 0 || from >= _playlist.length || to < 0 || to >= _playlist.length) {
-      return LogHandler.log('Invalid move song index');
+      return LogHandler.log('Invalid move song index', LogLevel.error);
     }
 
     int songIdx = _playlist.removeAt(from);
@@ -391,18 +399,18 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (_playlist.isEmpty) {
       pause();
-      return LogHandler.log('Playlist is empty, this should not be the case');
+      return LogHandler.log('Playlist is empty, this should not be the case', LogLevel.error);
     }
 
     if (_playlist.length == 1) {
-      return LogHandler.log('Playlist only contains one song, skipping action');
+      return LogHandler.log('Playlist only has one song, skipping action');
     }
 
     int currentIndex = _playlist.indexWhere((e) => e == Globals.currentSongID);
 
     if (currentIndex < 0) {
       pause();
-      return LogHandler.log('Can\'t find song in playlist, this should not be the case');
+      return LogHandler.log('Can\'t find song in playlist, this should not be the case', LogLevel.error);
     }
 
     if (Config.delayMilliseconds > 0) {
@@ -447,7 +455,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (_playlist.isEmpty) {
       pause();
-      return LogHandler.log('Playlist is empty, this should not be the case');
+      return LogHandler.log('Playlist is empty, this should not be the case', LogLevel.error);
     }
 
     if (_playlist.length == 1) {
@@ -458,7 +466,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (currentIndex < 0) {
       pause();
-      return LogHandler.log('Can\'t find song in playlist, this should not be the case');
+      return LogHandler.log('Can\'t find song in playlist, this should not be the case', LogLevel.error);
     }
 
     final newIndex = (currentIndex == 0 ? _playlist.length : currentIndex) - 1;

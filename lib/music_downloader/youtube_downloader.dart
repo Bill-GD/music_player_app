@@ -75,7 +75,7 @@ Future<void> downloadYoutubeMP3(
       showToast(context, 'Finished downloading');
     }
   } on Exception catch (e) {
-    LogHandler.log(e.toString());
+    LogHandler.log(e.toString(), LogLevel.error);
     if (context.mounted) {
       showToast(context, 'An Error occurred while downloading');
     }

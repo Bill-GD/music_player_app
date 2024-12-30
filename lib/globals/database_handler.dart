@@ -68,7 +68,7 @@ class DatabaseHandler {
     if (newVersion == null) return;
 
     if (newVersion == 2) {
-      LogHandler.log('Creating ${Globals.playlistTable} table');
+      LogHandler.log("Creating '${Globals.playlistTable}' table");
       await db.execute(
         'create table if not exists ${Globals.playlistTable} ('
         'id integer primary key,'

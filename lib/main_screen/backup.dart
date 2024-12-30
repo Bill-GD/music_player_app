@@ -120,7 +120,7 @@ class _BackupScreenState extends State<BackupScreen> {
                         },
                       );
                       if (res != true) return;
-                      LogHandler.log('Recovering back up data from: ${bu.path}');
+                      LogHandler.log('Recovering backup data from: ${bu.path}');
 
                       if (!File(Globals.dbPath).existsSync()) {
                         LogHandler.log('Database files should exists after app launched.', LogLevel.error);
