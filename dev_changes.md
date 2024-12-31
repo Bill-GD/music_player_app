@@ -1,1 +1,2 @@
 - No longer shuffle when turning off
+- Added error popup
