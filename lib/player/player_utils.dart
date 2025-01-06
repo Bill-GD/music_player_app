@@ -208,7 +208,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     _playlist = list;
 
     if (shouldShuffle && _shuffle == AudioServiceShuffleMode.all) {
-      _shufflePlaylist(beginSongID: beginSongID);
+      _shufflePlaylist(beginSongID: beginSongID, saveList: false);
     }
 
     int songCount = _playlist.length;
@@ -285,7 +285,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     );
   }
 
-  void _shufflePlaylist({bool currentToStart = true, int beginSongID = -1}) {
+  void _shufflePlaylist({bool currentToStart = true, int beginSongID = -1, bool saveList = true}) {
     LogHandler.log('Shuffling playlist');
     _playlist.shuffle();
 
@@ -295,7 +295,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       } else {
         _playlist.removeWhere((e) => e == beginSongID);
         _playlist.insert(0, beginSongID);
-        savePlaylist(beginSongID);
+        if (saveList) savePlaylist(beginSongID);
       }
     }
     LogHandler.log('Current playlist song index: ${_playlist.indexWhere((e) => e == Globals.currentSongID)}');

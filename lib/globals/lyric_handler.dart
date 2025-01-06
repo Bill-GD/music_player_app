@@ -17,7 +17,7 @@ class LyricHandler {
     final lrcFile = File('$_dirPath/${lyric.songId}.lrc');
     if (!lrcFile.existsSync()) lrcFile.createSync(recursive: true);
 
-    lrcFile.writeAsStringSync('', mode: FileMode.write);
+    lrcFile.writeAsStringSync('');
 
     lrcFile.writeAsStringSync('[ti: ${lyric.name}]\n', mode: FileMode.append);
     lrcFile.writeAsStringSync('[ar: ${lyric.artist}]\n', mode: FileMode.append);
