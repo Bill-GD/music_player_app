@@ -359,7 +359,7 @@ Future<T?> dialogWithActions<T>(
   List<Widget> actions = const [],
   required Duration time,
   Alignment scaleAlignment = Alignment.center,
-  double horizontalPadding = 50,
+  double horizontalPadding = 40,
   bool barrierDismissible = true,
 }) async {
   return await showGeneralDialog<T>(
@@ -375,13 +375,16 @@ Future<T?> dialogWithActions<T>(
       );
     },
     pageBuilder: (_, __, ___) {
+      final textContent = Text(
+        dedent(content),
+        textAlign: centerContent ? TextAlign.center : null,
+      );
       return AlertDialog(
         icon: icon,
         title: Text(title, textAlign: TextAlign.center),
         titleTextStyle: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.w700),
-        content: Text(
-          dedent(content),
-          textAlign: centerContent ? TextAlign.center : null,
+        content: SingleChildScrollView(
+          child: textContent,
         ),
         contentTextStyle: TextStyle(fontSize: contentFontSize),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -390,7 +393,7 @@ Future<T?> dialogWithActions<T>(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        insetPadding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        insetPadding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
       );
     },
   );
