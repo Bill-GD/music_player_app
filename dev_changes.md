@@ -1,2 +1,7 @@
 - No longer shuffle when turning off
 - Added error popup
+- Fixed saving playlist twice when using shuffle playback
+- Better popup messages paddings
+- Improved some log messages
+- No longer set audio on launch, after recovering playlist. Added a flag to allow setting song of same ID as a workaround
+- Added scrolling to popup messages

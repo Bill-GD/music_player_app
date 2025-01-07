@@ -153,7 +153,12 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> setPlayerSong(int songID, {bool shouldPlay = true}) async {
     Duration? duration = _player.duration;
 
-    if (songID == Globals.currentSongID && Globals.currentSongID >= 0) return;
+    if (songID < 0) {
+      throw ArgumentError('Tried to set song of ID -1');
+    }
+    if (!Globals.setDuplicate && songID == Globals.currentSongID) return;
+    if (Globals.setDuplicate) Globals.setDuplicate = false;
+
     LogHandler.log('Attempting to switch to: $songID');
 
     MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
@@ -232,15 +237,18 @@ class AudioPlayerHandler extends BaseAudioHandler {
     final songList = res.map((e) => e['song_id'] as int).toList();
     LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: $currentID');
 
+    Globals.savedPlaylistName = '${res[0]['list_name']}'.trim();
+    Globals.currentSongID = songList[0];
+    Globals.showMinimizedPlayer = true;
+    Globals.setDuplicate = true;
+
     await registerPlaylist(
-      res[0]['list_name'] as String,
+      Globals.savedPlaylistName!,
       songList,
       songList[0],
       saveList: false,
       shouldShuffle: false,
     );
-    await setPlayerSong(currentID, shouldPlay: false);
-    Globals.savedPlaylistName = '${res[0]['list_name']}';
   }
 
   void savePlaylist(int currentID) {
