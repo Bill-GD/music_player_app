@@ -15,7 +15,7 @@ import '../globals/widgets.dart';
 import 'player_utils.dart';
 
 Future<Route> getMusicPlayerRoute(BuildContext context, int songID) async {
-  await Globals.audioHandler.setPlayerSong(songID);
+  await Globals.audioHandler.setPlayerSong(songID, shouldPlay: !Globals.setDuplicate);
   return PageRouteBuilder(
     pageBuilder: (context, _, __) => MusicPlayerPage(songID: songID),
     transitionDuration: 400.ms,
