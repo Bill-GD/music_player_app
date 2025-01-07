@@ -21,14 +21,16 @@ void main() async {
   Globals.appVersion = packageInfo.version;
   Globals.appBuildNum = packageInfo.buildNumber;
 
-  Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
+
   Globals.logPath = '${Globals.storagePath}/files/log.txt';
   Globals.jsonPath = '${Globals.storagePath}/files/tracks.json';
   Globals.dbPath = '${Globals.storagePath}/database/database.db';
   Globals.backupPath = '/storage/emulated/0/Android/music_hub_backup.json';
 
   LogHandler.init();
+
+  Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   await Config.loadConfig();
   await DatabaseHandler.init();
 
@@ -43,6 +45,7 @@ void main() async {
       title: e.toString(),
       content: s.toString(),
       centerContent: false,
+      horizontalPadding: 16,
     );
     return true;
   };

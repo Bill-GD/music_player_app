@@ -282,49 +282,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           leading: FaIcon(Icons.logo_dev, color: iconColor(context)),
                           title: const Text('Log', style: bottomSheetTitle),
                           onTap: () async {
-                            final logContent = File(Globals.logPath).readAsStringSync();
-                            showGeneralDialog(
-                              context: context,
-                              transitionDuration: 300.ms,
-                              transitionBuilder: (_, anim1, __, child) {
-                                return ScaleTransition(
-                                  scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                                  child: child,
-                                );
-                              },
-                              barrierDismissible: true,
-                              barrierLabel: '',
-                              pageBuilder: (context, _, __) {
-                                return AlertDialog(
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  title: Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      'Application log',
-                                      textAlign: TextAlign.center,
-                                      style: bottomSheetTitle.copyWith(fontSize: 24),
-                                    ),
-                                  ),
-                                  alignment: Alignment.center,
-                                  contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 40),
-                                  content: SingleChildScrollView(
-                                    physics: const ClampingScrollPhysics(),
-                                    child: Text(
-                                      logContent,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                  actionsAlignment: MainAxisAlignment.center,
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(),
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
+                            showPopupMessage(
+                              context,
+                              title: 'Application log',
+                              content: File(Globals.logPath).readAsStringSync(),
+                              centerContent: false,
+                              horizontalPadding: 24,
                             );
                           },
                         ),

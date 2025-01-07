@@ -360,7 +360,7 @@ Future<void> updateAlbumList() async {
   }
 
   for (final a in albums) {
-    LogHandler.log("Getting album '${a.name}' (${a.id}) songs");
+    LogHandler.log('Getting album: id=${a.id}, n=${a.name}, l=${a.songs.length}');
     var s = await DatabaseHandler.db.query(
       Globals.albumSongsTable,
       where: 'album_id = ?',

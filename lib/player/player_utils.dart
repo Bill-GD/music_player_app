@@ -74,6 +74,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
   bool _skipping = false;
 
   AudioPlayerHandler() {
+    LogHandler.log('Audio Handler init');
     onSongChange = _onSongChangeController.stream;
     onPlayingChange = _onPlayingChangeController.stream;
 
