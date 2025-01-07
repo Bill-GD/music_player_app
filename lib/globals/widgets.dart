@@ -345,6 +345,7 @@ Future<void> showPopupMessage(
     ],
     horizontalPadding: horizontalPadding,
     barrierDismissible: barrierDismissible,
+    allowScroll: true,
   );
 }
 
@@ -361,6 +362,7 @@ Future<T?> dialogWithActions<T>(
   Alignment scaleAlignment = Alignment.center,
   double horizontalPadding = 40,
   bool barrierDismissible = true,
+  bool allowScroll = false,
 }) async {
   return await showGeneralDialog<T>(
     context: context,
@@ -383,17 +385,28 @@ Future<T?> dialogWithActions<T>(
         icon: icon,
         title: Text(title, textAlign: TextAlign.center),
         titleTextStyle: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.w700),
-        content: SingleChildScrollView(
-          child: textContent,
-        ),
+        content: allowScroll
+            ? SingleChildScrollView(
+                child: textContent,
+              )
+            : textContent,
         contentTextStyle: TextStyle(fontSize: contentFontSize),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        contentPadding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 15,
+        ),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: actions,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        insetPadding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
+        insetPadding: EdgeInsets.only(
+          left: horizontalPadding,
+          right: horizontalPadding,
+          top: 28,
+          bottom: 16,
+        ),
       );
     },
   );
