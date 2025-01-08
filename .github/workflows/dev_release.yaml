@@ -1,4 +1,4 @@
-name: Build and create a release
+name: Release dev build
 on:
   push:
     branches: [ dev ]
@@ -9,7 +9,7 @@ permissions:
 jobs:
   build_and_release:
     name: Release dev build Music Hub on GitHub
-    if: startsWith(github.event.head_commit.message, 'dev_release:')
+    if: startsWith(github.event.head_commit.message, '[dev_release]')
     runs-on: ubuntu-latest
     steps:
       - name: Setup Java
@@ -87,7 +87,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/flutter-apk/music_hub_*.apk"
-          bodyFile: "release_note.md"
+          bodyFile: "dev_changes.md"
           token: ${{ secrets.API_GITHUB_TOKEN }}
           name: v${{ env.VERSION }}
           tag: v${{ env.VERSION }}
