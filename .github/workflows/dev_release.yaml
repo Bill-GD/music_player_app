@@ -1,0 +1,96 @@
+name: Build and create a release
+on:
+  push:
+    branches: [ dev ]
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    name: Release dev build Music Hub on GitHub
+    if: startsWith(github.event.head_commit.message, 'dev_release:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.18.0
+        with:
+          flutter-version: 3.19.5
+          channel: stable
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Cleaning build
+        run: flutter clean
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/upload-keystore.jks
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APKs
+        run: flutter build apk --release
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      - name: Build split APKs
+        run: flutter build apk --split-per-abi --release
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+
+      - name: Extract version from pubspec.yaml
+        run: |
+          version_str=$(grep '^version: ' pubspec.yaml | awk '{ print $2 }')
+          version_part=$(echo $version_str | cut -d '+' -f 1)
+          echo "VERSION=$version_part" >> $GITHUB_ENV
+      #          build_part=$(echo $version_str | cut -d '+' -f 2)
+      #          if [[ "$build_part" -eq 0 ]]; then
+      #            echo "VERSION=$version_part" >> $GITHUB_ENV
+      #          else
+      #            echo "VERSION=${version_part}.${build_part}" >> $GITHUB_ENV
+      #          fi
+      # dev tag: v1.3.0_dev_2,
+      - name: Get count of current version dev build
+        run: |
+          version_count=$(git tag -l "v${{ env.VERSION }}_dev_*" | wc -l)
+          version_count=$((version_count + 1))
+          echo "VERSION_COUNT=$version_count" >> $GITHUB_ENV
+
+      - name: Create version string for binaries
+        run: |
+          version_bin=$(echo "${{ env.VERSION }}" | sed 's/\./_/g')
+          echo "VERSION_BIN=${version_bin}_dev_${{ env.VERSION_COUNT }}" >> $GITHUB_ENV
+
+      - name: Create new version string for dev build
+        run: |
+          version_dev="${{ env.VERSION }}_dev_${{ env.VERSION_COUNT }}"
+          echo "VERSION=$version_dev" >> $GITHUB_ENV
+
+      - name: Update binary names
+        run: |
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-arm64-v8a.apk
+          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-armeabi-v7a.apk
+          mv build/app/outputs/flutter-apk/app-x86_64-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-x86_64.apk
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}.apk
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk/music_hub_*.apk"
+          bodyFile: "release_note.md"
+          token: ${{ secrets.API_GITHUB_TOKEN }}
+          name: v${{ env.VERSION }}
+          tag: v${{ env.VERSION }}
+          generateReleaseNotes: true
+          makeLatest: false
+          prerelease: true
