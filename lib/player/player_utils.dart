@@ -124,6 +124,10 @@ class AudioPlayerHandler extends BaseAudioHandler {
         _prevPos = position;
       }
     });
+
+    _player.playingStream.listen((playing) {
+      _onPlayingChangeController.add(playing);
+    });
   }
 
   PlaybackState _transformEvent(PlaybackEvent event) {

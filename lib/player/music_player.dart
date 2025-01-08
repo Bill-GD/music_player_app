@@ -221,7 +221,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.search_rounded),
+                        const Icon(Icons.list_rounded),
                         const SizedBox(width: 5),
                         Text(
                           Globals.audioHandler.playlistDisplayName,
