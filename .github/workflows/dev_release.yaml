@@ -25,6 +25,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          ref: dev
 
       - name: Cleaning build
         run: flutter clean
@@ -61,13 +63,10 @@ jobs:
       #          fi
 
       # dev tag: v1.3.0_dev_2
-      - name: Get tags
-        run: git tag -l "v${{ env.VERSION }}_dev"
-
       - name: Get count of current version dev build
         run: |
           version_count=$(git tag -l "v${{ env.VERSION }}_dev*" | wc -l)
-          echo "Found $version_count tags"
+          echo "Found $version_count similar tags"
           version_count=$((version_count + 1))
           echo "VERSION_COUNT=$version_count" >> $GITHUB_ENV
 
