@@ -5,3 +5,8 @@
 - Improved some log messages
 - No longer set audio on launch, after recovering playlist. Added a flag to allow setting song of same ID as a workaround
 - Added scrolling to popup messages
+- No longer auto play song before setting new song, after recovering playlist
+- Changed playlist icon: glass -> list
+- Added listener of player's `playingStream`
+- Added dev release GitHub Actions
+- Show dev build in-app

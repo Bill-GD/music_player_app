@@ -4,6 +4,8 @@ import '../player/player_utils.dart';
 import 'log_handler.dart';
 import 'music_track.dart';
 
+const bool isDev = true;
+
 class Globals {
   /// List of all songs, persistent.
   static List<MusicTrack> allSongs = [];
@@ -18,7 +20,7 @@ class Globals {
 
   static late final String appName;
   static late final String appVersion;
-  static late final String appBuildNum;
+  static const String buildType = isDev ? 'Dev' : 'Release';
 
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;

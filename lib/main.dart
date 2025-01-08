@@ -19,7 +19,6 @@ void main() async {
   final packageInfo = await PackageInfo.fromPlatform();
   Globals.appName = packageInfo.appName;
   Globals.appVersion = packageInfo.version;
-  Globals.appBuildNum = packageInfo.buildNumber;
 
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
 
