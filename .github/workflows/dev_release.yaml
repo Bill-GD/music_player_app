@@ -59,10 +59,15 @@ jobs:
       #          else
       #            echo "VERSION=${version_part}.${build_part}" >> $GITHUB_ENV
       #          fi
-      # dev tag: v1.3.0_dev_2,
+
+      # dev tag: v1.3.0_dev_2
+      - name: Get tags
+        run: git tag -l "v${{ env.VERSION }}_dev"
+
       - name: Get count of current version dev build
         run: |
-          version_count=$(git tag -l "v${{ env.VERSION }}_dev_*" | wc -l)
+          version_count=$(git tag -l "v${{ env.VERSION }}_dev*" | wc -l)
+          echo "Found $version_count tags"
           version_count=$((version_count + 1))
           echo "VERSION_COUNT=$version_count" >> $GITHUB_ENV
 
