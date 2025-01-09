@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/widgets.dart';
@@ -29,11 +31,20 @@ Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String u
       'author': video.author,
       'duration': video.duration ?? 0.ms,
     };
-  } on Exception catch (e) {
+  } on Exception catch (e, s) {
     if (context.mounted) {
       switch (e.runtimeType) {
         case VideoUnavailableException:
           showToast(context, 'Video not available');
+          break;
+        case ClientException:
+          showPopupMessage(
+            context,
+            title: e.toString(),
+            content: s.toString(),
+            centerContent: false,
+            horizontalPadding: 16,
+          );
           break;
         default:
           // ScaffoldMessenger.of(context).showSnackBar(

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import '../globals/extensions.dart';
 import '../globals/functions.dart' as g;
 import '../globals/widgets.dart';
 import 'soundcloud_downloader.dart';
@@ -16,49 +17,48 @@ class MusicDownloader extends StatefulWidget {
   const MusicDownloader({super.key});
 
   @override
-  State<MusicDownloader> createState() => _MusicDownloaderState();
+  State<MusicDownloader> createState() => MusicDownloaderState();
 }
 
-class _MusicDownloaderState extends State<MusicDownloader> {
-  final _yt = YoutubeExplode();
-  late final TextEditingController _textEditingController;
+class MusicDownloaderState extends State<MusicDownloader> {
+  final ytExplode = YoutubeExplode();
+  late final TextEditingController textEditingController;
 
-  Map<String, dynamic>? _metadata;
+  Map<String, dynamic>? metadata;
 
-  bool _isFromSoundCloud = false;
-  bool _isGettingData = false, _isInternetConnected = true, _isDownloading = false, _hasDownloaded = false;
-  int _received = 0, _total = 0;
+  bool isFromSoundCloud = false;
+  bool isGettingData = false, isInternetConnected = true, isDownloading = false, hasDownloaded = false;
+  int received = 0, total = 0;
 
-  String? _errorText;
+  String? errorText;
 
   late StreamSubscription<List<ConnectivityResult>> connectStream;
 
-  void _checkInternetConnection([ConnectivityResult? result]) async {
+  void checkInternetConnection([ConnectivityResult? result]) async {
     final connectivityResult = result ?? await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.mobile ||
         connectivityResult == ConnectivityResult.wifi ||
         connectivityResult == ConnectivityResult.ethernet) {
-      _isInternetConnected = true;
+      isInternetConnected = true;
     } else if (connectivityResult == ConnectivityResult.none) {
-      _isInternetConnected = false;
+      isInternetConnected = false;
     }
     if (mounted) {
       setState(() {});
     }
   }
 
-  void _validateInput(String text) {
-    _errorText = null;
+  void validateInput(String text) {
+    errorText = null;
     if (text.isEmpty) {
-      _errorText = null;
+      errorText = null;
     } else if (RegExp(r'^(?:https:\/\/)?(?:on\.soundcloud\.com)(?:\S+)?$').hasMatch(text)) {
-      _errorText = 'Please use full URL, SoundCloud API is weird';
-    } else if (!RegExp(
-                r'^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$')
+      errorText = 'Please use full URL, SoundCloud API is weird';
+    } else if (!RegExp(r'^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9-]{11})(?:\S+)?$')
             .hasMatch(text) &&
-        !RegExp(r'^(?:https:\/\/)?(m\.)?(?:soundcloud\.com)\/([a-zA-Z0-9_-]*)\/([a-zA-Z0-9_-])(?:\S+)?$')
+        !RegExp(r'^(?:https:\/\/)?(m\.)?(?:soundcloud\.com)\/([a-zA-Z0-9-]*)\/([a-zA-Z0-9-])(?:\S+)?$')
             .hasMatch(text)) {
-      _errorText = 'Invalid URL';
+      errorText = 'Invalid URL';
     }
     setState(() {});
   }
@@ -66,19 +66,19 @@ class _MusicDownloaderState extends State<MusicDownloader> {
   @override
   void initState() {
     super.initState();
-    _checkInternetConnection();
+    checkInternetConnection();
     connectStream = Connectivity().onConnectivityChanged.listen((newResults) {
-      newResults.map(_checkInternetConnection);
+      newResults.map(checkInternetConnection);
     });
-    _textEditingController = TextEditingController();
+    textEditingController = TextEditingController();
   }
 
   @override
   void dispose() {
     connectStream.cancel();
     super.dispose();
-    _yt.close();
-    _textEditingController.dispose();
+    ytExplode.close();
+    textEditingController.dispose();
   }
 
   @override
@@ -89,10 +89,10 @@ class _MusicDownloaderState extends State<MusicDownloader> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
-              if (_isDownloading) {
+              if (isDownloading) {
                 return g.showToast(context, 'App is downloading music, please wait');
               }
-              Navigator.of(context).pop(_hasDownloaded);
+              Navigator.of(context).pop(hasDownloaded);
             },
           ),
           centerTitle: true,
@@ -123,7 +123,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
           children: [
             // no connectivity
             Visibility(
-              visible: !_isInternetConnected,
+              visible: !isInternetConnected,
               child: Container(
                 width: double.infinity,
                 color: Colors.red,
@@ -144,9 +144,9 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                     children: [
                       // link input
                       TextField(
-                        enabled: _isInternetConnected || _isDownloading,
-                        controller: _textEditingController,
-                        onChanged: _validateInput,
+                        enabled: isInternetConnected || isDownloading,
+                        controller: textEditingController,
+                        onChanged: validateInput,
                         decoration: textFieldDecoration(
                           context,
                           border: OutlineInputBorder(
@@ -158,8 +158,8 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                           fillColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
                           hintText: 'Enter YouTube or SoundCloud link',
                           labelText: 'Music Link',
-                          errorText: _errorText,
-                          suffixIcon: _isGettingData
+                          errorText: errorText,
+                          suffixIcon: isGettingData
                               ? Container(
                                   width: 20,
                                   height: 20,
@@ -180,21 +180,21 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: ElevatedButton(
-                          onPressed: _textEditingController.text.isNotEmpty && !_isDownloading && _errorText == null
+                          onPressed: textEditingController.text.isNotEmpty && !isDownloading && errorText == null
                               ? () async {
                                   FocusManager.instance.primaryFocus?.unfocus();
-                                  _isFromSoundCloud = _textEditingController.text.contains('soundcloud.com');
+                                  isFromSoundCloud = textEditingController.text.contains('soundcloud.com');
                                   setState(() {
-                                    _isGettingData = true;
-                                    _metadata = null;
+                                    isGettingData = true;
+                                    metadata = null;
                                   });
-                                  if (_isFromSoundCloud) {
-                                    // _metadata = await getSoundCloudSongData(context, _textEditingController.text);
-                                    _errorText = 'SoundCloud API is currently disabled/inaccessible';
+                                  if (isFromSoundCloud) {
+                                    // metadata = await getSoundCloudSongData(context, textEditingController.text);
+                                    errorText = 'SoundCloud API is currently disabled/inaccessible';
                                   } else {
-                                    _metadata = await getYouTubeVideoData(context, _textEditingController.text);
+                                    metadata = await getYouTubeVideoData(context, textEditingController.text);
                                   }
-                                  setState(() => _isGettingData = false);
+                                  setState(() => isGettingData = false);
                                 }
                               : null,
                           style: textButtonStyle(context),
@@ -203,7 +203,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       ),
                     ],
                   ),
-                  if (_metadata == null)
+                  if (metadata == null)
                     const SizedBox.shrink()
                   else
                     Animate(
@@ -217,11 +217,11 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Container(
-                                  margin: _isFromSoundCloud
+                                  margin: isFromSoundCloud
                                       ? const EdgeInsets.only(left: 60, right: 30)
                                       : const EdgeInsets.only(left: 10),
                                   padding: const EdgeInsets.all(10),
-                                  decoration: _metadata!['thumbnailUrl'] == null
+                                  decoration: metadata!['thumbnailUrl'] == null
                                       ? BoxDecoration(
                                           border: Border.all(
                                             color: Theme.of(context).colorScheme.onBackground,
@@ -229,12 +229,12 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                           borderRadius: BorderRadius.circular(10),
                                         )
                                       : null,
-                                  child: _metadata!['thumbnailUrl'] == null
+                                  child: metadata!['thumbnailUrl'] == null
                                       ? Icon(
                                           Icons.music_note_rounded,
                                           color: Theme.of(context).colorScheme.primary,
                                         )
-                                      : Image.network(_metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
+                                      : Image.network(metadata!['thumbnailUrl'], fit: BoxFit.fitHeight),
                                 ),
                                 Expanded(
                                   child: Padding(
@@ -244,15 +244,15 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                                       children: [
                                         Text(
-                                          _metadata!['title'],
+                                          metadata!['title'],
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 15,
                                           ),
                                         ),
-                                        Text(_metadata!['author']),
+                                        Text(metadata!['author']),
                                         Text(
-                                          (_metadata!['duration'] as Duration).toStringNoMilliseconds(),
+                                          (metadata!['duration'] as Duration).toStringNoMilliseconds(),
                                           style: const TextStyle(color: Colors.grey),
                                         ),
                                       ],
@@ -264,37 +264,37 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                           ),
                           // download button
                           ElevatedButton(
-                            onPressed: _isDownloading
+                            onPressed: isDownloading
                                 ? null
                                 : () async {
                                     setState(() {
-                                      _isDownloading = true;
-                                      _hasDownloaded = true;
+                                      isDownloading = true;
+                                      hasDownloaded = true;
                                     });
-                                    _isFromSoundCloud
+                                    isFromSoundCloud
                                         ? await downloadSoundCloudMP3(
                                             context,
-                                            _metadata!['trackUrl'],
-                                            _metadata!['title'],
+                                            metadata!['trackUrl'],
+                                            metadata!['title'],
                                             (received, total) {
                                               setState(() {
-                                                _received = received;
-                                                _total = total;
+                                                received = received;
+                                                total = total;
                                               });
                                             },
                                           )
                                         : await downloadYoutubeMP3(
                                             context,
-                                            _textEditingController.text,
-                                            _metadata!['title'],
+                                            textEditingController.text,
+                                            metadata!['title'],
                                             (received, total) {
                                               setState(() {
-                                                _received = received;
-                                                _total = total;
+                                                received = received;
+                                                total = total;
                                               });
                                             },
                                           );
-                                    setState(() => _isDownloading = false);
+                                    setState(() => isDownloading = false);
                                   },
                             style: textButtonStyle(context),
                             child: const Text('Download Music'),
@@ -303,7 +303,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                       ),
                     ),
                   // download progress
-                  if (_total == 0)
+                  if (total == 0)
                     const SizedBox.shrink()
                   else
                     Padding(
@@ -316,7 +316,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                             curve: Curves.easeOut,
                             tween: Tween<double>(
                               begin: 0,
-                              end: clampDouble(_received / _total, 0, 1),
+                              end: clampDouble(received / total, 0, 1),
                             ),
                             builder: (context, value, child) => ClipRRect(
                               borderRadius: BorderRadius.circular(30),
@@ -327,7 +327,7 @@ class _MusicDownloaderState extends State<MusicDownloader> {
                             ),
                           ),
                           Text(
-                            '${(_received * 100 / _total).toStringAsPrecision(3)}% (${getSizeString(_received)} / ${getSizeString(_total)})',
+                            '${(received * 100 / total).toStringAsPrecision(3)}% (${getSizeString(received)} / ${getSizeString(total)})',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).colorScheme.onPrimary,

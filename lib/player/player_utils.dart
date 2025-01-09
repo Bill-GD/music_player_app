@@ -5,7 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../globals/database_handler.dart';
-import '../globals/functions.dart';
+import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';

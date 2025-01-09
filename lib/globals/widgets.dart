@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/functions.dart';
 import '../songs/song_info.dart';
+import 'extensions.dart';
 import 'music_track.dart';
 import 'variables.dart';
 
