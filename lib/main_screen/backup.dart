@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../globals/database_handler.dart';
+import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/variables.dart';

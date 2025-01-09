@@ -31,3 +31,4 @@
 - Fixed alert dialog action text inconsistencies
 - Fixed re-assigning `playlistScrollController`
 - Moved APKs building to after version processing
+- Extracted all extensions to separate file

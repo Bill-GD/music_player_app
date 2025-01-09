@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';

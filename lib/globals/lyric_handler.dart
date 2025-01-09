@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'functions.dart';
+import 'extensions.dart';
 import 'variables.dart';
 
 class LyricHandler {

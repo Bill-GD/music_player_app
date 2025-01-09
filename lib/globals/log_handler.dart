@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 
-import 'functions.dart';
+import 'extensions.dart';
 import 'variables.dart';
 
 enum LogLevel { info, error }

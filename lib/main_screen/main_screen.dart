@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
@@ -224,8 +225,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           leading: Icon(Icons.download_rounded, color: iconColor(context)),
                           title: const Text('Download Music', style: bottomSheetTitle),
                           onTap: () async {
-                            bool hasChange = await Navigator.push(
-                              context,
+                            final hasChanged = await Navigator.of(context).push<bool>(
                               PageRouteBuilder(
                                 pageBuilder: (_, __, ___) => const MusicDownloader(),
                                 transitionsBuilder: (context, anim1, _, child) {
@@ -239,7 +239,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                                 },
                               ),
                             );
-                            if (hasChange) {
+                            if (hasChanged == true) {
                               await updateMusicData();
                               sortAllSongs();
                               updateChildren();

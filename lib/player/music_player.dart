@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../globals/functions.dart';
+import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
