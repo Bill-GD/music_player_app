@@ -25,3 +25,4 @@
 - Fixed message dialog doesn't use app's font
 - Fixed not passing version when creating database
 - Replaced some `showGeneralDialog` calls with `dialogWithActions` calls
+- Fixed setting the correct current song after recovering playlist 
