@@ -242,14 +242,14 @@ class AudioPlayerHandler extends BaseAudioHandler {
     LogHandler.log('Recovered playlist (${res[0]['list_name']}): $songList, current: $currentID');
 
     Globals.savedPlaylistName = '${res[0]['list_name']}'.trim();
-    Globals.currentSongID = songList[0];
+    Globals.currentSongID = currentID;
     Globals.showMinimizedPlayer = true;
     Globals.setDuplicate = true;
 
     await registerPlaylist(
       Globals.savedPlaylistName!,
       songList,
-      songList[0],
+      currentID,
       saveList: false,
       shouldShuffle: false,
     );
