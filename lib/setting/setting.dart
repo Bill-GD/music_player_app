@@ -92,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('NO'),
+                        child: const Text('No'),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -107,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           await Config.saveConfig();
                           if (context.mounted) Navigator.of(context).pop();
                         },
-                        child: const Text('YES'),
+                        child: const Text('Yes'),
                       ),
                     ],
                   );

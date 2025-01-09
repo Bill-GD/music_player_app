@@ -25,4 +25,9 @@
 - Fixed message dialog doesn't use app's font
 - Fixed not passing version when creating database
 - Replaced some `showGeneralDialog` calls with `dialogWithActions` calls
-- Fixed setting the correct current song after recovering playlist 
+- Fixed setting the correct current song after recovering playlist
+
+## Dev 4
+- Fixed alert dialog action text inconsistencies
+- Fixed re-assigning `playlistScrollController`
+- Moved APKs building to after version processing
