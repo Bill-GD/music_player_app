@@ -475,7 +475,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       ),
                       IconButton(
                         onPressed: () {
-                          Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
+                          if (Globals.setDuplicate) {
+                            Globals.audioHandler.setPlayerSong(Globals.currentSongID);
+                          } else {
+                            Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
+                          }
                           setState(() {});
                         },
                         icon: AnimatedIcon(

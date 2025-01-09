@@ -384,13 +384,18 @@ Future<T?> dialogWithActions<T>(
       return AlertDialog(
         icon: icon,
         title: Text(title, textAlign: TextAlign.center),
-        titleTextStyle: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.w700),
+        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: titleFontSize,
+              fontWeight: FontWeight.w700,
+            ),
         content: allowScroll
             ? SingleChildScrollView(
                 child: textContent,
               )
             : textContent,
-        contentTextStyle: TextStyle(fontSize: contentFontSize),
+        contentTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: contentFontSize,
+            ),
         contentPadding: const EdgeInsets.only(
           left: 20,
           right: 20,
@@ -404,7 +409,7 @@ Future<T?> dialogWithActions<T>(
         insetPadding: EdgeInsets.only(
           left: horizontalPadding,
           right: horizontalPadding,
-          top: 28,
+          top: 40,
           bottom: 16,
         ),
       );
