@@ -82,61 +82,34 @@ class _SettingsPageState extends State<SettingsPage> {
                 changes += volume != Config.volume ? 'Volume: x$volume\n' : '';
 
                 if (hasChanges) {
-                  await showGeneralDialog(
-                    context: context,
-                    transitionDuration: 300.ms,
-                    transitionBuilder: (_, anim1, __, child) {
-                      return ScaleTransition(
-                        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                        child: child,
-                      );
-                    },
-                    barrierDismissible: true,
-                    barrierLabel: '',
-                    pageBuilder: (context, _, __) {
-                      return AlertDialog(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        title: Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            'Confirm Changes',
-                            textAlign: TextAlign.center,
-                            style: bottomSheetTitle.copyWith(fontSize: 24),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 40),
-                        content: Text(
-                          changes,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        actionsAlignment: MainAxisAlignment.spaceAround,
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('NO'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              needsUpdate = true;
-                              Config.enableSongFiltering = ignoreShortFile;
-                              Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
-                              Config.autoPlayNewSong = autoPlay;
-                              Config.delayMilliseconds = delayBetween;
-                              Config.backupOnLaunch = autoBackup;
-                              Config.volume = volume;
-                              Globals.audioHandler.setVolume(Config.volume);
-                              await Config.saveConfig();
-                              if (context.mounted) Navigator.of(context).pop();
-                            },
-                            child: const Text('YES'),
-                          ),
-                        ],
-                      );
-                    },
+                  await dialogWithActions(
+                    context,
+                    title: 'Confirm changes',
+                    titleFontSize: 24,
+                    content: changes,
+                    contentFontSize: 16,
+                    time: 300.ms,
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('NO'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          needsUpdate = true;
+                          Config.enableSongFiltering = ignoreShortFile;
+                          Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
+                          Config.autoPlayNewSong = autoPlay;
+                          Config.delayMilliseconds = delayBetween;
+                          Config.backupOnLaunch = autoBackup;
+                          Config.volume = volume;
+                          Globals.audioHandler.setVolume(Config.volume);
+                          await Config.saveConfig();
+                          if (context.mounted) Navigator.of(context).pop();
+                        },
+                        child: const Text('YES'),
+                      ),
+                    ],
                   );
                 }
                 if ((needsUpdate || !hasChanges) && context.mounted) {

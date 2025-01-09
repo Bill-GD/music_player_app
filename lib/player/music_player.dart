@@ -53,7 +53,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
-    animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
     playlistScrollController = ScrollController();
     setState(() {});
   }
@@ -64,6 +63,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
     // Initial player state, KEEP IT
     updateSongInfo(widget.songID);
+    animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
     Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
 
     subs.add(Globals.audioHandler.onSongChange.listen((changed) {

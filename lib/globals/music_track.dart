@@ -360,7 +360,6 @@ Future<void> updateAlbumList() async {
   }
 
   for (final a in albums) {
-    LogHandler.log('Getting album: id=${a.id}, n=${a.name}, l=${a.songs.length}');
     var s = await DatabaseHandler.db.query(
       Globals.albumSongsTable,
       where: 'album_id = ?',
@@ -370,6 +369,7 @@ Future<void> updateAlbumList() async {
     );
     // LogHandler.log('$s');
     a.songs.addAll(s.map((a) => a['track_id'] as int));
+    LogHandler.log('Got album: id=${a.id}, n=${a.name}, l=${a.songs.length}');
   }
   albums.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   // LogHandler.log('${albums.map((e) => e.toJson())}');

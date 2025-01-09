@@ -22,8 +22,8 @@ class DatabaseHandler {
       // prev = 1
       version: 2,
       readOnly: false,
-      onCreate: (db, __) async {
-        await _createTables(db);
+      onCreate: (db, version) async {
+        await _createTables(db, version);
         await _migrateOldData(db);
         LogHandler.log('Song count: ${(await db.rawQuery('select count(*) count from music_track')).first['count']}');
       },

@@ -72,53 +72,73 @@ class _BackupScreenState extends State<BackupScreen> {
                         return showToast(context, 'No backup data found');
                       }
 
-                      final res = await showGeneralDialog<bool>(
-                        context: context,
-                        transitionDuration: 300.ms,
-                        transitionBuilder: (_, anim1, __, child) {
-                          return ScaleTransition(
-                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                            child: child,
-                          );
-                        },
-                        barrierDismissible: true,
-                        barrierLabel: '',
-                        pageBuilder: (context, _, __) {
-                          return AlertDialog(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                            ),
-                            title: Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                'Overwrite Data',
-                                textAlign: TextAlign.center,
-                                style: bottomSheetTitle.copyWith(fontSize: 24),
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
-                            content: const Text(
-                              'Do you want to recover data from backup? '
-                              'This will overwrite current data '
-                              'and you\'d want to refresh the songs.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            actionsAlignment: MainAxisAlignment.spaceAround,
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('NO'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(true),
-                                child: const Text('YES'),
-                              ),
-                            ],
-                          );
-                        },
+                      final res = await dialogWithActions<bool>(
+                        context,
+                        title: 'Overwrite Data',
+                        titleFontSize: 24,
+                        content: 'Do you want to recover data from backup? '
+                            'This will overwrite current data '
+                            'and you\'d want to refresh the songs.',
+                        contentFontSize: 16,
+                        time: 300.ms,
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('NO'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('YES'),
+                          ),
+                        ],
                       );
+                      //     await showGeneralDialog<bool>(
+                      //   context: context,
+                      //   transitionDuration: 300.ms,
+                      //   transitionBuilder: (_, anim1, __, child) {
+                      //     return ScaleTransition(
+                      //       scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                      //       child: child,
+                      //     );
+                      //   },
+                      //   barrierDismissible: true,
+                      //   barrierLabel: '',
+                      //   pageBuilder: (context, _, __) {
+                      //     return AlertDialog(
+                      //       shape: const RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.all(Radius.circular(10)),
+                      //       ),
+                      //       title: Padding(
+                      //         padding: const EdgeInsets.only(top: 8),
+                      //         child: Text(
+                      //           'Overwrite Data',
+                      //           textAlign: TextAlign.center,
+                      //           style: bottomSheetTitle.copyWith(fontSize: 24),
+                      //         ),
+                      //       ),
+                      //       alignment: Alignment.center,
+                      //       contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
+                      //       content: const Text(
+                      //         'Do you want to recover data from backup? '
+                      //         'This will overwrite current data '
+                      //         'and you\'d want to refresh the songs.',
+                      //         textAlign: TextAlign.center,
+                      //         style: TextStyle(fontSize: 16),
+                      //       ),
+                      //       actionsAlignment: MainAxisAlignment.spaceAround,
+                      //       actions: [
+                      //         TextButton(
+                      //           onPressed: () => Navigator.of(context).pop(),
+                      //           child: const Text('NO'),
+                      //         ),
+                      //         TextButton(
+                      //           onPressed: () => Navigator.of(context).pop(true),
+                      //           child: const Text('YES'),
+                      //         ),
+                      //       ],
+                      //     );
+                      //   },
+                      // );
                       if (res != true) return;
                       LogHandler.log('Recovering backup data from: ${bu.path}');
 
