@@ -45,24 +45,22 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   final List<StreamSubscription> subs = [];
   late MusicTrack song;
   late final AnimationController animController;
-  late final ScrollController playlistScrollController;
+  final playlistScrollController = ScrollController();
 
   void updateSongInfo([int? songID]) async {
-    song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
-    LogHandler.log('Updating player info');
+    LogHandler.log("Updating player's UI");
 
+    song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
-    playlistScrollController = ScrollController();
     setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
-
-    // Initial player state, KEEP IT
     updateSongInfo(widget.songID);
+
     animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
     Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
 
@@ -204,7 +202,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (playlistScrollController.hasClients) {
                         final count = Globals.audioHandler.playlist.length;
-                        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
+                        final current = Globals.audioHandler.playlist.indexOf(widget.songID);
                         final maxScrollExtent = playlistScrollController.position.maxScrollExtent;
 
                         playlistScrollController.animateTo(
