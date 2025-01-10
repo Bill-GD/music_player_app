@@ -33,7 +33,7 @@ dependencies:
   just_audio: ^0.9.40
 #  collection: ^1.18.0
   path_provider: ^2.1.4
-  package_info_plus: ^8.0.2
+#  package_info_plus: ^8.0.2
   youtube_explode_dart: ^2.2.3
   connectivity_plus: ^6.0.5
   http: ^1.2.2

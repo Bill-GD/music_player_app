@@ -68,14 +68,18 @@ jobs:
           version_dev="${{ env.VERSION }}_dev_${{ env.VERSION_COUNT }}"
           echo "VERSION=$version_dev" >> $GITHUB_ENV
 
+      - name: Create env
+        run: |
+          echo "VERSION=${{ env.VERSION }}" > .env
+
       - name: Build APKs
-        run: flutter build apk --release
+        run: flutter build apk --dart-define-from-file=.env
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       - name: Build split APKs
-        run: flutter build apk --split-per-abi --release
+        run: flutter build apk --split-per-abi --dart-define-from-file=.env
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}

@@ -4,7 +4,8 @@ import '../player/player_utils.dart';
 import 'log_handler.dart';
 import 'music_track.dart';
 
-const bool isDev = true;
+final isDev = Globals.appVersion.contains('_dev_');
+final devBuild = Globals.appVersion.split('_').last;
 
 class Globals {
   /// List of all songs, persistent.
@@ -18,9 +19,8 @@ class Globals {
 
   static late final AudioPlayerHandler audioHandler;
 
-  static late final String appName;
-  static late final String appVersion;
-  static const String buildType = isDev ? 'Dev' : 'Release';
+  static const String appName = 'Music Hub';
+  static const String appVersion = String.fromEnvironment('VERSION', defaultValue: '0.0.0');
 
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;
