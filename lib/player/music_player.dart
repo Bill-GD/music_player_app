@@ -65,9 +65,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
     Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
 
     subs.add(Globals.audioHandler.onSongChange.listen((changed) {
-      if (!changed) return;
-      LogHandler.log('Song changed detected');
-      updateSongInfo();
+      if (changed) updateSongInfo();
     }));
     subs.add(Globals.audioHandler.player.positionStream.listen((current) {
       currentDuration = current.inMilliseconds;
@@ -158,7 +156,21 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                 InkWell(
                   borderRadius: BorderRadius.circular(5),
                   onTap: () {
-                    playlistSheet(
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (playlistScrollController.hasClients) {
+                        final count = Globals.audioHandler.playlist.length;
+                        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
+                        final maxScrollExtent = playlistScrollController.position.maxScrollExtent;
+
+                        playlistScrollController.animateTo(
+                          maxScrollExtent * (current / count),
+                          duration: 100.ms,
+                          curve: Curves.easeIn,
+                        );
+                      }
+                    });
+
+                    showPlaylistSheet(
                       context,
                       title: Text(
                         Globals.audioHandler.playlistDisplayName,
@@ -194,24 +206,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       scrollController: playlistScrollController,
                       onReorder: (oIdx, nIdx) {
                         LogHandler.log(
-                            'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})');
+                          'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
+                        );
                         Globals.audioHandler.moveSong(oIdx, nIdx);
                       },
                     );
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (playlistScrollController.hasClients) {
-                        final count = Globals.audioHandler.playlist.length;
-                        final current = Globals.audioHandler.playlist.indexOf(widget.songID);
-                        final maxScrollExtent = playlistScrollController.position.maxScrollExtent;
-
-                        playlistScrollController.animateTo(
-                          maxScrollExtent * (current / count),
-                          duration: 100.ms,
-                          curve: Curves.easeIn,
-                        );
-                      }
-                    });
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),

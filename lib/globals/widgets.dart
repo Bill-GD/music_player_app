@@ -76,7 +76,7 @@ ButtonStyle textButtonStyle(BuildContext context) {
   );
 }
 
-Future<void> playlistSheet(
+Future<void> showPlaylistSheet(
   BuildContext context, {
   required Widget title,
   required List<ListTile> content,
