@@ -47,3 +47,4 @@
 - Fixed skipping to previous song doesn't update saved playlist correctly
 - Fixed checking for internet connection
 - Improved app version info in-app. Uses environment & pubspec version. Removed `package_info_plus` dependency
+- Extracted main screen's drawer to separate file

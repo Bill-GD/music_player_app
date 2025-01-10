@@ -19,6 +19,8 @@ const TextStyle bottomSheetText = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
+Divider listItemDivider() => const Divider(indent: 20, endIndent: 20);
+
 Color? iconColor(BuildContext context, [double opacity = 1]) => Theme.of(context).iconTheme.color?.withOpacity(opacity);
 
 Text leadingText(BuildContext context, String text, [bool bold = true, double size = 18]) => Text(
