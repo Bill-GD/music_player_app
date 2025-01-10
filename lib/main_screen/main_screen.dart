@@ -296,8 +296,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       alignment: Alignment.bottomLeft,
                       child: GestureDetector(
                         child: Text(
-                          'v${Globals.appVersion}${isDev ? '_dev' : ''}',
-                          // 'v${Globals.packageInfo.version}',
+                          // 'v${Globals.appVersion}${isDev ? '_dev' : ''}',
+                          'v${Globals.appVersion}',
                           style: TextStyle(
                             color: Colors.grey.withOpacity(0.5),
                           ),
@@ -317,7 +317,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           pageBuilder: (context, _, __) {
                             return AboutDialog(
                               applicationName: Globals.appName,
-                              applicationVersion: 'v${Globals.appVersion} - ${Globals.buildType}',
+                              applicationVersion: 'v${Globals.appVersion}${isDev ? '' : ' - stable'}',
                               children: [
                                 TextButton.icon(
                                   onPressed: () async {

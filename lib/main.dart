@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -16,10 +15,6 @@ import 'player/player_utils.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final packageInfo = await PackageInfo.fromPlatform();
-  Globals.appName = packageInfo.appName;
-  Globals.appVersion = packageInfo.version;
-
   Globals.storagePath = (await getExternalStorageDirectory())?.parent.path ?? '';
 
   Globals.logPath = '${Globals.storagePath}/files/log.txt';
@@ -28,6 +23,7 @@ void main() async {
   Globals.backupPath = '/storage/emulated/0/Android/music_hub_backup.json';
 
   LogHandler.init();
+  LogHandler.log('App version: ${Globals.appVersion}, isDev: $isDev');
 
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   await Config.loadConfig();

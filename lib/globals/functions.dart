@@ -14,7 +14,7 @@ String getTimeString(int milliseconds) {
 }
 
 String sanitizeFilePath(String path) {
-  return path.replaceAll(RegExp(r'[\\|?*<":>+\[\]\/]'), '').replaceAll("'", '');
+  return path.replaceAll(RegExp(r'[\\|?*<":>+\[\]/]'), '').replaceAll("'", '');
 }
 
 String getSizeString(double bytes) {
