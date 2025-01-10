@@ -11,6 +11,7 @@
 - Improved visual clarity of log popup
 - Changed playlist icon: glass -> list
 - More detailed app version info in-app
+- Improved setting page
 
 ## Fixes
 
