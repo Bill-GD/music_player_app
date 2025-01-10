@@ -77,7 +77,7 @@ class _BackupScreenState extends State<BackupScreen> {
                         context,
                         title: 'Overwrite Data',
                         titleFontSize: 24,
-                        content: 'Do you want to recover data from backup? '
+                        textContent: 'Do you want to recover data from backup? '
                             'This will overwrite current data '
                             'and you\'d want to refresh the songs.',
                         contentFontSize: 16,

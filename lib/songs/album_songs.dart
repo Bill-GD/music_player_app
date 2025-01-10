@@ -122,7 +122,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                             ),
                             title: 'Delete Album',
                             titleFontSize: 24,
-                            content: dedent('''
+                            textContent: dedent('''
                                   This CANNOT be undone.
                                   Are you sure you want to delete
                     
@@ -324,7 +324,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                                     context,
                                     title: 'Remove from album',
                                     titleFontSize: 24,
-                                    content: dedent("""
+                                    textContent: dedent("""
                                       Are you sure you want to remove
   
                                       ${song.name}
