@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:theme_provider/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../globals/extensions.dart';
@@ -121,13 +120,6 @@ class _MainDrawerState extends State<MainDrawer> {
                         ),
                       );
                     },
-                  ),
-                  listItemDivider(),
-                  ListTile(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    leading: FaIcon(Icons.color_lens_rounded, color: iconColor(context)),
-                    title: const Text('Change Theme', style: bottomSheetTitle),
-                    onTap: () => ThemeProvider.controllerOf(context).nextTheme(),
                   ),
                   listItemDivider(),
                   ListTile(
