@@ -41,6 +41,11 @@ void main() async {
 
     showPopupMessage(
       curContext,
+      icon: Icon(
+        Icons.error_rounded,
+        color: Theme.of(curContext).colorScheme.error,
+        size: 30,
+      ),
       title: e.toString(),
       content: s.toString(),
       centerContent: false,

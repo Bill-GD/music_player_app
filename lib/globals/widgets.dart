@@ -255,7 +255,7 @@ Future<void> showSongOptionsMenu(
               ),
               title: 'Delete song',
               titleFontSize: 24,
-              content: dedent('''
+              textContent: dedent('''
                       This CANNOT be undone.
                       Are you sure you want to delete
         
@@ -307,7 +307,7 @@ Future<void> showErrorPopup(BuildContext context, String error) async {
     ),
     title: 'Error',
     titleFontSize: 24,
-    content: dedent('''
+    textContent: dedent('''
             An error occurred while performing the operation.
             Error: $error'''),
     contentFontSize: 16,
@@ -322,6 +322,7 @@ Future<void> showErrorPopup(BuildContext context, String error) async {
 
 Future<void> showPopupMessage(
   BuildContext context, {
+  Icon? icon,
   required String title,
   required String content,
   Duration time = const Duration(milliseconds: 200),
@@ -332,9 +333,10 @@ Future<void> showPopupMessage(
 }) async {
   await dialogWithActions<void>(
     context,
+    icon: icon,
     title: title,
     titleFontSize: 24,
-    content: content,
+    textContent: content,
     contentFontSize: 16,
     centerContent: centerContent,
     time: time,
@@ -350,12 +352,67 @@ Future<void> showPopupMessage(
   );
 }
 
+Future<void> showLogPopup(
+  BuildContext context, {
+  required String title,
+}) async {
+  final logLines = File(Globals.logPath).readAsLinesSync();
+  final contentLines = <String>[];
+  for (final line in logLines) {
+    if (line.isEmpty) continue;
+    final isError = line.contains('[E]');
+    final time = line.substring(0, line.indexOf(']') + 1).trim();
+    final content = line.substring(line.indexOf(']') + 5).trim();
+    contentLines.add('t$time\n');
+    contentLines.add('${isError ? 'e' : 'i'} - $content\n');
+    contentLines.add(' \n');
+  }
+  contentLines.removeLast();
+  contentLines.last = contentLines.last.substring(0, contentLines.last.length - 1);
+
+  await dialogWithActions(
+    context,
+    title: title,
+    titleFontSize: 28,
+    richContent: RichText(
+      text: TextSpan(
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
+        children: [
+          for (var line in contentLines)
+            TextSpan(
+              text: line.substring(1),
+              style: TextStyle(
+                color: line.startsWith('e')
+                    ? Theme.of(context).colorScheme.error
+                    : line.startsWith('t')
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).textTheme.bodyMedium?.color,
+              ),
+            ),
+        ],
+      ),
+    ),
+    contentFontSize: 16,
+    centerContent: false,
+    horizontalPadding: 24,
+    time: 300.ms,
+    allowScroll: true,
+    actions: [
+      TextButton(
+        onPressed: Navigator.of(context).pop,
+        child: const Text('OK'),
+      ),
+    ],
+  );
+}
+
 Future<T?> dialogWithActions<T>(
   BuildContext context, {
   Icon? icon,
   required String title,
   required double titleFontSize,
-  required String content,
+  String? textContent,
+  RichText? richContent,
   required double contentFontSize,
   bool centerContent = true,
   List<Widget> actions = const [],
@@ -365,6 +422,7 @@ Future<T?> dialogWithActions<T>(
   bool barrierDismissible = true,
   bool allowScroll = false,
 }) async {
+  assert(textContent != null || richContent != null, 'content or richContent parameter must be non null');
   return await showGeneralDialog<T>(
     context: context,
     transitionDuration: time,
@@ -378,10 +436,12 @@ Future<T?> dialogWithActions<T>(
       );
     },
     pageBuilder: (_, __, ___) {
-      final textContent = Text(
-        dedent(content),
-        textAlign: centerContent ? TextAlign.center : null,
-      );
+      final content = textContent != null
+          ? Text(
+              dedent(textContent),
+              textAlign: centerContent ? TextAlign.center : null,
+            )
+          : richContent!;
       return AlertDialog(
         icon: icon,
         title: Text(title, textAlign: TextAlign.center),
@@ -389,12 +449,8 @@ Future<T?> dialogWithActions<T>(
               fontSize: titleFontSize,
               fontWeight: FontWeight.w700,
             ),
-        content: allowScroll
-            ? SingleChildScrollView(
-                child: textContent,
-              )
-            : textContent,
-        contentTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+        content: allowScroll ? SingleChildScrollView(child: content) : content,
+        contentTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: contentFontSize,
             ),
         contentPadding: const EdgeInsets.only(
@@ -404,6 +460,7 @@ Future<T?> dialogWithActions<T>(
         ),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: actions,
+        actionsPadding: const EdgeInsets.only(top: 16, bottom: 15),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),

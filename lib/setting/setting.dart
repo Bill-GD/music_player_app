@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     context,
                     title: 'Confirm changes',
                     titleFontSize: 24,
-                    content: changes,
+                    textContent: changes,
                     contentFontSize: 16,
                     time: 300.ms,
                     actions: [

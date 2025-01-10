@@ -281,14 +281,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           leading: FaIcon(Icons.logo_dev, color: iconColor(context)),
                           title: const Text('Log', style: bottomSheetTitle),
-                          onTap: () async {
-                            showPopupMessage(
-                              context,
-                              title: 'Application log',
-                              content: File(Globals.logPath).readAsStringSync(),
-                              centerContent: false,
-                              horizontalPadding: 24,
-                            );
+                          onTap: () {
+                            showLogPopup(context, title: 'Application log');
                           },
                         ),
                       ],
