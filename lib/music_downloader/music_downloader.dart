@@ -9,6 +9,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/extensions.dart';
 import '../globals/functions.dart' as g;
+import '../globals/functions.dart';
 import '../globals/widgets.dart';
 import 'soundcloud_downloader.dart';
 import 'youtube_downloader.dart';
@@ -27,37 +28,22 @@ class MusicDownloaderState extends State<MusicDownloader> {
   Map<String, dynamic>? metadata;
 
   bool isFromSoundCloud = false;
-  bool isGettingData = false, isInternetConnected = true, isDownloading = false, hasDownloaded = false;
+  bool isGettingData = false, isInternetConnected = false, isDownloading = false, hasDownloaded = false;
   int received = 0, total = 0;
 
   String? errorText;
 
   late StreamSubscription<List<ConnectivityResult>> connectStream;
 
-  void checkInternetConnection([ConnectivityResult? result]) async {
-    final connectivityResult = result ?? await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi ||
-        connectivityResult == ConnectivityResult.ethernet) {
-      isInternetConnected = true;
-    } else if (connectivityResult == ConnectivityResult.none) {
-      isInternetConnected = false;
-    }
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   void validateInput(String text) {
     errorText = null;
     if (text.isEmpty) {
       errorText = null;
-    } else if (RegExp(r'^(?:https:\/\/)?(?:on\.soundcloud\.com)(?:\S+)?$').hasMatch(text)) {
+    } else if (RegExp(r'^(?:https://)?on\.soundcloud\.com(?:\S+)?$').hasMatch(text)) {
       errorText = 'Please use full URL, SoundCloud API is weird';
-    } else if (!RegExp(r'^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9-]{11})(?:\S+)?$')
+    } else if (!RegExp(r'^(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9-]{11})(?:\S+)?$')
             .hasMatch(text) &&
-        !RegExp(r'^(?:https:\/\/)?(m\.)?(?:soundcloud\.com)\/([a-zA-Z0-9-]*)\/([a-zA-Z0-9-])(?:\S+)?$')
-            .hasMatch(text)) {
+        !RegExp(r'^(?:https://)?(m\.)?soundcloud\.com/([a-zA-Z0-9-]*)/([a-zA-Z0-9-])(?:\S+)?$').hasMatch(text)) {
       errorText = 'Invalid URL';
     }
     setState(() {});
@@ -66,9 +52,12 @@ class MusicDownloaderState extends State<MusicDownloader> {
   @override
   void initState() {
     super.initState();
-    checkInternetConnection();
+    checkInternetConnection().then((val) => isInternetConnected = val);
     connectStream = Connectivity().onConnectivityChanged.listen((newResults) {
-      newResults.map(checkInternetConnection);
+      checkInternetConnection(newResults).then((val) {
+        isInternetConnected = val;
+        setState(() {});
+      });
     });
     textEditingController = TextEditingController();
   }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'database_handler.dart';
@@ -28,6 +29,12 @@ String getSizeString(double bytes) {
 
 void showToast(BuildContext context, String msg) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+}
+
+Future<bool> checkInternetConnection([List<ConnectivityResult>? result]) async {
+  final connectivityResult = result ?? await Connectivity().checkConnectivity();
+  final isInternetConnected = !connectivityResult.contains(ConnectivityResult.none);
+  return isInternetConnected;
 }
 
 Future<void> backupData(BuildContext context, File bu) async {

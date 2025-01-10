@@ -40,3 +40,9 @@
   Separated time and message into different lines. Error messages are red.
 - `dialogWithActions` accepts either `String` or `RichText`, throws if both are null
 - Added error icon to error messages
+
+## Dev 5
+
+- Fixed playlist sheet not scrolling to current song
+- Fixed skipping to previous song doesn't update saved playlist correctly
+- Fixed checking for internet connection

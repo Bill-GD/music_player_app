@@ -479,12 +479,12 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     if (currentIndex < 0) {
       pause();
-      return LogHandler.log('Can\'t find song in playlist, this should not be the case', LogLevel.error);
+      return LogHandler.log('Current ID is < 0, this should not be the case', LogLevel.error);
     }
 
     final newIndex = (currentIndex == 0 ? _playlist.length : currentIndex) - 1;
 
-    await updateSavedPlaylist(currentIndex, newIndex);
+    await updateSavedPlaylist(Globals.currentSongID, _playlist[newIndex]);
     await setPlayerSong(_playlist[newIndex]);
 
     _skipping = false;
