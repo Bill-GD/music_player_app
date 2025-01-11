@@ -71,7 +71,11 @@ class _VersionCheckState extends State<VersionCheck> {
                 http
                     .get(Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases/latest'))
                     .then((value) {
-                  final tag = jsonDecode(value.body)['tag_name'] as String;
+                  final json = jsonDecode(value.body);
+                  if (json == null) {
+                    throw Exception('Rate limited. Please come back later.');
+                  }
+                  final tag = json['tag_name'] as String;
                   showToast(context, tag);
                   LogHandler.log('Checked for latest stable version: $tag');
                 });
@@ -86,9 +90,15 @@ class _VersionCheckState extends State<VersionCheck> {
                   return;
                 }
                 http
-                    .get(Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases?per_page=2&page=1'))
+                    .get(Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases?per_page=4&page=1'))
                     .then((value) {
-                  final tag = jsonDecode(value.body)[0]['tag_name'] as String;
+                  final json = jsonDecode(value.body);
+                  if (json == null) {
+                    throw Exception('Rate limited. Please come back later.');
+                  }
+                  final latestDev = (json as List) //
+                      .firstWhere((r) => (r['tag_name'] as String).contains('_dev_'));
+                  final tag = latestDev?['tag_name'] as String;
                   showToast(context, tag);
                   LogHandler.log('Checked for latest dev version: $tag');
                 });
