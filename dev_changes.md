@@ -61,3 +61,6 @@
 - Will show rate limited error if response is null
 - Uses authenticated requests for GitHub API
 - No longer delay between songs if skipped manually
+- Songs in album can now be reordered
+- Playlist sheet is now a `StatefulWidget`, opened with `CupertinoModalPopupRoute`
+- Fixed playlist sheet not updating properly when song is changed

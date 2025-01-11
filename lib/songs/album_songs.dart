@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
 import '../globals/functions.dart';
+import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -233,138 +234,170 @@ class _AlbumSongsState extends State<AlbumSongs> {
               ],
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: totalSongCount + (album.id == 1 ? 0 : 1),
-                itemBuilder: (context, songIndex) {
-                  final isNewTile = album.id == 1 ? false : songIndex == 0;
-                  final song = isNewTile ? null : songs[songIndex - (album.id == 1 ? 0 : 1)];
-
-                  if (isNewTile) {
-                    if (album.id == 1) return const SizedBox.shrink();
-
-                    // add to album
-                    return OpenContainer(
-                      closedElevation: 0,
-                      closedColor: Theme.of(context).colorScheme.background,
-                      openColor: Colors.transparent,
-                      transitionDuration: 400.ms,
-                      onClosed: (_) => setState(getSongs),
-                      openBuilder: (_, __) => AddAlbumSong(
-                        albumID: widget.albumID,
-                      ),
-                      closedBuilder: (_, action) {
-                        return ListTile(
-                          title: const Icon(Icons.add_rounded),
-                          onTap: action,
+              child: album.id == 1
+                  ? ListView.builder(
+                      itemCount: totalSongCount,
+                      itemBuilder: (context, songIndex) {
+                        final song = songs[songIndex];
+                        return songTile(song, songIndex);
+                      },
+                    )
+                  : ReorderableListView.builder(
+                      itemCount: totalSongCount + (album.id == 1 ? 0 : 1),
+                      onReorder: (oIdx, nIdx) {
+                        if (nIdx > oIdx) nIdx--;
+                        oIdx--;
+                        nIdx--;
+                        if (nIdx > totalSongCount || album.id == 1) return;
+                        final oldSongId = songs[oIdx].id, newSongId = songs[nIdx].id;
+                        LogHandler.log('Reorder album: $oIdx ($oldSongId) -> $nIdx ($newSongId)');
+                        album.songs.insert(nIdx, album.songs.removeAt(oIdx));
+                        album.update();
+                        setState(getSongs);
+                      },
+                      proxyDecorator: (child, _, __) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Material(
+                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            child: child,
+                          ),
                         );
                       },
-                    );
-                  }
-                  // song tile
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                    leading: isNewTile
-                        ? null
-                        : Padding(
-                            padding: const EdgeInsets.only(left: 16),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text((songIndex + (album.id == 1 ? 1 : 0)).toString().padLeft(2, '0')),
-                              ],
+                      itemBuilder: (context, songIndex) {
+                        final isNewTile = album.id == 1 ? false : songIndex == 0;
+                        final song = isNewTile ? null : songs[songIndex - (album.id == 1 ? 0 : 1)];
+
+                        if (isNewTile) {
+                          if (album.id == 1) return const SizedBox.shrink(key: ValueKey(-1));
+
+                          // add to album
+                          return OpenContainer(
+                            key: const ValueKey(-1),
+                            closedElevation: 0,
+                            closedColor: Theme.of(context).colorScheme.background,
+                            openColor: Colors.transparent,
+                            transitionDuration: 400.ms,
+                            onClosed: (_) => setState(getSongs),
+                            openBuilder: (_, __) => AddAlbumSong(
+                              albumID: widget.albumID,
                             ),
-                          ),
-                    title: Text(
-                      song!.name,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                            closedBuilder: (_, action) {
+                              return ListTile(
+                                title: const Icon(Icons.add_rounded),
+                                onTap: action,
+                              );
+                            },
+                          );
+                        }
+                        // song tile
+                        return songTile(song!, songIndex);
+                      },
                     ),
-                    subtitle: Text(
-                      song.artist,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    onTap: () async {
-                      Globals.audioHandler.registerPlaylist(
-                        album.name,
-                        songs.map((e) => e.id).toList(),
-                        song.id,
-                      );
-                      await Navigator.of(context).push(
-                        await getMusicPlayerRoute(
-                          context,
-                          song.id,
-                        ),
-                      );
-                      setState(() {});
-                    },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert_rounded),
-                      onPressed: () async {
-                        await showSongOptionsMenu(
-                          context,
-                          song.id,
-                          setState,
-                          showDeleteOption: false,
-                          moreActions: [
-                            if (album.id != 1)
-                              ListTile(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                leading: Icon(Icons.delete_rounded, color: iconColor(context)),
-                                title: const Text('Remove from playlist', style: bottomSheetText),
-                                onTap: () async {
-                                  bool songRemoved = false;
-                                  await dialogWithActions<bool>(
-                                    context,
-                                    title: 'Remove from album',
-                                    titleFontSize: 24,
-                                    textContent: dedent("""
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ListTile songTile(MusicTrack song, int songIndex) {
+    return ListTile(
+      key: ValueKey(song.id),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text((songIndex + (album.id == 1 ? 1 : 0)).toString().padLeft(2, '0')),
+          ],
+        ),
+      ),
+      title: Text(
+        song.name,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        song.artist,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Colors.grey[600],
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+      onTap: () async {
+        Globals.audioHandler.registerPlaylist(
+          album.name,
+          songs.map((e) => e.id).toList(),
+          song.id,
+        );
+        await Navigator.of(context).push(
+          await getMusicPlayerRoute(
+            context,
+            song.id,
+          ),
+        );
+        setState(() {});
+      },
+      trailing: IconButton(
+        icon: const Icon(Icons.more_vert_rounded),
+        onPressed: () async {
+          await showSongOptionsMenu(
+            context,
+            song.id,
+            setState,
+            showDeleteOption: false,
+            moreActions: [
+              if (album.id != 1)
+                ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  leading: Icon(Icons.delete_rounded, color: iconColor(context)),
+                  title: const Text('Remove from playlist', style: bottomSheetText),
+                  onTap: () async {
+                    bool songRemoved = false;
+                    await dialogWithActions<bool>(
+                      context,
+                      title: 'Remove from album',
+                      titleFontSize: 24,
+                      textContent: dedent("""
                                       Are you sure you want to remove
   
                                       ${song.name}
   
                                       from album '${album.name}'"""),
-                                    contentFontSize: 16,
-                                    time: 300.ms,
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('No'),
-                                        onPressed: () => Navigator.of(context).pop(),
-                                      ),
-                                      TextButton(
-                                        child: const Text('Yes'),
-                                        onPressed: () async {
-                                          songRemoved = true;
-                                          await song.removeFromPlaylist(widget.albumID);
-                                          if (context.mounted) Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                  if (songRemoved) {
-                                    await updateAlbumList();
-                                    if (context.mounted) Navigator.of(context).pop();
-                                  }
-                                },
-                              ),
-                          ],
-                        );
-                        getSongs();
-                        setState(() {});
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+                      contentFontSize: 16,
+                      time: 300.ms,
+                      actions: [
+                        TextButton(
+                          child: const Text('No'),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        TextButton(
+                          child: const Text('Yes'),
+                          onPressed: () async {
+                            songRemoved = true;
+                            await song.removeFromPlaylist(widget.albumID);
+                            if (mounted) Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                    if (songRemoved) {
+                      await updateAlbumList();
+                      if (mounted) Navigator.of(context).pop();
+                    }
+                  },
+                ),
+            ],
+          );
+          getSongs();
+          setState(() {});
+        },
       ),
     );
   }
