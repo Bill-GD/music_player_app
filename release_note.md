@@ -15,6 +15,7 @@
 
 ## Fixes
 
+- Fixed SoundCloud downloader. It's now re-enabled
 - Fixed error that only load the first song of saved playlist regardless of what was last played
 - Fixed error that causes saved playlist songs to be duplicated
 - Fixed not updating the play/pause button when media player is paused

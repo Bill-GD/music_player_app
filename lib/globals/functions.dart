@@ -34,6 +34,7 @@ void showToast(BuildContext context, String msg) {
 Future<bool> checkInternetConnection([List<ConnectivityResult>? result]) async {
   final connectivityResult = result ?? await Connectivity().checkConnectivity();
   final isInternetConnected = !connectivityResult.contains(ConnectivityResult.none);
+  LogHandler.log('Internet connected: $isInternetConnected');
   return isInternetConnected;
 }
 

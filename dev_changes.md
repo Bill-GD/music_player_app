@@ -50,3 +50,5 @@
 - Extracted main screen's drawer to separate file
 - Improved setting page
 - Added page for theme setting
+- Fixed wrong/outdated SoundCloud client ID -> re-enabled SoundCloud downloader
+- Fixed trying to parse special log message lines (from exceptions)
