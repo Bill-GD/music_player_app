@@ -54,3 +54,8 @@
 - Fixed trying to parse special log message lines (from exceptions)
 - Moved version string, licenses and GitHub link to `Setting` page
 - Added checking for app update feature
+
+## Dev 6
+
+- Fixed dev version checking not considering latest release is not pre-release
+- Will show rate limited error if response is null
