@@ -83,6 +83,7 @@ class MusicPlayerApp extends StatelessWidget {
           data: ThemeData(
             useMaterial3: true,
             fontFamily: 'Nunito',
+            brightness: Brightness.dark,
             sliderTheme: const SliderThemeData(
               activeTickMarkColor: Colors.transparent,
               inactiveTickMarkColor: Colors.transparent,

@@ -59,3 +59,4 @@
 
 - Fixed dev version checking not considering latest release is not pre-release
 - Will show rate limited error if response is null
+- No longer delay between songs if skipped manually
