@@ -65,9 +65,9 @@ class MusicDownloaderState extends State<MusicDownloader> {
   @override
   void dispose() {
     connectStream.cancel();
-    super.dispose();
     ytExplode.close();
     textEditingController.dispose();
+    super.dispose();
   }
 
   @override

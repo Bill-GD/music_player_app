@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -131,54 +128,6 @@ class _MainDrawerState extends State<MainDrawer> {
                     },
                   ),
                 ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10, bottom: 4),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: GestureDetector(
-                  child: Text(
-                    // 'v${Globals.appVersion}${isDev ? '_dev' : ''}',
-                    'v${Globals.appVersion}',
-                    style: TextStyle(
-                      color: Colors.grey.withOpacity(0.5),
-                    ),
-                  ),
-                  onTap: () => showGeneralDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    barrierLabel: '',
-                    transitionDuration: 300.ms,
-                    transitionBuilder: (_, anim1, __, child) {
-                      return ScaleTransition(
-                        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                        alignment: Alignment.bottomLeft,
-                        child: child,
-                      );
-                    },
-                    pageBuilder: (context, _, __) {
-                      return AboutDialog(
-                        applicationName: Globals.appName,
-                        applicationVersion: 'v${Globals.appVersion}${isDev ? '' : ' - stable'}',
-                        children: [
-                          TextButton.icon(
-                            onPressed: () async {
-                              const url = 'https://github.com/Bill-GD/music_player_app';
-                              final canLaunch = await canLaunchUrl(Uri.parse(url));
-                              LogHandler.log('Can launch URL: $canLaunch');
-                              if (canLaunch) launchUrl(Uri.parse(url));
-                            },
-                            icon: const Icon(Icons.code_rounded),
-                            label: const Text('GitHub repo'),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
               ),
             ),
           ),

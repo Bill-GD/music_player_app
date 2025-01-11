@@ -5,6 +5,7 @@ import '../globals/extensions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import 'theme_setting.dart';
+import 'version_check.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -139,6 +140,27 @@ class _SettingsPageState extends State<SettingsPage> {
                 Navigator.of(context).push(
                   PageRouteBuilder(
                     pageBuilder: (_, __, ___) => const ThemeSetting(),
+                    transitionsBuilder: (context, anim, _, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: const Offset(0, 0),
+                        ).animate(anim.drive(CurveTween(curve: Curves.decelerate))),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: leadingText(context, 'Version', false, 16),
+              subtitle: const Text(Globals.appVersion),
+              trailing: const Icon(CupertinoIcons.right_chevron),
+              onTap: () {
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (_, __, ___) => const VersionCheck(),
                     transitionsBuilder: (context, anim, _, child) {
                       return SlideTransition(
                         position: Tween<Offset>(
