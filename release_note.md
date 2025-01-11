@@ -1,7 +1,8 @@
 ## Features
 
 - Added popup message when there's an app error
-- Added feature that allow checking for app update
+- Added app version checking feature
+- Added feature that allow reordering album songs
 
 ## Changes
 
@@ -23,4 +24,5 @@
 - Fixed not updating the play/pause button when media player is paused
 - Fixed not updating the playlist when skipping to previous song
 - Fixed internet connection checking
+- Fixed playlist sheet not updating properly when song is changed
 - and more minor fixes

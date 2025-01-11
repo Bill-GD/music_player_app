@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/functions.dart';
 import '../songs/song_info.dart';
@@ -73,80 +72,6 @@ ButtonStyle textButtonStyle(BuildContext context) {
     shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
-      ),
-    ),
-  );
-}
-
-Future<void> showPlaylistSheet(
-  BuildContext context, {
-  required Widget title,
-  required List<ListTile> content,
-  required ScrollController scrollController,
-  double? maxHeight,
-  void Function(int oldIndex, int newIndex)? onReorder,
-}) async {
-  assert(onReorder != null, 'onReorder must be provided if scrollable is true');
-  final modalHeight = maxHeight ?? MediaQuery.of(context).size.height * 0.6;
-
-  await showCupertinoModalPopup(
-    context: context,
-    builder: (context) => Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.9,
-          maxHeight: modalHeight,
-        ),
-        padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(padding: const EdgeInsets.only(left: 20, right: 20, bottom: 16), child: title),
-            Flexible(
-              child: ReorderableListView(
-                scrollController: scrollController,
-                // reverse: true,
-                onReorder: (oIdx, nIdx) {
-                  if (nIdx > oIdx) nIdx--;
-                  onReorder?.call(oIdx, nIdx);
-                  content.insert(nIdx, content.removeAt(oIdx));
-
-                  for (int i = 0; i < content.length; i++) {
-                    content[i] = ListTile(
-                      key: ValueKey('$i'),
-                      visualDensity: VisualDensity.compact,
-                      leading: SizedBox(
-                        width: 32,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Globals.currentSongID == Globals.audioHandler.playlist[i]
-                              ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
-                              : Text((i + 1).padIntLeft(2, '0')),
-                        ),
-                      ),
-                      title: content[i].title,
-                      subtitle: content[i].subtitle,
-                    );
-                  }
-                },
-                proxyDecorator: (child, _, __) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Material(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      child: child,
-                    ),
-                  );
-                },
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                children: content,
-              ),
-            )
-          ],
-        ),
       ),
     ),
   );
@@ -449,7 +374,12 @@ Future<T?> dialogWithActions<T>(
           : richContent!;
       return AlertDialog(
         icon: icon,
-        title: Text(title, textAlign: TextAlign.center),
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 4,
+        ),
         titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontSize: titleFontSize,
               fontWeight: FontWeight.w700,

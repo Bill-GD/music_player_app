@@ -74,7 +74,11 @@ class _VersionCheckState extends State<VersionCheck> {
                 ).then((value) {
                   final json = jsonDecode(value.body);
                   if (json == null) throw Exception('Rate limited. Please come back later.');
-                  if (json is! Map) throw Exception('Something is wrong. Please create an issue or consult the dev.');
+                  if (json is! Map) {
+                    throw Exception(
+                      'Something is wrong when trying to get stable version. Please create an issue or consult the dev.',
+                    );
+                  }
 
                   final tag = json['tag_name'] as String;
                   showToast(context, tag);
@@ -96,10 +100,15 @@ class _VersionCheckState extends State<VersionCheck> {
                 ).then((value) {
                   final json = jsonDecode(value.body);
                   if (json == null) throw Exception('Rate limited. Please come back later.');
-                  if (json is! List) throw Exception('Something is wrong. Please create an issue or consult the dev.');
+                  if (json is! List) {
+                    throw Exception(
+                      'Something is wrong when trying to get dev version. Please create an issue or consult the dev.',
+                    );
+                  }
 
-                  final latestDev = (json as List) //
-                      .firstWhere((r) => (r['tag_name'] as String).contains('_dev_'));
+                  final latestDev = (json).firstWhere(
+                    (r) => (r['tag_name'] as String).contains('_dev_'),
+                  );
                   final tag = latestDev?['tag_name'] as String;
                   showToast(context, tag);
                   LogHandler.log('Checked for latest dev version: $tag');

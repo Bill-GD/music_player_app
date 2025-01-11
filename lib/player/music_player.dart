@@ -5,11 +5,11 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
+import '../globals/playlist_sheet.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import 'player_utils.dart';
@@ -170,46 +170,18 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                       }
                     });
 
-                    showPlaylistSheet(
-                      context,
-                      title: Text(
-                        Globals.audioHandler.playlistDisplayName,
-                        style: bottomSheetTitle,
-                        textAlign: TextAlign.center,
-                        softWrap: true,
-                      ),
-                      content: Globals.audioHandler.playlist
-                          .mapIndexed(
-                            (i, sId) => ListTile(
-                              key: ValueKey('$i'),
-                              visualDensity: VisualDensity.compact,
-                              titleAlignment: ListTileTitleAlignment.threeLine,
-                              leading: SizedBox(
-                                width: 32,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Globals.currentSongID == sId
-                                      ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
-                                      : Text((i + 1).padIntLeft(2, '0')),
-                                ),
-                              ),
-                              title: Text(
-                                Globals.allSongs.firstWhere((e) => e.id == sId).name,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              subtitle: Text(
-                                Globals.allSongs.firstWhere((e) => e.id == sId).artist,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      scrollController: playlistScrollController,
-                      onReorder: (oIdx, nIdx) {
-                        LogHandler.log(
-                          'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
+                    Navigator.of(context).push(
+                      CupertinoModalPopupRoute(builder: (context) {
+                        return PlaylistSheet(
+                          scrollController: playlistScrollController,
+                          onReorder: (oIdx, nIdx) {
+                            LogHandler.log(
+                              'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
+                            );
+                            Globals.audioHandler.moveSong(oIdx, nIdx);
+                          },
                         );
-                        Globals.audioHandler.moveSong(oIdx, nIdx);
-                      },
+                      }),
                     );
                   },
                   child: Padding(
