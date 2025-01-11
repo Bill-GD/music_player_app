@@ -21,7 +21,7 @@ class _ThemeSettingState extends State<ThemeSetting> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: const Text(
-            'Theme settings',
+            'Theme',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           centerTitle: true,

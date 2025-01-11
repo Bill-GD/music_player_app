@@ -234,33 +234,30 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() => autoPlay = value);
               },
             ),
-            Visibility(
-              visible: autoPlay,
-              child: Column(
-                children: [
-                  ListTile(
-                    title: leadingText(context, 'Delay between songs', false, 16),
-                    subtitle: Text('Short delay of $delayBetween ms when skipping song'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        const Text('0'),
-                        Expanded(
-                          child: Slider(
-                            value: delayBetween.toDouble(),
-                            min: 0.0,
-                            max: 500.0,
-                            onChanged: (value) => setState(() => delayBetween = value.toInt()),
-                          ),
+            Column(
+              children: [
+                ListTile(
+                  title: leadingText(context, 'Delay between songs', false, 16),
+                  subtitle: Text('Short delay of $delayBetween ms when skipping song'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('0'),
+                      Expanded(
+                        child: Slider(
+                          value: delayBetween.toDouble(),
+                          min: 0.0,
+                          max: 500.0,
+                          onChanged: (value) => setState(() => delayBetween = value.toInt()),
                         ),
-                        const Text('500'),
-                      ],
-                    ),
+                      ),
+                      const Text('500'),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             ListTile(
               title: leadingText(context, 'Volume', false, 16),

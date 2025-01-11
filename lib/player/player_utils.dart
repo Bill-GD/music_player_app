@@ -92,7 +92,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
             await seek(0.ms);
             break;
           case AudioServiceRepeatMode.all:
-            skipToNext();
+            skipToNext(shouldDelay: true);
             break;
           case AudioServiceRepeatMode.none:
             pause();
@@ -404,7 +404,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> seek(Duration position) async => _player.seek(position);
 
   @override
-  Future<void> skipToNext() async {
+  Future<void> skipToNext({bool shouldDelay = false}) async {
     if (_skipping) return;
 
     LogHandler.log('Skipping to next song');
@@ -426,7 +426,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       return LogHandler.log('Can\'t find song in playlist, this should not be the case', LogLevel.error);
     }
 
-    if (Config.delayMilliseconds > 0) {
+    if (shouldDelay && Config.delayMilliseconds > 0) {
       await Future.delayed(
         Config.delayMilliseconds.ms,
         () => LogHandler.log('Delayed for ${Config.delayMilliseconds}ms'),
