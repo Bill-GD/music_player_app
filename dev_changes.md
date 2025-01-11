@@ -52,3 +52,5 @@
 - Added page for theme setting
 - Fixed wrong/outdated SoundCloud client ID -> re-enabled SoundCloud downloader
 - Fixed trying to parse special log message lines (from exceptions)
+- Moved version string, licenses and GitHub link to `Setting` page
+- Added checking for app update feature

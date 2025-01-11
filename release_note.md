@@ -1,6 +1,7 @@
 ## Features
 
 - Added popup message when there's an app error
+- Added feature that allow checking for app update
 
 ## Changes
 
@@ -12,6 +13,7 @@
 - Changed playlist icon: glass -> list
 - More detailed app version info in-app
 - Improved setting page
+- Moved app version display and related interactions into `Settings`
 
 ## Fixes
 
