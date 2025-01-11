@@ -52,7 +52,7 @@ class MusicDownloaderState extends State<MusicDownloader> {
   @override
   void initState() {
     super.initState();
-    checkInternetConnection().then((val) => isInternetConnected = val);
+    // checkInternetConnection().then((val) => isInternetConnected = val);
     connectStream = Connectivity().onConnectivityChanged.listen((newResults) {
       checkInternetConnection(newResults).then((val) {
         isInternetConnected = val;
@@ -169,7 +169,10 @@ class MusicDownloaderState extends State<MusicDownloader> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: ElevatedButton(
-                          onPressed: textEditingController.text.isNotEmpty && !isDownloading && errorText == null
+                          onPressed: textEditingController.text.isNotEmpty &&
+                                  !isDownloading &&
+                                  errorText == null &&
+                                  isInternetConnected
                               ? () async {
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   isFromSoundCloud = textEditingController.text.contains('soundcloud.com');
@@ -178,8 +181,8 @@ class MusicDownloaderState extends State<MusicDownloader> {
                                     metadata = null;
                                   });
                                   if (isFromSoundCloud) {
-                                    // metadata = await getSoundCloudSongData(context, textEditingController.text);
-                                    errorText = 'SoundCloud API is currently disabled/inaccessible';
+                                    metadata = await getSoundCloudSongData(context, textEditingController.text);
+                                    // errorText = 'SoundCloud API is currently disabled/inaccessible';
                                   } else {
                                     metadata = await getYouTubeVideoData(context, textEditingController.text);
                                   }

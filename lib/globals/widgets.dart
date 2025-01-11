@@ -360,11 +360,14 @@ Future<void> showLogPopup(
 }) async {
   final logLines = File(Globals.logPath).readAsLinesSync();
   final contentLines = <String>[];
+
   for (final line in logLines) {
-    if (line.isEmpty) continue;
+    if (line.isEmpty || !line.contains(']')) continue;
+
     final isError = line.contains('[E]');
     final time = line.substring(0, line.indexOf(']') + 1).trim();
     final content = line.substring(line.indexOf(']') + 5).trim();
+    // final content = line;
     contentLines.add('t$time\n');
     contentLines.add('${isError ? 'e' : 'i'} - $content\n');
     contentLines.add(' \n');

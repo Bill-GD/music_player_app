@@ -14,15 +14,10 @@ Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String u
   try {
     final yt = YoutubeExplode();
 
-    Video video;
-    StreamManifest manifest;
-    AudioOnlyStreamInfo streamInfo;
-    int totalSize;
-
-    video = await yt.videos.get(urlText);
-    manifest = await yt.videos.streamsClient.getManifest(urlText);
-    streamInfo = manifest.audioOnly.withHighestBitrate();
-    totalSize = streamInfo.size.totalBytes;
+    final video = await yt.videos.get(urlText);
+    final manifest = await yt.videos.streamsClient.getManifest(urlText);
+    final streamInfo = manifest.audioOnly.withHighestBitrate();
+    final totalSize = streamInfo.size.totalBytes;
 
     return {
       'totalSize': totalSize,

@@ -15,7 +15,8 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   if (!urlText.contains('https://')) {
     urlText = 'https://$urlText';
   }
-  const String clientId = 'client_id=8BBZpqUP1KSN4W6YB64xog2PX4Dw98b1';
+  // const String clientId = 'client_id=8BBZpqUP1KSN4W6YB64xog2PX4Dw98b1';
+  const String clientId = 'client_id=57GDonO1e5SInnyt8DyMGWwbrg0AOq1H';
 
   String url = urlText.split('?').first;
   String author = url.split('/').elementAt(3);
@@ -24,6 +25,20 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   http.Response responseAuthor = await http.get(
     Uri.parse('$_url/search/users?q=$author&$clientId'),
   );
+
+  switch (responseAuthor.statusCode) {
+    case 401:
+      LogHandler.log('${responseAuthor.statusCode} Unauthorized: Invalid client id');
+      break;
+    case 404:
+      LogHandler.log('${responseAuthor.statusCode} Forbidden');
+      break;
+  }
+
+  if (responseAuthor.statusCode != 200) {
+    if (context.mounted) showToast(context, 'Failed to get author data');
+    return null;
+  }
 
   Map<String, dynamic> jsonDataAuthor = jsonDecode(responseAuthor.body);
   var resultAuthor = (jsonDataAuthor['collection'] as List).where(
@@ -50,6 +65,20 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
     Uri.parse('$_url/users/$authorId/tracks?$clientId&limit=$trackCount'),
   );
 
+  switch (responseTracks.statusCode) {
+    case 401:
+      LogHandler.log('${responseTracks.statusCode} Unauthorized: Invalid client id');
+      break;
+    case 404:
+      LogHandler.log('${responseTracks.statusCode} Forbidden');
+      break;
+  }
+
+  if (responseTracks.statusCode != 200) {
+    if (context.mounted) showToast(context, 'Failed to get track data');
+    return null;
+  }
+
   Map<String, dynamic> jsonDataTracks = jsonDecode(responseTracks.body);
   var resultTracks = (jsonDataTracks['collection'] as List).where(
     (element) => element['permalink'] == url.split('/').elementAt(4),
@@ -73,6 +102,19 @@ Future<Map<String, dynamic>?> getSoundCloudSongData(BuildContext context, String
   LogHandler.log('Found track stream url: $trackStreamUrl');
   LogHandler.log('Getting song media url');
   http.Response responseTrack = await http.get(Uri.parse('$trackStreamUrl?$clientId'));
+
+  switch (responseTrack.statusCode) {
+    case 401:
+      LogHandler.log('${responseTrack.statusCode} Unauthorized: Invalid client id');
+      break;
+    case 404:
+      LogHandler.log('${responseTrack.statusCode} Forbidden');
+      break;
+  }
+  if (responseTrack.statusCode != 200) {
+    if (context.mounted) showToast(context, 'Failed to get track media url');
+    return null;
+  }
 
   String trackUrl = jsonDecode(responseTrack.body)['url'];
 

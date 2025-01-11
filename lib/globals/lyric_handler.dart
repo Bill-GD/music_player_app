@@ -12,7 +12,7 @@ class LyricHandler {
 
   static void addLyric(Lyric lyric) {
     const appName = 'Music Hub';
-    final version = Globals.appVersion;
+    const version = Globals.appVersion;
 
     final lrcFile = File('$_dirPath/${lyric.songId}.lrc');
     if (!lrcFile.existsSync()) lrcFile.createSync(recursive: true);
