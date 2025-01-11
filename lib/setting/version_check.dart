@@ -68,13 +68,14 @@ class _VersionCheckState extends State<VersionCheck> {
                   showToast(context, 'No internet connection');
                   return;
                 }
-                http
-                    .get(Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases/latest'))
-                    .then((value) {
+                http.get(
+                  Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases/latest'),
+                  headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
+                ).then((value) {
                   final json = jsonDecode(value.body);
-                  if (json == null) {
-                    throw Exception('Rate limited. Please come back later.');
-                  }
+                  if (json == null) throw Exception('Rate limited. Please come back later.');
+                  if (json is! Map) throw Exception('Something is wrong. Please create an issue or consult the dev.');
+
                   final tag = json['tag_name'] as String;
                   showToast(context, tag);
                   LogHandler.log('Checked for latest stable version: $tag');
@@ -89,13 +90,14 @@ class _VersionCheckState extends State<VersionCheck> {
                   showToast(context, 'No internet connection');
                   return;
                 }
-                http
-                    .get(Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases?per_page=4&page=1'))
-                    .then((value) {
+                http.get(
+                  Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases?per_page=4&page=1'),
+                  headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
+                ).then((value) {
                   final json = jsonDecode(value.body);
-                  if (json == null) {
-                    throw Exception('Rate limited. Please come back later.');
-                  }
+                  if (json == null) throw Exception('Rate limited. Please come back later.');
+                  if (json is! List) throw Exception('Something is wrong. Please create an issue or consult the dev.');
+
                   final latestDev = (json as List) //
                       .firstWhere((r) => (r['tag_name'] as String).contains('_dev_'));
                   final tag = latestDev?['tag_name'] as String;

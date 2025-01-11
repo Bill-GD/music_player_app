@@ -59,4 +59,5 @@
 
 - Fixed dev version checking not considering latest release is not pre-release
 - Will show rate limited error if response is null
+- Uses authenticated requests for GitHub API
 - No longer delay between songs if skipped manually

@@ -24,12 +24,10 @@ class Globals {
 
   /// Does the minimized player shows up?
   static bool showMinimizedPlayer = false;
-
   static bool setDuplicate = false;
 
   /// ID of the currently selected/playing song.
   static int currentSongID = -1;
-
   static String? savedPlaylistName;
 
   static const String songTable = 'music_track';
@@ -43,9 +41,9 @@ class Globals {
   static late final String dbPath;
   static late final String logPath;
   static late final String backupPath;
-
-  /// The path to the app's storage directory.
   static const String downloadPath = '/storage/emulated/0/Download/';
+
+  static const githubToken = String.fromEnvironment('GITHUB_TOKEN');
 }
 
 // Configs
