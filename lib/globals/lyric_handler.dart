@@ -4,17 +4,11 @@ import 'extensions.dart';
 import 'variables.dart';
 
 class LyricHandler {
-  static late final String _dirPath;
-
-  static void init() {
-    _dirPath = Directory('${Globals.storagePath}/files').absolute.path;
-  }
-
   static void addLyric(Lyric lyric) {
     const appName = 'Music Hub';
     const version = Globals.appVersion;
 
-    final lrcFile = File('$_dirPath/${lyric.songId}.lrc');
+    final lrcFile = File(lyric.path);
     if (!lrcFile.existsSync()) lrcFile.createSync(recursive: true);
 
     lrcFile.writeAsStringSync('');
@@ -70,6 +64,7 @@ class LyricHandler {
       name: name,
       artist: artist,
       album: album,
+      path: path,
       list: lItems,
     );
   }
@@ -79,14 +74,24 @@ class Lyric {
   final int songId;
   final String name, artist, album;
   final List<LyricItem> list;
+  final String path;
 
   const Lyric({
     required this.songId,
     required this.name,
     required this.artist,
     required this.album,
+    required this.path,
     this.list = const <LyricItem>[],
   });
+
+  Lyric.from(Lyric other)
+      : songId = other.songId,
+        name = other.name,
+        artist = other.artist,
+        album = other.album,
+        list = List.from(other.list),
+        path = other.path;
 
   @override
   String toString() {

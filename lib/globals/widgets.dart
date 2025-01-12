@@ -77,42 +77,6 @@ ButtonStyle textButtonStyle(BuildContext context) {
   );
 }
 
-Future<void> getBottomSheet(
-  BuildContext context,
-  Widget title,
-  List<Widget> content,
-) async {
-  await showCupertinoModalPopup(
-    context: context,
-    builder: (context) => Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: title,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: content,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
 Future<void> showSongOptionsMenu(
   BuildContext context,
   int songID,
@@ -219,6 +183,49 @@ Future<void> showSongOptionsMenu(
           },
         ),
     ],
+  );
+}
+
+Future<void> getBottomSheet(
+  BuildContext context,
+  Widget title,
+  List<Widget> content,
+) async {
+  await showCupertinoModalPopup(
+    context: context,
+    builder: (context) => Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 1,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: title,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: content,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
 
