@@ -58,7 +58,7 @@
 
 ## Dev 6
 
-- Updated Flutter to 3.22.0, Dart to 3.4.0
+- Updated Flutter to 3.22.0, Dart to 3.4.0 (was for `file_picker` but has changed and too lazy to revert)
 - Fixed dev version checking not considering latest release is not pre-release
 - Will show rate limited error if response is null
 - Uses authenticated requests for GitHub API
@@ -72,6 +72,7 @@
 - Improved visual of player, playlist sheet
 - Added page indicator for use with `TabBarView`
 - Moved backup to `Settings` page
-- Added feature that allow selecting LRC file for song
+- Added LRC file selection
 - Improved `LyricHandler` parser
 - Shows lyric for song if available
+- Lyric timestamp is now `Duration`

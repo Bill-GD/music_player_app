@@ -102,7 +102,12 @@ class _BackupScreenState extends State<BackupScreen> {
                       }
 
                       // TODO parse json & delete -> insert
-                      final json = jsonDecode(bu.readAsStringSync()) as Map<String, dynamic>;
+                      final backupContent = bu
+                          .readAsStringSync()
+                          .replaceAll('timeAdded', 'time_added')
+                          .replaceAll('timeListened', 'time_listened');
+
+                      final json = jsonDecode(backupContent) as Map<String, dynamic>;
 
                       await DatabaseHandler.clearAllData();
                       for (final o in json['songs']!) {

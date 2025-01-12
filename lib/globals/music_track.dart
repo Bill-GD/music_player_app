@@ -37,10 +37,10 @@ class MusicTrack {
         path = json['path'],
         name = json['name'] ?? json['path'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
-        timeListened = json['timeListened'],
+        timeListened = json['timeListened'] ?? json['time_listened'] ?? 0,
         lyricPath = json['lyric_path'] ?? '',
-        timeAdded = json['timeAdded'] == null
-            ? DateTime.parse(json['timeAdded'])
+        timeAdded = json['time_added'] != null
+            ? DateTime.parse(json['time_added'])
             : File('${Globals.downloadPath}${json['path']}').statSync().modified;
 
   MusicTrack.fromJsonString(String jsonString) : this.fromJson(jsonDecode(jsonString));
@@ -50,9 +50,9 @@ class MusicTrack {
         'path': path,
         'name': name,
         'artist': artist,
-        'timeListened': timeListened,
+        'time_listened': timeListened,
         'lyric_path': lyricPath,
-        'timeAdded': timeAdded.toIso8601String(),
+        'time_added': timeAdded.toIso8601String(),
       };
 
   Future<void> incrementTimePlayed() async {
@@ -67,13 +67,15 @@ class MusicTrack {
     }
     id = await DatabaseHandler.db.insert(
       Globals.songTable,
-      {
-        'path': path,
-        'name': name,
-        'artist': artist,
-        'timeListened': timeListened,
-        'timeAdded': timeAdded.toIso8601String(),
-      },
+      toJson()..remove('id'),
+      // {
+      //   'path': path,
+      //   'name': name,
+      //   'artist': artist,
+      //   'time_listened': timeListened,
+      //   'lyric_path': lyricPath,
+      //   'time_added': timeAdded.toIso8601String(),
+      // },
     );
     LogHandler.log('Inserted song -> new id: $id');
   }
@@ -150,12 +152,12 @@ class Album {
   Album.fromJson(Map<String, dynamic> json)
       : id = json['id'] ?? -1,
         name = json['name'],
-        timeAdded = DateTime.parse(json['timeAdded']);
+        timeAdded = DateTime.parse(json['time_added']);
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'timeAdded': timeAdded.toIso8601String(),
+        'time_added': timeAdded.toIso8601String(),
       };
 
   Future<void> insert() async {
@@ -166,7 +168,7 @@ class Album {
       Globals.albumTable,
       {
         'name': name,
-        'timeAdded': timeAdded.toIso8601String(),
+        'time_added': timeAdded.toIso8601String(),
       },
     );
     LogHandler.log('Inserted album -> new id: $id');
@@ -261,7 +263,8 @@ Future<void> updateListOfSongs() async {
       ..id = matchingSong.id
       ..name = matchingSong.name
       ..artist = matchingSong.artist
-      ..timeListened = matchingSong.timeListened;
+      ..timeListened = matchingSong.timeListened
+      ..lyricPath = matchingSong.lyricPath;
   }
 
   final updateCount = storageSongs.where((e) => e.id >= 0).length;

@@ -4,13 +4,14 @@
 - Added app version checking feature
 - Added feature that allow reordering album songs
 - Added scroll bar to playlist sheet
+- Added feature that allow adding lyric to song: select file & edit
 
 ## Changes
 
+- Improved visual of popup messages, log panel, setting page, player
 - Can now play song after recovering playlist without opening the player
 - No longer autoplay song after loading saved playlist and opening the player
 - No longer shuffle when turning shuffle off
-- Improved visual of popup messages, log panel, setting page, player
 - Changed playlist icon: glass -> list
 - More detailed app version info in-app
 - Moved backup, app version display (& related interactions) into `Settings`
