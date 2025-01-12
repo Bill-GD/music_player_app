@@ -52,7 +52,7 @@
 - Added page for theme setting
 - Fixed wrong/outdated SoundCloud client ID -> re-enabled SoundCloud downloader
 - Fixed trying to parse special log message lines (from exceptions)
-- Moved version string, licenses and GitHub link to `Setting` page
+- Moved version string, licenses and GitHub link to `Settings` page
 - Added checking for app update feature
 
 ## Dev 6
@@ -69,3 +69,4 @@
 - Updated song list shuffle icon
 - Improved visual of player, playlist sheet
 - Added page indicator for use with `TabBarView`
+- Moved backup to `Settings` page

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../globals/extensions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../main_screen/backup.dart';
 import 'theme_setting.dart';
 import 'version_check.dart';
 
@@ -143,9 +144,30 @@ class _SettingsPageState extends State<SettingsPage> {
                     transitionsBuilder: (context, anim, _, child) {
                       return SlideTransition(
                         position: Tween<Offset>(
-                          begin: const Offset(1, 0),
+                          begin: const Offset(-1, 0),
                           end: const Offset(0, 0),
                         ).animate(anim.drive(CurveTween(curve: Curves.decelerate))),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: leadingText(context, 'Backup', false, 16),
+              subtitle: const Text('Save and restore app data'),
+              trailing: const Icon(CupertinoIcons.right_chevron),
+              onTap: () {
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (_, __, ___) => const BackupScreen(),
+                    transitionsBuilder: (context, anim1, _, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(-1, 0),
+                          end: const Offset(0, 0),
+                        ).animate(anim1.drive(CurveTween(curve: Curves.decelerate))),
                         child: child,
                       );
                     },
@@ -164,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     transitionsBuilder: (context, anim, _, child) {
                       return SlideTransition(
                         position: Tween<Offset>(
-                          begin: const Offset(1, 0),
+                          begin: const Offset(-1, 0),
                           end: const Offset(0, 0),
                         ).animate(anim.drive(CurveTween(curve: Curves.decelerate))),
                         child: child,

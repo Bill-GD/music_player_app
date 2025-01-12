@@ -57,7 +57,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
+    animController = AnimationController(duration: 300.ms, reverseDuration: 300.ms, vsync: this);
     Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
 
     _checkStoragePermission().then((storagePermissionStatus) async {
@@ -220,7 +220,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             child: Container(
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiaryContainer,
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: const [
                   BoxShadow(

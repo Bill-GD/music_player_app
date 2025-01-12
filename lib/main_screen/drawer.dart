@@ -6,7 +6,6 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../setting/setting.dart';
-import 'backup.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({super.key});
@@ -93,29 +92,6 @@ class _MainDrawerState extends State<MainDrawer> {
                         sortAllSongs();
                         // updateChildren();
                       }
-                    },
-                  ),
-                  listItemDivider(),
-                  ListTile(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    leading: FaIcon(Icons.file_copy, color: iconColor(context)),
-                    title: const Text('Backup', style: bottomSheetTitle),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => const BackupScreen(),
-                          transitionsBuilder: (context, anim1, _, child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(-1, 0),
-                                end: const Offset(0, 0),
-                              ).animate(anim1.drive(CurveTween(curve: Curves.decelerate))),
-                              child: child,
-                            );
-                          },
-                        ),
-                      );
                     },
                   ),
                   listItemDivider(),
