@@ -38,7 +38,7 @@ class _BackupScreenState extends State<BackupScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: const Text('Backup'),
           centerTitle: true,
           leading: IconButton(

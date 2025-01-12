@@ -33,7 +33,7 @@ class _AlbumListState extends State<AlbumList> {
 
             return OpenContainer(
               closedElevation: 0,
-              closedColor: Theme.of(context).colorScheme.background,
+              closedColor: Theme.of(context).colorScheme.surface,
               openColor: Colors.transparent,
               transitionDuration: 400.ms,
               onClosed: (_) => setState(() {}),

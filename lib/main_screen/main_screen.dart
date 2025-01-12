@@ -101,7 +101,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             title: Container(
               height: AppBar().preferredSize.height * 0.65,
               margin: const EdgeInsets.only(right: 15),
@@ -116,7 +116,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   ),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -183,7 +183,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           String artistName = Globals.artists.keys.elementAt(artistIndex);
                           return OpenContainer(
                             closedElevation: 0,
-                            closedColor: Theme.of(context).colorScheme.background,
+                            closedColor: Theme.of(context).colorScheme.surface,
                             openColor: Colors.transparent,
                             transitionDuration: 400.ms,
                             onClosed: (_) => setState(() {}),

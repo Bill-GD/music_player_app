@@ -58,18 +58,18 @@ InputDecoration textFieldDecoration(
 
 ButtonStyle textButtonStyle(BuildContext context) {
   return ButtonStyle(
-    textStyle: const MaterialStatePropertyAll<TextStyle>(
+    textStyle: const WidgetStatePropertyAll<TextStyle>(
       TextStyle(fontWeight: FontWeight.bold),
     ),
-    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+    backgroundColor: WidgetStateProperty.resolveWith<Color>(
       (states) {
-        if (states.contains(MaterialState.disabled)) {
+        if (states.contains(WidgetState.disabled)) {
           return Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5);
         }
         return Theme.of(context).colorScheme.primaryContainer;
       },
     ),
-    shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
+    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
       ),
@@ -85,7 +85,7 @@ Future<void> getBottomSheet(
   await showCupertinoModalPopup(
     context: context,
     builder: (context) => Material(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(30),
       child: Container(
         constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),

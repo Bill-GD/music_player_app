@@ -100,7 +100,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(30),
       child: Container(
         constraints: BoxConstraints(

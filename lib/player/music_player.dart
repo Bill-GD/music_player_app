@@ -11,8 +11,10 @@ import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../widgets/lyric_strip.dart';
 import '../widgets/page_indicator.dart';
 import '../widgets/playlist_sheet.dart';
+import 'lyric_editor.dart';
 import 'player_utils.dart';
 
 Future<Route> getMusicPlayerRoute(BuildContext context, int songID) async {
@@ -62,7 +64,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
     super.initState();
     updateSongInfo(widget.songID);
 
-    animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
+    animController = AnimationController(duration: 300.ms, reverseDuration: 300.ms, vsync: this);
     Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
 
     tabController = TabController(length: 2, vsync: this);
@@ -170,7 +172,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               ),
                               border: Border.all(
                                 width: 1,
-                                color: Theme.of(context).colorScheme.onBackground,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -185,27 +187,40 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               song.lyricPath.isEmpty
-                                  ? ElevatedButton(
-                                      onPressed: () {},
-                                      style: const ButtonStyle(
-                                        backgroundColor: MaterialStatePropertyAll(Colors.transparent),
-                                        side: MaterialStatePropertyAll(BorderSide(
-                                          color: Colors.white54,
-                                        )),
-                                      ),
-                                      child: const Text(
-                                        'Add lyric',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
+                                  ? Column(
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(MaterialPageRoute(
+                                              builder: (context) => LyricEditor(songID: song.id),
+                                            ));
+                                          },
+                                          style: const ButtonStyle(
+                                            backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                            side: WidgetStatePropertyAll(BorderSide(
+                                              color: Colors.white54,
+                                            )),
+                                          ),
+                                          child: const Text(
+                                            'Add lyric',
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {},
+                                          style: ButtonStyle(
+                                            backgroundColor: WidgetStatePropertyAll(
+                                              Theme.of(context).colorScheme.onSecondaryContainer,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Select file',
+                                            style: TextStyle(color: Theme.of(context).colorScheme.surface),
+                                          ),
+                                        ),
+                                      ],
                                     )
-                                  : const Text(
-                                      'Lyrics',
-                                      style: TextStyle(
-                                        color: Colors.white54,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                  : const LyricStrip(),
                             ],
                           ),
                         ],
@@ -267,7 +282,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                         timeLabelLocation: TimeLabelLocation.below,
                         timeLabelType: TimeLabelType.totalTime,
                         timeLabelTextStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                         onSeek: (seekDuration) async {
@@ -319,7 +334,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                           ),
                           child: IconButton(
                             onPressed: () {

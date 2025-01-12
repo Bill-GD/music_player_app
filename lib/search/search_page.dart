@@ -35,7 +35,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 40),
             onPressed: Navigator.of(context).pop,
@@ -55,7 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   borderRadius: BorderRadius.circular(25),
                 ),
