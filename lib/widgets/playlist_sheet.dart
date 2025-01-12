@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -99,7 +100,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
+      color: Theme.of(context).colorScheme.background,
       borderRadius: BorderRadius.circular(30),
       child: Container(
         constraints: BoxConstraints(
@@ -120,31 +121,41 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
               ),
             ),
             Flexible(
-              child: ReorderableListView(
-                scrollController: scrollController,
-                onReorder: (oIdx, nIdx) {
-                  if (nIdx > oIdx) nIdx--;
-                  LogHandler.log(
-                    'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
-                  );
-                  Globals.audioHandler.moveSong(oIdx, nIdx);
-                  // final idx = content.
-                  content.insert(nIdx, content.removeAt(oIdx));
-                  updateList();
-                  setState(() {});
-                },
-                proxyDecorator: (child, _, __) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Material(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      child: child,
-                    ),
-                  );
-                },
-                // shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                children: content,
+              child: Scrollbar(
+                controller: scrollController,
+                interactive: true,
+                thumbVisibility: true,
+                radius: const Radius.circular(16),
+                thickness: min(content.length ~/ 3, 8).toDouble(),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: ReorderableListView(
+                    scrollController: scrollController,
+                    onReorder: (oIdx, nIdx) {
+                      if (nIdx > oIdx) nIdx--;
+                      LogHandler.log(
+                        'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
+                      );
+                      Globals.audioHandler.moveSong(oIdx, nIdx);
+                      // final idx = content.
+                      content.insert(nIdx, content.removeAt(oIdx));
+                      updateList();
+                      setState(() {});
+                    },
+                    proxyDecorator: (child, _, __) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Material(
+                          color: Theme.of(context).colorScheme.tertiaryContainer,
+                          child: child,
+                        ),
+                      );
+                    },
+                    // shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    children: content,
+                  ),
+                ),
               ),
             ),
           ],
