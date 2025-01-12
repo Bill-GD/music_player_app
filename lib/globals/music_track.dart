@@ -15,6 +15,7 @@ class MusicTrack {
   String path;
   String name, artist;
   int timeListened;
+  String lyricPath;
   DateTime timeAdded = DateTime.now();
 
   String get fullPath => Globals.downloadPath + path;
@@ -24,8 +25,8 @@ class MusicTrack {
     this.id = -1,
     this.name = '',
     this.artist = 'Unknown',
-    // this.album = 'Unknown',
     this.timeListened = 0,
+    this.lyricPath = '',
     required this.timeAdded,
   }) {
     name = name.isEmpty ? path.split('/').last.split('.mp3').first : name;
@@ -36,13 +37,11 @@ class MusicTrack {
         path = json['path'],
         name = json['name'] ?? json['path'].split('/').last.split('.mp3').first,
         artist = json['artist'] ?? 'Unknown',
-        // album = json['album'] ?? 'Unknown',
         timeListened = json['timeListened'],
+        lyricPath = json['lyric_path'] ?? '',
         timeAdded = json['timeAdded'] == null
             ? DateTime.parse(json['timeAdded'])
-            : File('${Globals.downloadPath}${json['path']}').statSync().modified {
-    // LogHandler.log('Time (fromJson): ${json['timeAdded']}');
-  }
+            : File('${Globals.downloadPath}${json['path']}').statSync().modified;
 
   MusicTrack.fromJsonString(String jsonString) : this.fromJson(jsonDecode(jsonString));
 
@@ -51,8 +50,8 @@ class MusicTrack {
         'path': path,
         'name': name,
         'artist': artist,
-        // 'album': album,
         'timeListened': timeListened,
+        'lyric_path': lyricPath,
         'timeAdded': timeAdded.toIso8601String(),
       };
 

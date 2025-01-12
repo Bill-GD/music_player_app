@@ -19,16 +19,19 @@ class DatabaseHandler {
 
     _db = await openDatabase(
       _path,
-      // prev = 1
-      version: 2,
+      // prev = 2
+      version: 3,
       readOnly: false,
       onCreate: (db, version) async {
+        LogHandler.log('Creating tables');
         await _createTables(db, version);
         await _migrateOldData(db);
         LogHandler.log('Song count: ${(await db.rawQuery('select count(*) count from music_track')).first['count']}');
       },
       onUpgrade: (db, _, newVersion) async {
+        LogHandler.log('Upgrading database to version $newVersion');
         await _createTables(db, newVersion);
+        await updateTables(db, newVersion);
       },
       onOpen: (db) async {
         LogHandler.log('Database opened');
@@ -36,8 +39,7 @@ class DatabaseHandler {
     );
   }
 
-  static Future<void> _createTables(Database db, [int? newVersion]) async {
-    LogHandler.log('Creating tables');
+  static Future<void> _createTables(Database db, [int newVersion = 1]) async {
     await db.execute(
       'create table if not exists ${Globals.songTable} ('
       'id integer primary key,'
@@ -45,6 +47,7 @@ class DatabaseHandler {
       'name text not null,'
       'artist text not null,'
       'timeListened integer default 0,'
+      '${newVersion >= 3 ? 'lyric_path text not null default "",' : ''}'
       'timeAdded datetime not null'
       ');',
     );
@@ -65,9 +68,9 @@ class DatabaseHandler {
       'foreign key (album_id) references album (id)'
       ');',
     );
-    if (newVersion == null) return;
+    if (newVersion <= 1) return;
 
-    if (newVersion == 2) {
+    if (newVersion >= 2) {
       LogHandler.log("Creating '${Globals.playlistTable}' table");
       await db.execute(
         'create table if not exists ${Globals.playlistTable} ('
@@ -77,6 +80,13 @@ class DatabaseHandler {
         'is_current integer not null default 0'
         ');',
       );
+    }
+  }
+
+  static Future<void> updateTables(Database db, int newVersion) async {
+    if (newVersion >= 3) {
+      LogHandler.log('Adding lyric_path column to ${Globals.songTable}');
+      await db.execute('alter table ${Globals.songTable} add column lyric_path text not null default "";');
     }
   }
 
