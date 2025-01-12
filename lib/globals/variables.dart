@@ -41,7 +41,8 @@ class Globals {
   static late final String dbPath;
   static late final String logPath;
   static late final String backupPath;
-  static const String downloadPath = '/storage/emulated/0/Download/';
+  static const downloadPath = '/storage/emulated/0/Download/';
+  static const lyricPath = '/storage/emulated/0/Lyrics';
 
   static const githubToken = String.fromEnvironment('GITHUB_TOKEN');
 }
