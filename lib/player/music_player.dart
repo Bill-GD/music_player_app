@@ -194,7 +194,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => LyricEditor(songID: song.id),
+                                    builder: (context) => const LyricEditor(),
                                   ));
                                 },
                                 style: const ButtonStyle(

@@ -111,7 +111,7 @@ class _LyricStripState extends State<LyricStrip> {
                 leading: Text(
                   timestampList[index].toMMSS(),
                   style: TextStyle(
-                    color: !isCurrent ? Colors.grey.withOpacity(0.15) : null,
+                    color: !isCurrent ? Colors.grey.withOpacity(0.07) : null,
                   ),
                 ),
                 trailing: isCurrent ? const Icon(Icons.arrow_left_rounded) : const Text('    '),
@@ -133,7 +133,7 @@ class _LyricStripState extends State<LyricStrip> {
             icon: const Icon(Icons.edit_note_rounded),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => LyricEditor(songID: widget.lyric.songId),
+                builder: (context) => LyricEditor(lyric: widget.lyric),
               ));
             },
           ),
@@ -146,7 +146,7 @@ class _LyricStripState extends State<LyricStrip> {
               dialogWithActions<bool>(
                 context,
                 title: 'Delete lyric',
-                titleFontSize: 16,
+                titleFontSize: 18,
                 textContent: 'Are you sure you want to remove the lyrics?',
                 contentFontSize: 14,
                 time: 300.ms,
