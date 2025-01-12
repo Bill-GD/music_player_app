@@ -64,7 +64,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   }
 
   void updateLyric() {
-    lyric = LyricHandler.getLyric(song.id, path: song.lyricPath);
+    lyric = LyricHandler.getLyric(song.id, song.lyricPath);
     setState(() {});
   }
 
@@ -214,13 +214,17 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                     context: context,
                                     allowedExtensions: ['.lrc'],
                                     rootDirectory: Directory(Globals.lyricPath),
-                                    // fileTileSelectMode: FileTileSelectMode.wholeTile,
+                                    // itemFilter: (fsEntity, path, name) {
+                                    //   final absPath = fsEntity.absolute.path;
+                                    //   return absPath.contains('bill_gd') || absPath.endsWith('.lrc');
+                                    // },
                                   );
                                   if (path == null) return;
                                   LogHandler.log('Chose $path');
+                                  if (song.lyricPath == path) return;
 
                                   song.lyricPath = path;
-                                  song.update();
+                                  await song.update();
 
                                   // LogHandler.log('Chose ${File(path).readAsStringSync()}');
                                   // LogHandler.log(LyricHandler.getLyric(song.id, path: path).toString());
@@ -352,7 +356,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                       ),
                       child: IconButton(
                         onPressed: () {

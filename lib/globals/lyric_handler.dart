@@ -38,8 +38,8 @@ class LyricHandler {
       .replaceAll(']', '')
       .trim();
 
-  static Lyric? getLyric(int songID, {String? path}) {
-    final lrcFile = File(path ?? '$_dirPath/$songID.lrc');
+  static Lyric? getLyric(int songID, String path) {
+    final lrcFile = File(path);
     if (!lrcFile.existsSync()) return null;
 
     var lines = lrcFile.readAsLinesSync();
@@ -57,7 +57,8 @@ class LyricHandler {
 
       final time = l.substring(1, closingBracketIdx).split(RegExp(r'[:.]')).map(int.parse);
       lItems.add(LyricItem(
-        timestamp: DateTime(0, 1, 1, 0, time.elementAt(0), time.elementAt(1), time.elementAt(2), 0),
+        timestamp: time.elementAt(0).minutes + time.elementAt(1).seconds + time.elementAt(2).ms,
+        // timestamp: DateTime(0, 1, 1, 0, time.elementAt(0), time.elementAt(1), time.elementAt(2), 0),
         line: l.substring(closingBracketIdx + 1).trim(),
       ));
     }
@@ -98,7 +99,7 @@ class Lyric {
 }
 
 class LyricItem {
-  final DateTime timestamp;
+  final Duration timestamp;
   final String line;
 
   const LyricItem({required this.timestamp, required this.line});

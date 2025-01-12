@@ -46,16 +46,16 @@ class DatabaseHandler {
       'path text not null,' // the path is relative to /storage/emulated/0/Download, basically the file name only
       'name text not null,'
       'artist text not null,'
-      'timeListened integer default 0,'
+      'time_listened integer default 0,'
       '${newVersion >= 3 ? 'lyric_path text not null default "",' : ''}'
-      'timeAdded datetime not null'
+      'time_added datetime not null'
       ');',
     );
     await db.execute(
       'create table if not exists ${Globals.albumTable} ('
       'id integer primary key,'
       'name text not null,'
-      'timeAdded datetime not null'
+      'time_added datetime not null'
       ');',
     );
     await db.execute(
@@ -87,6 +87,10 @@ class DatabaseHandler {
     if (newVersion >= 3) {
       LogHandler.log('Adding lyric_path column to ${Globals.songTable}');
       await db.execute('alter table ${Globals.songTable} add column lyric_path text not null default "";');
+      // rename these columns: timeAdded -> time_added, timeListened -> time_listened of Globals.songTable
+      await db.execute('alter table ${Globals.songTable} rename column "timeAdded" to "time_added";');
+      await db.execute('alter table ${Globals.songTable} rename column "timeListened" to "time_listened";');
+      await db.execute('alter table ${Globals.albumTable} rename column "timeAdded" to "time_added";');
     }
   }
 
@@ -122,9 +126,9 @@ class DatabaseHandler {
           'path': relPath,
           'name': songList[i]['trackName'] ?? relPath.split('.mp3').first,
           'artist': songList[i]['artist'] ?? 'Unknown',
-          'timeListened': songList[i]['timeListened'],
-          'timeAdded':
-              songList[i]['timeAdded'] ?? File(songList[i]['absolutePath']).statSync().modified.toIso8601String(),
+          'time_listened': songList[i]['time_listened'],
+          'time_added':
+              songList[i]['time_added'] ?? File(songList[i]['absolutePath']).statSync().modified.toIso8601String(),
         });
 
         final res = await db.query(
@@ -141,7 +145,7 @@ class DatabaseHandler {
         } else {
           albumID = await db.insert(Globals.albumTable, <String, dynamic>{
             'name': songList[i]['album'] ?? 'Unknown',
-            'timeAdded': DateTime.now().toIso8601String(),
+            'time_added': DateTime.now().toIso8601String(),
           });
         }
 

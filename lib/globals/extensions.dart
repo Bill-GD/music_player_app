@@ -50,14 +50,6 @@ extension DateString on DateTime {
     return '$_formatDay ${_monthNames[month - 1]} $year, ${hour.padIntLeft(2, '0')}:${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}';
   }
 
-  String toLyricTimestamp() {
-    return '${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}.${(millisecond ~/ 10).padIntLeft(2, '0')}';
-  }
-
-  String toMMSS() {
-    return '${minute.padIntLeft(2, '0')}:${second.padIntLeft(2, '0')}';
-  }
-
   String get _formatDay {
     switch (day) {
       case 1:
@@ -69,5 +61,17 @@ extension DateString on DateTime {
       default:
         return '${day}th';
     }
+  }
+}
+
+extension LyricTimestamp on Duration {
+  DateTime get _dt => DateTime.fromMillisecondsSinceEpoch(inMilliseconds);
+
+  String toLyricTimestamp() {
+    return '${_dt.minute.padIntLeft(2, '0')}:${_dt.second.padIntLeft(2, '0')}.${(_dt.millisecond ~/ 10).padIntLeft(2, '0')}';
+  }
+
+  String toMMSS() {
+    return '${_dt.minute.padIntLeft(2, '0')}:${_dt.second.padIntLeft(2, '0')}';
   }
 }
