@@ -3,17 +3,16 @@
 - Added popup message when there's an app error
 - Added app version checking feature
 - Added feature that allow reordering album songs
+- Added scroll bar to playlist sheet
 
 ## Changes
 
 - Can now play song after recovering playlist without opening the player
 - No longer autoplay song after loading saved playlist and opening the player
 - No longer shuffle when turning shuffle off
-- Improved visual of popup messages
-- Improved visual clarity of log popup
+- Improved visual of popup messages, log panel, setting page, player
 - Changed playlist icon: glass -> list
 - More detailed app version info in-app
-- Improved setting page
 - Moved app version display and related interactions into `Settings`
 
 ## Fixes

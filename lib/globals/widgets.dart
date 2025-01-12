@@ -85,7 +85,7 @@ Future<void> getBottomSheet(
   await showCupertinoModalPopup(
     context: context,
     builder: (context) => Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
+      color: Theme.of(context).colorScheme.background,
       borderRadius: BorderRadius.circular(30),
       child: Container(
         constraints: BoxConstraints.loose(Size.fromWidth(MediaQuery.of(context).size.width * 0.90)),
