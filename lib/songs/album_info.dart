@@ -89,7 +89,7 @@ class _AlbumInfoState extends State<AlbumInfo> {
                   decoration: textFieldDecoration(
                     context,
                     labelText: 'Name',
-                    fillColor: Theme.of(context).colorScheme.background,
+                    fillColor: Theme.of(context).colorScheme.surface,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -123,7 +123,7 @@ class _AlbumInfoState extends State<AlbumInfo> {
                       initialValue: album.id.toString(),
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),
@@ -143,7 +143,7 @@ class _AlbumInfoState extends State<AlbumInfo> {
                       initialValue: album.songs.length.toString(),
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),
@@ -163,7 +163,7 @@ class _AlbumInfoState extends State<AlbumInfo> {
                       initialValue: album.timeAdded.toDateString(),
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),

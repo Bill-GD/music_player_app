@@ -86,7 +86,7 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
                 context,
                 labelText: 'Search',
                 hintText: 'Search names and artists',
-                fillColor: Theme.of(context).colorScheme.background,
+                fillColor: Theme.of(context).colorScheme.surface,
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),

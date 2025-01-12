@@ -140,7 +140,7 @@ class MusicDownloaderState extends State<MusicDownloader> {
                           context,
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.onBackground,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -216,7 +216,7 @@ class MusicDownloaderState extends State<MusicDownloader> {
                                   decoration: metadata!['thumbnailUrl'] == null
                                       ? BoxDecoration(
                                           border: Border.all(
-                                            color: Theme.of(context).colorScheme.onBackground,
+                                            color: Theme.of(context).colorScheme.onSurface,
                                           ),
                                           borderRadius: BorderRadius.circular(10),
                                         )

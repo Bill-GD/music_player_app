@@ -64,7 +64,7 @@ class _AddAlbumState extends State<AddAlbum> {
           decoration: textFieldDecoration(
             context,
             labelText: 'Name',
-            fillColor: Theme.of(context).colorScheme.background,
+            fillColor: Theme.of(context).colorScheme.surface,
             errorText: errorText.isEmpty ? null : errorText,
             suffixIcon: const Padding(
               padding: EdgeInsets.only(right: 12),

@@ -87,7 +87,7 @@ class _SongInfoState extends State<SongInfo> {
                   decoration: textFieldDecoration(
                     context,
                     labelText: 'Name',
-                    fillColor: Theme.of(context).colorScheme.background,
+                    fillColor: Theme.of(context).colorScheme.surface,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -108,7 +108,7 @@ class _SongInfoState extends State<SongInfo> {
                   decoration: textFieldDecoration(
                     context,
                     labelText: 'Artist',
-                    fillColor: Theme.of(context).colorScheme.background,
+                    fillColor: Theme.of(context).colorScheme.surface,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -139,7 +139,7 @@ class _SongInfoState extends State<SongInfo> {
                       initialValue: song.id.toString(),
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),
@@ -159,7 +159,7 @@ class _SongInfoState extends State<SongInfo> {
                       initialValue: song.timeListened.toString(),
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),
@@ -179,7 +179,7 @@ class _SongInfoState extends State<SongInfo> {
                       initialValue: song.timeAdded.toDateString(),
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),
@@ -199,7 +199,7 @@ class _SongInfoState extends State<SongInfo> {
                       initialValue: song.fullPath,
                       decoration: textFieldDecoration(
                         context,
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: InputBorder.none,
                       ),
                     ),

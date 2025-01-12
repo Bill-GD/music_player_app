@@ -259,7 +259,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Material(
-                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             child: child,
                           ),
                         );
@@ -275,7 +275,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                           return OpenContainer(
                             key: const ValueKey(-1),
                             closedElevation: 0,
-                            closedColor: Theme.of(context).colorScheme.background,
+                            closedColor: Theme.of(context).colorScheme.surface,
                             openColor: Colors.transparent,
                             transitionDuration: 400.ms,
                             onClosed: (_) => setState(getSongs),

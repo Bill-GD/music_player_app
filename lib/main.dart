@@ -71,10 +71,16 @@ class MusicPlayerApp extends StatelessWidget {
           data: ThemeData(
             useMaterial3: true,
             fontFamily: 'Nunito',
+            brightness: Brightness.light,
+            sliderTheme: const SliderThemeData(
+              activeTickMarkColor: Colors.transparent,
+              inactiveTickMarkColor: Colors.transparent,
+            ),
             colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.white,
               brightness: Brightness.light,
-            ).copyWith(background: Colors.white),
+            ),
+            //.copyWith(surface: Colors.white),
           ),
         ),
         AppTheme(
