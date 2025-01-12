@@ -242,7 +242,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               ),
                             ],
                           )
-                        : LyricStrip(lyric: lyric!),
+                        : LyricStrip(lyric: lyric!, updateLyric: updateLyric),
                   ],
                 ),
               ),

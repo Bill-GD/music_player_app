@@ -1,14 +1,18 @@
 ## Features
 
+- Added lyric viewer to the right of the player image.
+  Current line is highlighted, others are dimmed.
+  Auto scroll when playing the timestamp is reached.
+  Can be scrolled freely and will auto scroll after a short delay.
+- Added feature that allow adding lyric to song: select file & edit
+- Added feature that allow reordering album songs
 - Added popup message when there's an app error
 - Added app version checking feature
-- Added feature that allow reordering album songs
 - Added scroll bar to playlist sheet
-- Added feature that allow adding lyric to song: select file & edit
 
 ## Changes
 
-- Improved visual of popup messages, log panel, setting page, player
+- Improved visual of a lot of things
 - Can now play song after recovering playlist without opening the player
 - No longer autoplay song after loading saved playlist and opening the player
 - No longer shuffle when turning shuffle off
