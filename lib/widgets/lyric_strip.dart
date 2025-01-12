@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../globals/extensions.dart';
+import '../globals/lyric_handler.dart';
+
 class LyricStrip extends StatefulWidget {
-  const LyricStrip({super.key});
+  final Lyric lyric;
+
+  const LyricStrip({super.key, required this.lyric});
 
   @override
   State<LyricStrip> createState() => _LyricStripState();
@@ -10,12 +15,16 @@ class LyricStrip extends StatefulWidget {
 class _LyricStripState extends State<LyricStrip> {
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'Lyrics',
-      style: TextStyle(
-        color: Colors.white54,
-        fontSize: 24,
-        fontWeight: FontWeight.w600,
+    return Expanded(
+      child: ListView.builder(
+        itemCount: widget.lyric.list.length,
+        itemBuilder: (context, index) {
+          final item = widget.lyric.list.elementAt(index);
+          return ListTile(
+            title: Text(item.line),
+            subtitle: Text(item.timestamp.toLyricTimestamp()),
+          );
+        },
       ),
     );
   }

@@ -21,39 +21,34 @@ class LyricHandler {
 
     lrcFile.writeAsStringSync('[ti: ${lyric.name}]\n', mode: FileMode.append);
     lrcFile.writeAsStringSync('[ar: ${lyric.artist}]\n', mode: FileMode.append);
-    lrcFile.writeAsStringSync('[al: ${lyric.album}]\n\n', mode: FileMode.append);
+    lrcFile.writeAsStringSync('[al: ${lyric.album}]\n', mode: FileMode.append);
 
     lrcFile.writeAsStringSync('[re: $appName]\n', mode: FileMode.append);
-    lrcFile.writeAsStringSync('[ve: $version]\n\n', mode: FileMode.append);
+    lrcFile.writeAsStringSync('[ve: $version]\n', mode: FileMode.append);
+    lrcFile.writeAsStringSync('[length:]\n\n', mode: FileMode.append);
 
     for (final l in lyric.list) {
       lrcFile.writeAsStringSync('[${l.timestamp.toLyricTimestamp()}] ${l.line}\n', mode: FileMode.append);
     }
   }
 
-  static Lyric? getLyric(int songID) {
-    final lrcFile = File('$_dirPath/$songID.lrc');
+  static String? _getMetadata(List<String> lines, String begin) => lines //
+      .firstWhereOrNull((e) => e.startsWith(begin))
+      ?.substring(4)
+      .replaceAll(']', '')
+      .trim();
+
+  static Lyric? getLyric(int songID, {String? path}) {
+    final lrcFile = File(path ?? '$_dirPath/$songID.lrc');
     if (!lrcFile.existsSync()) return null;
 
     var lines = lrcFile.readAsLinesSync();
 
-    final name = lines //
-        .firstWhere((e) => e.startsWith('[ti'))
-        .substring(4)
-        .replaceAll(']', '')
-        .trim();
-    final artist = lines //
-        .firstWhere((e) => e.startsWith('[ar'))
-        .substring(4)
-        .replaceAll(']', '')
-        .trim();
-    final album = lines //
-        .firstWhere((e) => e.startsWith('[al'))
-        .substring(4)
-        .replaceAll(']', '')
-        .trim();
+    final name = _getMetadata(lines, '[ti:') ?? '';
+    final artist = _getMetadata(lines, '[ar:') ?? '';
+    final album = _getMetadata(lines, '[al:') ?? '';
 
-    lines = lines.getRange(7, lines.length).where((e) => e.isNotEmpty).toList();
+    lines = lines.where((e) => e.trim().isNotEmpty && e.startsWith(RegExp(r'^\[\d'))).toList();
 
     final lItems = <LyricItem>[];
 
@@ -66,6 +61,8 @@ class LyricHandler {
         line: l.substring(closingBracketIdx + 1).trim(),
       ));
     }
+
+    lItems.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     return Lyric(
       songId: songID,
@@ -92,7 +89,11 @@ class Lyric {
 
   @override
   String toString() {
-    return 'id: $songId\nname: $name\nartist: $artist\nalbum: $album\n${list.map((e) => '${e.timestamp.toLyricTimestamp()} - ${e.line}').join('\n')}';
+    return 'id: $songId\n'
+        'name: $name\n'
+        'artist: $artist\n'
+        'album: $album\n'
+        '${list.map((e) => '${e.timestamp.toLyricTimestamp()} - ${e.line}').join('\n')}';
   }
 }
 

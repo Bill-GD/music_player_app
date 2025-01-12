@@ -9,6 +9,7 @@
   workaround
 - Added scrolling to popup messages
 - No longer autoplay song before setting new song, after recovering playlist
+- Added `LyricHandler` class to handle LRC files
 
 ## Dev 2
 
@@ -66,8 +67,11 @@
 - Playlist sheet is now a `StatefulWidget`, opened with `CupertinoModalPopupRoute`
 - Fixed playlist sheet not updating properly when song is changed
 - Logs wrong type of version check response
-- Logs app finished loading
+- Logs finished loading app
 - Updated song list shuffle icon
 - Improved visual of player, playlist sheet
 - Added page indicator for use with `TabBarView`
 - Moved backup to `Settings` page
+- Added feature that allow selecting LRC file for song
+- Improved `LyricHandler` parser
+- Shows lyric for song if available

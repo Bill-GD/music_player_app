@@ -3,11 +3,13 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
+import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
@@ -49,6 +51,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   late MusicTrack song;
   late final AnimationController animController;
   late final TabController tabController;
+  Lyric? lyric;
 
   void updateSongInfo([int? songID]) async {
     LogHandler.log("Updating player's UI");
@@ -56,6 +59,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
     song = Globals.allSongs.firstWhere((e) => e.id == (songID ?? Globals.currentSongID));
     currentDuration = getCurrentDuration();
     maxDuration = getTotalDuration();
+    setState(() {});
+  }
+
+  void updateLyric() {
+    lyric = LyricHandler.getLyric(song.id, path: song.lyricPath);
     setState(() {});
   }
 
@@ -186,7 +194,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              song.lyricPath.isEmpty
+                              song.lyricPath.isEmpty || lyric == null
                                   ? Column(
                                       children: [
                                         ElevatedButton(
@@ -207,7 +215,23 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                           ),
                                         ),
                                         ElevatedButton(
-                                          onPressed: () {},
+                                          onPressed: () async {
+                                            final res = await FilePicker.platform.pickFiles(
+                                              allowedExtensions: ['lrc'],
+                                              type: FileType.custom,
+                                            );
+                                            if (res == null) return;
+                                            final path = res.files.single.path;
+                                            assert(path != null, 'File should be chosen');
+                                            LogHandler.log('Chose ${path!}');
+
+                                            song.lyricPath = path;
+                                            song.update();
+
+                                            // LogHandler.log('Chose ${File(path).readAsStringSync()}');
+                                            // LogHandler.log(LyricHandler.getLyric(song.id, path: path).toString());
+                                            updateLyric();
+                                          },
                                           style: ButtonStyle(
                                             backgroundColor: WidgetStatePropertyAll(
                                               Theme.of(context).colorScheme.onSecondaryContainer,
@@ -220,7 +244,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                         ),
                                       ],
                                     )
-                                  : const LyricStrip(),
+                                  : LyricStrip(lyric: lyric!),
                             ],
                           ),
                         ],
