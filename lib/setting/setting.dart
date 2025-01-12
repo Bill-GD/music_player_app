@@ -116,7 +116,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         body: ListView(
-          // padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.only(bottom: 24),
           children: [
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

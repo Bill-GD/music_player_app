@@ -78,3 +78,4 @@
 - Lyric timestamp is now `Duration`
 - Fixed auto scrolling is not animated
 - Allow detaching lyric from song
+- Added outline to popup dialog
