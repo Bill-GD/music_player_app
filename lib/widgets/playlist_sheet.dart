@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'extensions.dart';
-import 'log_handler.dart';
-import 'variables.dart';
-import 'widgets.dart';
+import '../globals/extensions.dart';
+import '../globals/log_handler.dart';
+import '../globals/variables.dart';
+import '../globals/widgets.dart';
 
 class PlaylistSheet extends StatefulWidget {
   const PlaylistSheet({super.key});

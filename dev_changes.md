@@ -67,3 +67,5 @@
 - Logs wrong type of version check response
 - Logs app finished loading
 - Updated song list shuffle icon
+- Improved player's visual
+- Added page indicator for use with `TabBarView`
