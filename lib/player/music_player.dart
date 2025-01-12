@@ -9,9 +9,10 @@ import 'package:flutter/material.dart';
 import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
-import '../globals/playlist_sheet.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../widgets/page_indicator.dart';
+import '../widgets/playlist_sheet.dart';
 import 'player_utils.dart';
 
 Future<Route> getMusicPlayerRoute(BuildContext context, int songID) async {
@@ -45,6 +46,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   final List<StreamSubscription> subs = [];
   late MusicTrack song;
   late final AnimationController animController;
+  late final TabController tabController;
 
   void updateSongInfo([int? songID]) async {
     LogHandler.log("Updating player's UI");
@@ -62,6 +64,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
 
     animController = AnimationController(duration: 400.ms, reverseDuration: 400.ms, vsync: this);
     Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
+
+    tabController = TabController(length: 2, vsync: this);
+    tabController.addListener(() => setState(() {}));
 
     subs.add(Globals.audioHandler.onSongChange.listen((changed) {
       if (changed) updateSongInfo();
@@ -84,6 +89,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
     for (final e in subs) {
       e.cancel();
     }
+    tabController.dispose();
     animController.dispose();
     super.dispose();
   }
@@ -91,9 +97,21 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: DefaultTabController(
-        length: 2,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.primaryContainer,
+            ],
+            stops: const [0.0, 0.8],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: Scaffold(
+          backgroundColor: Colors.transparent,
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             leading: IconButton(
@@ -127,10 +145,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // "Image"
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      width: 360,
+                      height: 360,
+                      alignment: Alignment.center,
                       child: TabBarView(
+                        controller: tabController,
                         children: [
                           Container(
                             margin: const EdgeInsets.only(top: 25, bottom: 15),
@@ -140,7 +162,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               gradient: LinearGradient(
                                 colors: [
                                   Theme.of(context).colorScheme.primaryContainer,
-                                  Colors.white60,
+                                  Colors.white70,
                                   Theme.of(context).colorScheme.primaryContainer,
                                 ],
                                 begin: Alignment.topCenter,
@@ -158,20 +180,42 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               size: 180,
                             ),
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 25, bottom: 15),
-                            padding: const EdgeInsets.all(65),
-                            child: const Icon(
-                              Icons.music_note_rounded,
-                              color: Colors.white54,
-                              size: 180,
-                            ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              song.lyricPath.isEmpty
+                                  ? ElevatedButton(
+                                      onPressed: () {},
+                                      style: const ButtonStyle(
+                                        backgroundColor: MaterialStatePropertyAll(Colors.transparent),
+                                        side: MaterialStatePropertyAll(BorderSide(
+                                          color: Colors.white54,
+                                        )),
+                                      ),
+                                      child: const Text(
+                                        'Add lyric',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Lyrics',
+                                      style: TextStyle(
+                                        color: Colors.white54,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   ),
-                  // playlist list
+                  Padding(
+                    padding: const EdgeInsets.only(top: 0, bottom: 20),
+                    child: PageIndicator(pageCount: 2, currentIndex: tabController.index),
+                  ),
                   InkWell(
                     borderRadius: BorderRadius.circular(5),
                     onTap: () {
