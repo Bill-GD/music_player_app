@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
-import '../globals/functions.dart';
 import '../globals/lyric_handler.dart';
 import '../globals/variables.dart';
+import '../globals/widgets.dart';
+import '../player/lyric_editor.dart';
 
 class LyricStrip extends StatefulWidget {
   final Lyric lyric;
+  final void Function() updateLyric;
 
-  const LyricStrip({super.key, required this.lyric});
+  const LyricStrip({super.key, required this.lyric, required this.updateLyric});
 
   @override
   State<LyricStrip> createState() => _LyricStripState();
@@ -22,8 +24,9 @@ class _LyricStripState extends State<LyricStrip> {
   late final StreamSubscription<Duration> sub;
   late final lineCount = lines.length, maxScrollExtent = scrollController.position.maxScrollExtent;
 
-  final scrollController = PageController(viewportFraction: 0.25);
-  int currentLine = 0;
+  final scrollController = PageController(viewportFraction: 0.3);
+  int currentLine = 0, viewLine = 0;
+  bool canAutoScroll = true;
 
   void scroll(Duration time) {
     if (!scrollController.hasClients) return;
@@ -55,15 +58,15 @@ class _LyricStripState extends State<LyricStrip> {
       lines.insert(0, '');
       timestampList.insert(0, 0.ms);
     }
-    currentLine = findCurrentLine();
+    viewLine = currentLine = findCurrentLine();
 
     WidgetsBinding.instance.addPostFrameCallback((_) => scroll(100.ms));
 
     sub = Globals.audioHandler.player.positionStream.listen((event) {
       final newLine = findCurrentLine();
       if (newLine == currentLine) return;
-      currentLine = newLine;
-      scroll(700.ms);
+      viewLine = currentLine = newLine;
+      if (canAutoScroll) scroll(600.ms);
     });
   }
 
@@ -85,7 +88,7 @@ class _LyricStripState extends State<LyricStrip> {
           padEnds: true,
           itemCount: lines.length,
           itemBuilder: (context, index) {
-            final isCurrent = index == currentLine;
+            final isCurrent = index == viewLine;
 
             return Center(
               child: ListTile(
@@ -113,13 +116,21 @@ class _LyricStripState extends State<LyricStrip> {
               ),
             );
           },
+          onPageChanged: (index) {
+            viewLine = index;
+            canAutoScroll = false;
+            Future.delayed(300.ms, () => canAutoScroll = true);
+            setState(() {});
+          },
         ),
         Positioned(
           right: 15,
           child: IconButton(
             icon: const Icon(Icons.edit_note_rounded),
             onPressed: () {
-              showToast(context, 'msg');
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => LyricEditor(songID: widget.lyric.songId),
+              ));
             },
           ),
         ),
@@ -128,7 +139,35 @@ class _LyricStripState extends State<LyricStrip> {
           child: IconButton(
             icon: const Icon(Icons.delete_forever_rounded),
             onPressed: () {
-              showToast(context, 'msg');
+              dialogWithActions<bool>(
+                context,
+                title: 'Delete lyric',
+                titleFontSize: 16,
+                textContent: 'Are you sure you want to remove the lyrics?',
+                contentFontSize: 14,
+                time: 300.ms,
+                actions: [
+                  TextButton(
+                    child: const Text('No'),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                  TextButton(
+                    child: const Text('Yes'),
+                    onPressed: () {
+                      final song = Globals.allSongs.firstWhereOrNull((e) => e.id == widget.lyric.songId);
+                      if (song != null) {
+                        song.lyricPath = '';
+                        song.update();
+                      }
+                      Navigator.of(context).pop(true);
+                    },
+                  ),
+                ],
+              ).then(
+                (value) {
+                  if (value == true) widget.updateLyric();
+                },
+              );
             },
           ),
         ),

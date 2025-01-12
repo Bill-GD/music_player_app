@@ -86,7 +86,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
         )
         .toList();
     sub = Globals.audioHandler.onSongChange.listen((event) {
-      scroll(500.ms);
+      scroll(300.ms);
       setState(updateList);
     });
   }

@@ -74,5 +74,7 @@
 - Moved backup to `Settings` page
 - Added LRC file selection
 - Improved `LyricHandler` parser
-- Shows lyric for song if available
+- Shows lyric for song if available, can scroll or auto scroll, current line is highlighted and centered
 - Lyric timestamp is now `Duration`
+- Fixed auto scrolling is not animated
+- Allow detaching lyric from song
