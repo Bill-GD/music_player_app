@@ -4,24 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'extensions.dart';
+import 'log_handler.dart';
 import 'variables.dart';
 import 'widgets.dart';
 
 class PlaylistSheet extends StatefulWidget {
-  final ScrollController scrollController;
-  final void Function(int oldIndex, int newIndex)? onReorder;
-
-  const PlaylistSheet({
-    super.key,
-    required this.scrollController,
-    this.onReorder,
-  });
+  const PlaylistSheet({super.key});
 
   @override
   State<PlaylistSheet> createState() => _PlaylistSheetState();
 }
 
 class _PlaylistSheetState extends State<PlaylistSheet> {
+  late final ScrollController scrollController = ScrollController();
   late final List<ListTile> content;
   late final StreamSubscription<bool> sub;
 
@@ -30,6 +25,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
       content[i] = ListTile(
         key: ValueKey(i),
         visualDensity: VisualDensity.compact,
+        titleAlignment: ListTileTitleAlignment.threeLine,
         leading: SizedBox(
           width: 32,
           child: Align(
@@ -45,9 +41,23 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
     }
   }
 
+  void scroll() {
+    if (!scrollController.hasClients) return;
+    final count = Globals.audioHandler.playlist.length;
+    final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
+    final maxScrollExtent = scrollController.position.maxScrollExtent;
+
+    scrollController.animateTo(
+      maxScrollExtent * (current / count),
+      duration: 100.ms,
+      curve: Curves.easeIn,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    scroll();
     content = Globals.audioHandler.playlist
         .mapIndexed(
           (i, sId) => ListTile(
@@ -58,7 +68,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
               width: 32,
               child: Align(
                 alignment: Alignment.center,
-                child: Globals.currentSongID == sId
+                child: sId == Globals.currentSongID
                     ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
                     : Text((i + 1).padIntLeft(2, '0')),
               ),
@@ -74,17 +84,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
         )
         .toList();
     sub = Globals.audioHandler.onSongChange.listen((event) {
-      if (widget.scrollController.hasClients) {
-        final count = Globals.audioHandler.playlist.length;
-        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
-        final maxScrollExtent = widget.scrollController.position.maxScrollExtent;
-
-        widget.scrollController.animateTo(
-          maxScrollExtent * (current / count),
-          duration: 100.ms,
-          curve: Curves.easeIn,
-        );
-      }
+      scroll();
       setState(updateList);
     });
   }
@@ -92,6 +92,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
   @override
   void dispose() {
     sub.cancel();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -120,10 +121,13 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
             ),
             Flexible(
               child: ReorderableListView(
-                scrollController: widget.scrollController,
+                scrollController: scrollController,
                 onReorder: (oIdx, nIdx) {
                   if (nIdx > oIdx) nIdx--;
-                  widget.onReorder?.call(oIdx, nIdx);
+                  LogHandler.log(
+                    'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
+                  );
+                  Globals.audioHandler.moveSong(oIdx, nIdx);
                   // final idx = content.
                   content.insert(nIdx, content.removeAt(oIdx));
                   updateList();

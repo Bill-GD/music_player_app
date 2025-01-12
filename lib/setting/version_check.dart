@@ -75,6 +75,7 @@ class _VersionCheckState extends State<VersionCheck> {
                   final json = jsonDecode(value.body);
                   if (json == null) throw Exception('Rate limited. Please come back later.');
                   if (json is! Map) {
+                    LogHandler.log('JSON received is not a map', LogLevel.error);
                     throw Exception(
                       'Something is wrong when trying to get stable version. Please create an issue or consult the dev.',
                     );
@@ -101,6 +102,7 @@ class _VersionCheckState extends State<VersionCheck> {
                   final json = jsonDecode(value.body);
                   if (json == null) throw Exception('Rate limited. Please come back later.');
                   if (json is! List) {
+                    LogHandler.log('JSON received is not a list', LogLevel.error);
                     throw Exception(
                       'Something is wrong when trying to get dev version. Please create an issue or consult the dev.',
                     );

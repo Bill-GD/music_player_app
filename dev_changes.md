@@ -64,3 +64,6 @@
 - Songs in album can now be reordered
 - Playlist sheet is now a `StatefulWidget`, opened with `CupertinoModalPopupRoute`
 - Fixed playlist sheet not updating properly when song is changed
+- Logs wrong type of version check response
+- Logs app finished loading
+- Updated song list shuffle icon

@@ -163,7 +163,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     if (!Globals.setDuplicate && songID == Globals.currentSongID) return;
     if (Globals.setDuplicate) Globals.setDuplicate = false;
 
-    LogHandler.log('Attempting to switch to: $songID');
+    assert(songID >= 0, 'Invalid song ID: $songID');
 
     MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
 

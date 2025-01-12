@@ -70,6 +70,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         await Globals.audioHandler.recoverSavedPlaylist();
 
         setState(() => isLoading = false);
+        LogHandler.log('App is ready');
       }
     });
     Globals.audioHandler.player.processingStateStream.listen((state) {
