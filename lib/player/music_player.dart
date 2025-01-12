@@ -91,213 +91,235 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
-            onPressed: () async {
-              if (context.mounted) Navigator.of(context).pop();
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.more_vert_rounded),
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            leading: IconButton(
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 40),
               onPressed: () async {
-                await showSongOptionsMenu(
-                  context,
-                  Globals.currentSongID,
-                  setState,
-                  showDeleteOption: false,
-                );
-                setState(() {
-                  song = Globals.allSongs.firstWhere((e) => e.path == song.path);
-                });
+                if (context.mounted) Navigator.of(context).pop();
               },
             ),
-          ],
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // "Image"
-                Container(
-                  margin: const EdgeInsets.only(top: 25, bottom: 15),
-                  padding: const EdgeInsets.all(65),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.primaryContainer,
-                        Colors.white60,
-                        Theme.of(context).colorScheme.primaryContainer,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.more_vert_rounded),
+                onPressed: () async {
+                  await showSongOptionsMenu(
+                    context,
+                    Globals.currentSongID,
+                    setState,
+                    showDeleteOption: false,
+                  );
+                  setState(() {
+                    song = Globals.allSongs.firstWhere((e) => e.path == song.path);
+                  });
+                },
+              ),
+            ],
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // "Image"
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      child: TabBarView(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 25, bottom: 15),
+                            padding: const EdgeInsets.all(65),
+                            constraints: const BoxConstraints(maxWidth: 200, maxHeight: 200),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primaryContainer,
+                                  Colors.white60,
+                                  Theme.of(context).colorScheme.primaryContainer,
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              border: Border.all(
+                                width: 1,
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.music_note_rounded,
+                              color: Colors.grey[850],
+                              size: 180,
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 25, bottom: 15),
+                            padding: const EdgeInsets.all(65),
+                            child: const Icon(
+                              Icons.music_note_rounded,
+                              color: Colors.white54,
+                              size: 180,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    border: Border.all(
-                      width: 0,
-                      color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                  // playlist list
+                  InkWell(
+                    borderRadius: BorderRadius.circular(5),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        CupertinoModalPopupRoute(builder: (context) => const PlaylistSheet()),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.list_rounded),
+                          const SizedBox(width: 5),
+                          Text(
+                            Globals.audioHandler.playlistDisplayName,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                          ),
+                        ],
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    Icons.music_note_rounded,
-                    color: Colors.grey[850],
-                    size: 180,
-                  ),
-                ),
-                // playlist list
-                InkWell(
-                  borderRadius: BorderRadius.circular(5),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      CupertinoModalPopupRoute(builder: (context) => const PlaylistSheet()),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
+                  // Song info
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30, top: 12),
+                    child: Column(
                       children: [
-                        const Icon(Icons.list_rounded),
-                        const SizedBox(width: 5),
                         Text(
-                          Globals.audioHandler.playlistDisplayName,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                          song.name,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+                        ),
+                        Text(
+                          song.artist,
+                          style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600, fontSize: 18),
                         ),
                       ],
                     ),
                   ),
-                ),
-                // Song info
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 30, top: 12),
-                  child: Column(
+                  Stack(
                     children: [
-                      Text(
-                        song.name,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
-                      ),
-                      Text(
-                        song.artist,
-                        style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600, fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ),
-                Stack(
-                  children: [
-                    ProgressBar(
-                      progress: min(maxDuration, currentDuration).ms,
-                      total: maxDuration.ms,
-                      thumbCanPaintOutsideBar: false,
-                      timeLabelPadding: 5,
-                      timeLabelLocation: TimeLabelLocation.below,
-                      timeLabelType: TimeLabelType.totalTime,
-                      timeLabelTextStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      onSeek: (seekDuration) async {
-                        currentDuration = min(maxDuration, seekDuration.inMilliseconds);
-                        await Globals.audioHandler.seek(seekDuration);
-                        setState(() {});
-                      },
-                    ),
-                    Container(
-                      height: 4.5,
-                      width: 2,
-                      margin: EdgeInsets.only(
-                        top: 8,
-                        left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
-                      ),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ],
-                ),
-                // Controls
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 70),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Globals.audioHandler.changeShuffleMode();
+                      ProgressBar(
+                        progress: min(maxDuration, currentDuration).ms,
+                        total: maxDuration.ms,
+                        thumbCanPaintOutsideBar: false,
+                        timeLabelPadding: 5,
+                        timeLabelLocation: TimeLabelLocation.below,
+                        timeLabelType: TimeLabelType.totalTime,
+                        timeLabelTextStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onSeek: (seekDuration) async {
+                          currentDuration = min(maxDuration, seekDuration.inMilliseconds);
+                          await Globals.audioHandler.seek(seekDuration);
                           setState(() {});
                         },
-                        icon: Icon(
-                          CupertinoIcons.shuffle,
-                          color: Globals.audioHandler.isShuffled
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                          size: 30,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          await Globals.audioHandler.skipToPrevious();
-                        },
-                        icon: Icon(
-                          Icons.skip_previous_rounded,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 45,
-                        ),
                       ),
                       Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                        height: 4.5,
+                        width: 2,
+                        margin: EdgeInsets.only(
+                          top: 8,
+                          left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
                         ),
-                        child: IconButton(
-                          onPressed: () {
-                            Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
-                            setState(() {});
-                          },
-                          icon: AnimatedIcon(
-                            icon: AnimatedIcons.play_pause,
-                            progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 70,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          await Globals.audioHandler.skipToNext();
-                        },
-                        icon: Icon(
-                          Icons.skip_next_rounded,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 45,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          await Globals.audioHandler.changeRepeatMode();
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          Globals.audioHandler.repeatMode == AudioServiceRepeatMode.one
-                              ? CupertinoIcons.repeat_1
-                              : CupertinoIcons.repeat,
-                          color: Globals.audioHandler.repeatMode == AudioServiceRepeatMode.none
-                              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                              : Theme.of(context).colorScheme.primary,
-                          size: 35,
-                        ),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ],
                   ),
-                ),
-              ],
+                  // Controls
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 70),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Globals.audioHandler.changeShuffleMode();
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            CupertinoIcons.shuffle,
+                            color: Globals.audioHandler.isShuffled
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            await Globals.audioHandler.skipToPrevious();
+                          },
+                          icon: Icon(
+                            Icons.skip_previous_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 45,
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
+                              setState(() {});
+                            },
+                            icon: AnimatedIcon(
+                              icon: AnimatedIcons.play_pause,
+                              progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 70,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            await Globals.audioHandler.skipToNext();
+                          },
+                          icon: Icon(
+                            Icons.skip_next_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 45,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            await Globals.audioHandler.changeRepeatMode();
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            Globals.audioHandler.repeatMode == AudioServiceRepeatMode.one
+                                ? CupertinoIcons.repeat_1
+                                : CupertinoIcons.repeat,
+                            color: Globals.audioHandler.repeatMode == AudioServiceRepeatMode.none
+                                ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                                : Theme.of(context).colorScheme.primary,
+                            size: 35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
