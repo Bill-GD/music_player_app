@@ -45,7 +45,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   final List<StreamSubscription> subs = [];
   late MusicTrack song;
   late final AnimationController animController;
-  final playlistScrollController = ScrollController();
 
   void updateSongInfo([int? songID]) async {
     LogHandler.log("Updating player's UI");
@@ -86,7 +85,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
       e.cancel();
     }
     animController.dispose();
-    playlistScrollController.dispose();
     super.dispose();
   }
 
@@ -156,32 +154,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                 InkWell(
                   borderRadius: BorderRadius.circular(5),
                   onTap: () {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (playlistScrollController.hasClients) {
-                        final count = Globals.audioHandler.playlist.length;
-                        final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
-                        final maxScrollExtent = playlistScrollController.position.maxScrollExtent;
-
-                        playlistScrollController.animateTo(
-                          maxScrollExtent * (current / count),
-                          duration: 100.ms,
-                          curve: Curves.easeIn,
-                        );
-                      }
-                    });
-
                     Navigator.of(context).push(
-                      CupertinoModalPopupRoute(builder: (context) {
-                        return PlaylistSheet(
-                          scrollController: playlistScrollController,
-                          onReorder: (oIdx, nIdx) {
-                            LogHandler.log(
-                              'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
-                            );
-                            Globals.audioHandler.moveSong(oIdx, nIdx);
-                          },
-                        );
-                      }),
+                      CupertinoModalPopupRoute(builder: (context) => const PlaylistSheet()),
                     );
                   },
                   child: Padding(

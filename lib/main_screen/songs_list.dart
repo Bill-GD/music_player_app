@@ -35,8 +35,8 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                 TextButton.icon(
                     style: const ButtonStyle(splashFactory: NoSplash.splashFactory),
                     icon: FaIcon(
-                      Icons.play_circle_filled_rounded,
-                      size: 30,
+                      FontAwesomeIcons.shuffle,
+                      size: 25,
                       color: iconColor(context),
                     ),
                     label: Text(
