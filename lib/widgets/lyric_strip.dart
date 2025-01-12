@@ -92,24 +92,28 @@ class _LyricStripState extends State<LyricStrip> {
 
             return Center(
               child: ListTile(
-                title: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isCurrent ? 0 : 4),
-                  child: Text(
-                    lines[index],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      shadows: [
-                        if (isCurrent) const Shadow(color: Colors.white70, blurRadius: 35),
-                      ],
-                      fontSize: isCurrent ? 16 : null,
-                      fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                      color: !isCurrent
-                          ? Colors.grey.withOpacity(0.7 / (currentLine - index).abs().clamp(1, double.infinity))
-                          : null,
-                    ),
+                title: Text(
+                  lines[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    shadows: [
+                      if (isCurrent)
+                        Shadow(
+                          color: Theme.of(context).colorScheme.inverseSurface,
+                          blurRadius: 35,
+                        ),
+                    ],
+                    fontSize: isCurrent ? 16 : null,
+                    fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                    color: !isCurrent ? Colors.grey.withOpacity(0.15) : null,
                   ),
                 ),
-                leading: Text(isCurrent ? timestampList[currentLine].toMMSS() : '    '),
+                leading: Text(
+                  timestampList[index].toMMSS(),
+                  style: TextStyle(
+                    color: !isCurrent ? Colors.grey.withOpacity(0.15) : null,
+                  ),
+                ),
                 trailing: isCurrent ? const Icon(Icons.arrow_left_rounded) : const Text('    '),
                 visualDensity: VisualDensity.compact,
                 dense: true,

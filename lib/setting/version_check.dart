@@ -130,7 +130,7 @@ class _VersionCheckState extends State<VersionCheck> {
             ),
             ListTile(
               title: leadingText(context, 'GitHub Repo', false, 16),
-              subtitle: const Text('Open GitHub repository for this app'),
+              subtitle: const Text('Open GitHub repository of this app'),
               onTap: () async {
                 const url = 'https://github.com/Bill-GD/music_player_app';
                 final canLaunch = await canLaunchUrl(Uri.parse(url));

@@ -396,8 +396,9 @@ Future<T?> dialogWithActions<T>(
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: actions,
         actionsPadding: const EdgeInsets.only(top: 16, bottom: 15),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          side: BorderSide(color: Theme.of(context).colorScheme.onSurface),
         ),
         insetPadding: EdgeInsets.only(
           left: horizontalPadding,
