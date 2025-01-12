@@ -42,7 +42,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
     }
   }
 
-  void scroll() {
+  void scroll(Duration time) {
     if (!scrollController.hasClients) return;
     final count = Globals.audioHandler.playlist.length;
     final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
@@ -50,7 +50,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
 
     scrollController.animateTo(
       maxScrollExtent * (current / count),
-      duration: 100.ms,
+      duration: time,
       curve: Curves.easeIn,
     );
   }
@@ -58,7 +58,8 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
   @override
   void initState() {
     super.initState();
-    scroll();
+    WidgetsBinding.instance.addPostFrameCallback((_) => scroll(100.ms));
+
     content = Globals.audioHandler.playlist
         .mapIndexed(
           (i, sId) => ListTile(
@@ -85,7 +86,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
         )
         .toList();
     sub = Globals.audioHandler.onSongChange.listen((event) {
-      scroll();
+      scroll(500.ms);
       setState(updateList);
     });
   }
