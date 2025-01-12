@@ -15,17 +15,17 @@ class LyricStrip extends StatefulWidget {
 class _LyricStripState extends State<LyricStrip> {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: widget.lyric.list.length,
-        itemBuilder: (context, index) {
-          final item = widget.lyric.list.elementAt(index);
-          return ListTile(
-            title: Text(item.line),
-            subtitle: Text(item.timestamp.toLyricTimestamp()),
-          );
-        },
-      ),
+    return ListView.builder(
+      itemCount: widget.lyric.list.length,
+      itemBuilder: (context, index) {
+        final item = widget.lyric.list.elementAt(index);
+        return ListTile(
+          title: Text(item.line, textAlign: TextAlign.center),
+          leading: Text(item.timestamp.toMMSS()),
+          trailing: const Text(''),
+          visualDensity: VisualDensity.compact,
+        );
+      },
     );
   }
 }

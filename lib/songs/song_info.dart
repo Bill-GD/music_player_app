@@ -207,6 +207,26 @@ class _SongInfoState extends State<SongInfo> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30, right: 15),
+              child: Row(
+                children: [
+                  leadingText(context, 'Lyric'),
+                  Expanded(
+                    child: TextFormField(
+                      readOnly: true,
+                      scrollPadding: const EdgeInsets.only(right: 0),
+                      initialValue: song.lyricPath,
+                      decoration: textFieldDecoration(
+                        context,
+                        fillColor: Theme.of(context).colorScheme.surface,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

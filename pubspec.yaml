@@ -47,7 +47,7 @@ dependencies:
   shared_preferences: <=2.3.1
   sqflite: ^2.3.3+1
   url_launcher: ^6.2.6
-  file_picker: ^8.1.7
+  filesystem_picker: ^4.1.0
   # audio_session: <=0.1.18
   # animations: <=2.0.8
   # get_it: <=7.6.0
