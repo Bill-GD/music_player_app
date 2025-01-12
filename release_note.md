@@ -13,7 +13,7 @@
 - Improved visual of popup messages, log panel, setting page, player
 - Changed playlist icon: glass -> list
 - More detailed app version info in-app
-- Moved app version display and related interactions into `Settings`
+- Moved backup, app version display (& related interactions) into `Settings`
 
 ## Fixes
 
