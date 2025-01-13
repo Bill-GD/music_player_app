@@ -171,7 +171,7 @@ class _LyricEditorState extends State<LyricEditor> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    contentPadding: const EdgeInsets.all(5),
+                    contentPadding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
                   ),
                 ),
               );

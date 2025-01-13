@@ -20,7 +20,8 @@ class LyricStrip extends StatefulWidget {
 
 class _LyricStripState extends State<LyricStrip> {
   var lines = <String>[], timestampList = <Duration>[];
-  late final lineCount = lines.length, maxScrollExtent = scrollController.position.maxScrollExtent;
+  double maxScrollExtent = 0;
+  int lineCount = 0;
   late Lyric lyric;
 
   final List<StreamSubscription> subs = [];
@@ -59,6 +60,8 @@ class _LyricStripState extends State<LyricStrip> {
           list: [],
         );
 
+    lineCount = lines.length;
+    maxScrollExtent = scrollController.position.maxScrollExtent;
     if (lyric.list.isNotEmpty) {
       lines = lyric.list.map((e) => e.line).toList();
       timestampList = lyric.list.map((e) => e.timestamp).toList();

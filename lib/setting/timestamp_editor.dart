@@ -86,10 +86,13 @@ class _TimestampEditorState extends State<TimestampEditor> {
                       upTime(0);
                       setState(() {});
                     },
-                    child: const Icon(Icons.arrow_drop_up_rounded),
+                    child: const Icon(
+                      Icons.arrow_drop_up_rounded,
+                      size: 40,
+                    ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
                     child: Text(edit[0].padIntLeft(2, '0')),
                   ),
                   HoldingGesture(
@@ -97,7 +100,10 @@ class _TimestampEditorState extends State<TimestampEditor> {
                       downTime(0);
                       setState(() {});
                     },
-                    child: const Icon(Icons.arrow_drop_down_rounded),
+                    child: const Icon(
+                      Icons.arrow_drop_down_rounded,
+                      size: 40,
+                    ),
                   ),
                 ],
               ),
@@ -111,10 +117,13 @@ class _TimestampEditorState extends State<TimestampEditor> {
                       upTime(1);
                       setState(() {});
                     },
-                    child: const Icon(Icons.arrow_drop_up_rounded),
+                    child: const Icon(
+                      Icons.arrow_drop_up_rounded,
+                      size: 40,
+                    ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
                     child: Text(edit[1].padIntLeft(2, '0')),
                   ),
                   HoldingGesture(
@@ -122,7 +131,10 @@ class _TimestampEditorState extends State<TimestampEditor> {
                       downTime(1);
                       setState(() {});
                     },
-                    child: const Icon(Icons.arrow_drop_down_rounded),
+                    child: const Icon(
+                      Icons.arrow_drop_down_rounded,
+                      size: 40,
+                    ),
                   ),
                 ],
               ),
@@ -136,10 +148,13 @@ class _TimestampEditorState extends State<TimestampEditor> {
                       upTime(2);
                       setState(() {});
                     },
-                    child: const Icon(Icons.arrow_drop_up_rounded),
+                    child: const Icon(
+                      Icons.arrow_drop_up_rounded,
+                      size: 40,
+                    ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
                     child: Text((edit[2] ~/ 10).padIntLeft(2, '0')),
                   ),
                   HoldingGesture(
@@ -147,7 +162,10 @@ class _TimestampEditorState extends State<TimestampEditor> {
                       downTime(2);
                       setState(() {});
                     },
-                    child: const Icon(Icons.arrow_drop_down_rounded),
+                    child: const Icon(
+                      Icons.arrow_drop_down_rounded,
+                      size: 40,
+                    ),
                   ),
                 ],
               ),
