@@ -75,3 +75,7 @@ extension LyricTimestamp on Duration {
     return '${_dt.minute.padIntLeft(2, '0')}:${_dt.second.padIntLeft(2, '0')}';
   }
 }
+
+extension DoublePrecision on double {
+  double precision(int places) => double.parse(toStringAsPrecision(places));
+}

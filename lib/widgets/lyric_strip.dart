@@ -19,22 +19,18 @@ class LyricStrip extends StatefulWidget {
 }
 
 class _LyricStripState extends State<LyricStrip> {
-  var lines = <String>[], timestampList = <Duration>[];
-  double maxScrollExtent = 0;
-  int lineCount = 0;
-  late Lyric lyric;
-
-  final List<StreamSubscription> subs = [];
   final scrollController = PageController(viewportFraction: 0.3);
-  int currentLine = 0, viewLine = 0;
+  final List<StreamSubscription> subs = [];
+  var lines = <String>[], timestampList = <Duration>[];
+  int currentLine = 0, viewLine = 0, lineCount = 0;
   bool canAutoScroll = true;
+
+  late Lyric lyric;
 
   void scroll(Duration time) {
     if (!scrollController.hasClients) return;
-    final ratio = currentLine + 1 == lineCount ? 1 : currentLine / lineCount;
-
-    scrollController.animateTo(
-      maxScrollExtent * ratio,
+    scrollController.animateToPage(
+      currentLine,
       duration: time,
       curve: Curves.decelerate,
     );
@@ -60,16 +56,15 @@ class _LyricStripState extends State<LyricStrip> {
           list: [],
         );
 
-    lineCount = lines.length;
-    maxScrollExtent = scrollController.position.maxScrollExtent;
     if (lyric.list.isNotEmpty) {
       lines = lyric.list.map((e) => e.line).toList();
       timestampList = lyric.list.map((e) => e.timestamp).toList();
       if (timestampList.first.inMicroseconds != 0) {
-        lines.insert(0, '');
+        lines.insert(0, '[Music]');
         timestampList.insert(0, 0.ms);
       }
     }
+    lineCount = lines.length;
     setState(() {});
   }
 
@@ -115,7 +110,7 @@ class _LyricStripState extends State<LyricStrip> {
           padEnds: true,
           itemCount: lines.length,
           itemBuilder: (context, index) {
-            final isCurrent = index == viewLine;
+            final isCurrent = index == viewLine || index == currentLine;
 
             return Center(
               child: ListTile(
