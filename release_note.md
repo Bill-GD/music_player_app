@@ -1,14 +1,14 @@
 ## Features
 
-- Added lyric viewer to the right of the player image.
-  Current line is highlighted, others are dimmed.
-  Auto scroll when playing the timestamp is reached.
-  Can be scrolled freely and will auto scroll after a short delay.
-- Added feature that allow adding lyric to song: select file, edit lines & timestamps
-- Added feature that allow reordering album songs
+- Added lyric viewer adjacent to the player image, featuring:
+  - Highlighting of current line, while others are dimmed.
+  - Auto scroll when playing the timestamp is reached.
+  - Can be scrolled freely and will auto scroll after a short delay.
+- Added a feature that allow adding lyric to song: select file, edit lines & timestamps
+- Album songs can now be reordered
 - Added scroll bar to playlist sheet
-- Added popup message when there's an app error
-- Added app version checking feature
+- Added a popup message when there's an app error
+- Introduced app version checking feature
 
 ## Changes
 
@@ -28,6 +28,6 @@
 - Fixed error that causes saved playlist songs to be duplicated
 - Fixed not updating the play/pause button when media player is paused
 - Fixed not updating the playlist when skipping to previous song
-- Fixed internet connection checking
+- Fixed internet connection checking functionality
 - Fixed playlist sheet not updating properly when song is changed
 - and more minor fixes
