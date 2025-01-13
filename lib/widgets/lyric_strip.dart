@@ -3,27 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
+import '../globals/log_handler.dart';
 import '../globals/lyric_handler.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/lyric_editor.dart';
 
 class LyricStrip extends StatefulWidget {
-  final Lyric lyric;
-  final void Function() updateLyric;
+  final int songID;
 
-  const LyricStrip({super.key, required this.lyric, required this.updateLyric});
+  const LyricStrip({super.key, required this.songID});
 
   @override
   State<LyricStrip> createState() => _LyricStripState();
 }
 
 class _LyricStripState extends State<LyricStrip> {
-  late final List<String> lines;
-  late final List<Duration> timestampList;
-  late final StreamSubscription<Duration> sub;
+  var lines = <String>[], timestampList = <Duration>[];
   late final lineCount = lines.length, maxScrollExtent = scrollController.position.maxScrollExtent;
+  late Lyric lyric;
 
+  final List<StreamSubscription> subs = [];
   final scrollController = PageController(viewportFraction: 0.3);
   int currentLine = 0, viewLine = 0;
   bool canAutoScroll = true;
@@ -48,31 +48,52 @@ class _LyricStripState extends State<LyricStrip> {
     return 0;
   }
 
+  void updateLyric() {
+    final song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
+    lyric = LyricHandler.getLyric(widget.songID, Globals.lyricPath + song.lyricPath) ??
+        Lyric(
+          songId: widget.songID,
+          name: song.name,
+          artist: song.artist,
+          path: song.path,
+          list: [],
+        );
+
+    if (lyric.list.isNotEmpty) {
+      lines = lyric.list.map((e) => e.line).toList();
+      timestampList = lyric.list.map((e) => e.timestamp).toList();
+      if (timestampList.first.inMicroseconds != 0) {
+        lines.insert(0, '');
+        timestampList.insert(0, 0.ms);
+      }
+    }
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
+    updateLyric();
 
-    lines = widget.lyric.list.map((e) => e.line).toList();
-    timestampList = widget.lyric.list.map((e) => e.timestamp).toList();
-    if (timestampList.first.inMicroseconds != 0) {
-      lines.insert(0, '');
-      timestampList.insert(0, 0.ms);
-    }
     viewLine = currentLine = findCurrentLine();
-
     WidgetsBinding.instance.addPostFrameCallback((_) => scroll(100.ms));
 
-    sub = Globals.audioHandler.player.positionStream.listen((event) {
+    subs.add(Globals.audioHandler.player.positionStream.listen((event) {
       final newLine = findCurrentLine();
       if (newLine == currentLine) return;
       viewLine = currentLine = newLine;
       if (canAutoScroll) scroll(600.ms);
-    });
+    }));
+    subs.add(Globals.lyricChangedController.stream.listen((_) {
+      updateLyric();
+    }));
   }
 
   @override
   void dispose() {
-    sub.cancel();
+    for (final e in subs) {
+      e.cancel();
+    }
     scrollController.dispose();
     super.dispose();
   }
@@ -133,7 +154,7 @@ class _LyricStripState extends State<LyricStrip> {
             icon: const Icon(Icons.edit_note_rounded),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => LyricEditor(lyric: widget.lyric),
+                builder: (context) => LyricEditor(songID: widget.songID),
               ));
             },
           ),
@@ -158,8 +179,9 @@ class _LyricStripState extends State<LyricStrip> {
                   TextButton(
                     child: const Text('Yes'),
                     onPressed: () {
-                      final song = Globals.allSongs.firstWhereOrNull((e) => e.id == widget.lyric.songId);
+                      final song = Globals.allSongs.firstWhereOrNull((e) => e.id == lyric.songId);
                       if (song != null) {
+                        LogHandler.log('Removing lyric for ${song.id}');
                         song.lyricPath = '';
                         song.update();
                       }
@@ -169,7 +191,8 @@ class _LyricStripState extends State<LyricStrip> {
                 ],
               ).then(
                 (value) {
-                  if (value == true) widget.updateLyric();
+                  if (value != true) return;
+                  Globals.lyricChangedController.add(null);
                 },
               );
             },

@@ -40,6 +40,8 @@ InputDecoration textFieldDecoration(
   InputBorder? border,
   Widget? prefixIcon,
   Widget? suffixIcon,
+  EdgeInsetsGeometry? contentPadding,
+  BoxConstraints? constraints,
 }) =>
     InputDecoration(
       filled: true,
@@ -52,8 +54,9 @@ InputDecoration textFieldDecoration(
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       suffixIconConstraints: const BoxConstraints(minHeight: 2, minWidth: 2),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+      contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 20),
       border: border,
+      constraints: constraints,
     );
 
 ButtonStyle textButtonStyle(BuildContext context) {
