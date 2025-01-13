@@ -51,8 +51,22 @@ class LyricHandler {
 
     for (final l in lines) {
       final closingBracketIdx = l.indexOf(']');
+      final timeStr = l.substring(1, closingBracketIdx);
 
-      final time = l.substring(1, closingBracketIdx).split(RegExp(r'[:.]')).map(int.parse);
+      var timeParts = timeStr.split(RegExp(r'[:.]'));
+
+      for (final t in timeParts) {
+        final matches = RegExp(r'[0-9]{2}').allMatches(t);
+        if (matches.length != 1) {
+          LogHandler.log('$t match count ${matches.length} -> invalid, skipping...');
+          continue;
+        }
+        // LogHandler.log(
+        //   'Matches for $t (${matches.length}): ${matches.map((e) => e.group(0)).join(', ')}',
+        // );
+      }
+
+      final time = timeParts.map(int.parse);
       lItems.add(LyricItem(
         timestamp: time.elementAt(0).minutes + time.elementAt(1).seconds + (time.elementAt(2) * 10).ms,
         // timestamp: DateTime(0, 1, 1, 0, time.elementAt(0), time.elementAt(1), time.elementAt(2), 0),
