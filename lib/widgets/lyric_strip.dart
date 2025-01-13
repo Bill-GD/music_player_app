@@ -84,8 +84,11 @@ class _LyricStripState extends State<LyricStrip> {
       viewLine = currentLine = newLine;
       if (canAutoScroll) scroll(600.ms);
     }));
+
     subs.add(Globals.lyricChangedController.stream.listen((_) {
       updateLyric();
+      viewLine = currentLine = findCurrentLine();
+      scroll(600.ms);
     }));
   }
 
