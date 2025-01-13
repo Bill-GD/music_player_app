@@ -1,5 +1,7 @@
-## Dev 1
-
 - Fixed invalid timestamp in lyric file causing error
-- Widen the timestamp inputs
+- Better timestamp input spacing
 - Fixed not updating line count when adding/removing lyric
+- Button to add new lyric line is in app bar's bottom
+- Fixed lyric scrolls to incorrect position. Now scroll to page instead of ratio
+- Lyric list highlights both currently viewing and current lyric line
+- Fixed can move album song to before the add song tile

@@ -129,21 +129,21 @@ class _LyricEditorState extends State<LyricEditor> {
                   : null,
             ),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(50),
+            child: ListTile(
+              title: const Icon(Icons.add_rounded),
+              onTap: () {
+                lyric.list.add(const LyricItem(timestamp: Duration.zero, line: ''));
+                updateListCount();
+                setState(() => hasChanged = true);
+              },
+            ),
+          ),
         ),
         body: ListView.builder(
-          itemCount: listCount + 1,
+          itemCount: listCount,
           itemBuilder: (context, index) {
-            if (index == listCount) {
-              return ListTile(
-                title: const Icon(Icons.add_rounded),
-                onTap: () {
-                  lyric.list.add(const LyricItem(timestamp: Duration.zero, line: ''));
-                  updateListCount();
-                  setState(() => hasChanged = true);
-                },
-              );
-            }
-
             final item = lyric.list[index];
 
             if (isEditing && index == editingIndex) {
@@ -152,10 +152,14 @@ class _LyricEditorState extends State<LyricEditor> {
                 title: TextField(
                   controller: lineEditController,
                   maxLines: null,
+                  autofocus: true,
                   decoration: textFieldDecoration(
                     context,
                     suffixIcon: IconButton(
-                      icon: const Icon(Icons.check_rounded),
+                      icon: Icon(
+                        Icons.check_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       onPressed: () {
                         isEditing = false;
                         hasChanged = item.line != lineEditController.text;
@@ -179,6 +183,7 @@ class _LyricEditorState extends State<LyricEditor> {
             return ListTile(
               leading: GestureDetector(
                 onTap: () {
+                  if (isEditing) return;
                   final parts = item.timestamp
                       .toLyricTimestamp() //
                       .split(RegExp(r'[:.]'))
@@ -208,6 +213,7 @@ class _LyricEditorState extends State<LyricEditor> {
               ),
               title: GestureDetector(
                 onTap: () {
+                  if (isEditing) return;
                   isEditing = true;
                   editingIndex = index;
                   lineEditController.text = item.line;
@@ -217,7 +223,11 @@ class _LyricEditorState extends State<LyricEditor> {
                 child: Text(item.line),
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.delete_forever_rounded),
+                icon: Icon(
+                  Icons.delete_forever_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 25,
+                ),
                 onPressed: () {
                   lyric.list.removeAt(index);
                   updateListCount();
