@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'extensions.dart';
+import 'log_handler.dart';
 import 'variables.dart';
 
 class LyricHandler {
@@ -8,14 +9,16 @@ class LyricHandler {
     const appName = 'Music Hub';
     const version = Globals.appVersion;
 
-    final lrcFile = File(lyric.path);
+    final lrcFile = File(Globals.lyricPath + lyric.path);
     if (!lrcFile.existsSync()) lrcFile.createSync(recursive: true);
+
+    LogHandler.log('Writing lyric: p=${lrcFile.path}, id=${lyric.songId}, ve=$version');
 
     lrcFile.writeAsStringSync('');
 
     lrcFile.writeAsStringSync('[ti: ${lyric.name}]\n', mode: FileMode.append);
     lrcFile.writeAsStringSync('[ar: ${lyric.artist}]\n', mode: FileMode.append);
-    lrcFile.writeAsStringSync('[al: ${lyric.album}]\n', mode: FileMode.append);
+    lrcFile.writeAsStringSync('[al:]\n', mode: FileMode.append);
 
     lrcFile.writeAsStringSync('[re: $appName]\n', mode: FileMode.append);
     lrcFile.writeAsStringSync('[ve: $version]\n', mode: FileMode.append);
@@ -40,7 +43,7 @@ class LyricHandler {
 
     final name = _getMetadata(lines, '[ti:') ?? '';
     final artist = _getMetadata(lines, '[ar:') ?? '';
-    final album = _getMetadata(lines, '[al:') ?? '';
+    // final album = _getMetadata(lines, '[al:') ?? '';
 
     lines = lines.where((e) => e.trim().isNotEmpty && e.startsWith(RegExp(r'^\[\d'))).toList();
 
@@ -63,8 +66,7 @@ class LyricHandler {
       songId: songID,
       name: name,
       artist: artist,
-      album: album,
-      path: path,
+      path: path.split(Globals.lyricPath).last,
       list: lItems,
     );
   }
@@ -72,7 +74,7 @@ class LyricHandler {
 
 class Lyric {
   final int songId;
-  final String name, artist, album;
+  final String name, artist;
   final List<LyricItem> list;
   final String path;
 
@@ -80,16 +82,14 @@ class Lyric {
     required this.songId,
     required this.name,
     required this.artist,
-    required this.album,
     required this.path,
-    this.list = const <LyricItem>[],
+    required this.list,
   });
 
   Lyric.from(Lyric other)
       : songId = other.songId,
         name = other.name,
         artist = other.artist,
-        album = other.album,
         list = List.from(other.list),
         path = other.path;
 
@@ -98,7 +98,7 @@ class Lyric {
     return 'id: $songId\n'
         'name: $name\n'
         'artist: $artist\n'
-        'album: $album\n'
+        'path: $path\n'
         '${list.map((e) => '${e.timestamp.toLyricTimestamp()} - ${e.line}').join('\n')}';
   }
 }

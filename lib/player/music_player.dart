@@ -49,10 +49,10 @@ class MusicPlayerPage extends StatefulWidget {
 class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderStateMixin {
   int currentDuration = 0, maxDuration = 0;
   final List<StreamSubscription> subs = [];
-  late MusicTrack song;
   late final AnimationController animController;
   late final TabController tabController;
-  Lyric? lyric;
+  late MusicTrack song;
+  late Lyric lyric;
 
   void updateSongInfo([int? songID]) async {
     LogHandler.log("Updating player's UI");
@@ -65,7 +65,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
   }
 
   void updateLyric() {
-    lyric = LyricHandler.getLyric(song.id, song.lyricPath);
+    lyric = LyricHandler.getLyric(song.id, Globals.lyricPath + song.lyricPath) ??
+        Lyric(
+          songId: song.id,
+          name: song.name,
+          artist: song.artist,
+          path: '${song.name}.lrc',
+          list: [],
+        );
     setState(() {});
   }
 
@@ -93,6 +100,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
       } else {
         animController.reverse(from: 1);
       }
+    }));
+    subs.add(Globals.lyricChangedController.stream.listen((_) {
+      updateLyric();
     }));
   }
 
@@ -142,9 +152,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                     setState,
                     showDeleteOption: false,
                   );
-                  setState(() {
-                    song = Globals.allSongs.firstWhere((e) => e.path == song.path);
-                  });
+                  song = Globals.allSongs.firstWhere((e) => e.path == song.path);
+                  setState(() {});
                 },
               ),
             ],
@@ -187,22 +196,22 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                         ),
                       ],
                     ),
-                    song.lyricPath.isEmpty && lyric == null
+                    song.lyricPath.isEmpty || lyric.list.isEmpty
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => const LyricEditor(),
-                                  ));
-                                },
                                 style: const ButtonStyle(
                                   backgroundColor: WidgetStatePropertyAll(Colors.transparent),
                                   side: WidgetStatePropertyAll(BorderSide(
                                     color: Colors.white54,
                                   )),
                                 ),
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => LyricEditor(songID: song.id),
+                                  ));
+                                },
                                 child: const Text(
                                   'Add lyric',
                                   style: TextStyle(color: Colors.white),
@@ -210,24 +219,18 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               ),
                               ElevatedButton(
                                 onPressed: () async {
-                                  final path = await FilesystemPicker.open(
+                                  var path = await FilesystemPicker.open(
                                     context: context,
                                     allowedExtensions: ['.lrc'],
                                     rootDirectory: Directory(Globals.lyricPath),
-                                    // itemFilter: (fsEntity, path, name) {
-                                    //   final absPath = fsEntity.absolute.path;
-                                    //   return absPath.contains('bill_gd') || absPath.endsWith('.lrc');
-                                    // },
                                   );
                                   if (path == null) return;
-                                  LogHandler.log('Chose $path');
+                                  path = path.split(Globals.lyricPath).last;
                                   if (song.lyricPath == path) return;
 
+                                  LogHandler.log('Chosen new lrc: $path');
                                   song.lyricPath = path;
                                   await song.update();
-
-                                  // LogHandler.log('Chose ${File(path).readAsStringSync()}');
-                                  // LogHandler.log(LyricHandler.getLyric(song.id, path: path).toString());
                                   updateLyric();
                                 },
                                 style: ButtonStyle(
@@ -242,7 +245,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               ),
                             ],
                           )
-                        : LyricStrip(lyric: lyric!, updateLyric: updateLyric),
+                        : LyricStrip(songID: song.id),
                   ],
                 ),
               ),

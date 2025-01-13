@@ -79,3 +79,5 @@
 - Fixed auto scrolling is not animated
 - Allow detaching lyric from song
 - Added outline to popup dialog & bottom sheet
+- Added lyric editor
+- Removed album from lyric

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../player/player_utils.dart';
@@ -42,9 +44,11 @@ class Globals {
   static late final String logPath;
   static late final String backupPath;
   static const downloadPath = '/storage/emulated/0/Download/';
-  static const lyricPath = '/storage/emulated/0/Lyrics';
+  static const lyricPath = '/storage/emulated/0/Lyrics/';
 
   static const githubToken = String.fromEnvironment('GITHUB_TOKEN');
+
+  static final lyricChangedController = StreamController<void>.broadcast();
 }
 
 // Configs
