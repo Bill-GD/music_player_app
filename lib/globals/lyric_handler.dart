@@ -54,7 +54,7 @@ class LyricHandler {
 
       final time = l.substring(1, closingBracketIdx).split(RegExp(r'[:.]')).map(int.parse);
       lItems.add(LyricItem(
-        timestamp: time.elementAt(0).minutes + time.elementAt(1).seconds + time.elementAt(2).ms,
+        timestamp: time.elementAt(0).minutes + time.elementAt(1).seconds + (time.elementAt(2) * 10).ms,
         // timestamp: DateTime(0, 1, 1, 0, time.elementAt(0), time.elementAt(1), time.elementAt(2), 0),
         line: l.substring(closingBracketIdx + 1).trim(),
       ));

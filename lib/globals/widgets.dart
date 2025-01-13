@@ -314,7 +314,7 @@ Future<void> showLogPopup(
     context,
     title: title,
     titleFontSize: 28,
-    richContent: RichText(
+    widgetContent: RichText(
       text: TextSpan(
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
         children: [
@@ -352,7 +352,7 @@ Future<T?> dialogWithActions<T>(
   required String title,
   required double titleFontSize,
   String? textContent,
-  RichText? richContent,
+  Widget? widgetContent,
   required double contentFontSize,
   bool centerContent = true,
   List<Widget> actions = const [],
@@ -362,7 +362,7 @@ Future<T?> dialogWithActions<T>(
   bool barrierDismissible = true,
   bool allowScroll = false,
 }) async {
-  assert(textContent != null || richContent != null, 'content or richContent parameter must be non null');
+  assert(textContent != null || widgetContent != null, 'textContent or widgetContent parameter must be non-null');
   return await showGeneralDialog<T>(
     context: context,
     transitionDuration: time,
@@ -381,7 +381,7 @@ Future<T?> dialogWithActions<T>(
               dedent(textContent),
               textAlign: centerContent ? TextAlign.center : null,
             )
-          : richContent!;
+          : widgetContent!;
       return AlertDialog(
         icon: icon,
         title: Text(

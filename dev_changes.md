@@ -79,5 +79,7 @@
 - Fixed auto scrolling is not animated
 - Allow detaching lyric from song
 - Added outline to popup dialog & bottom sheet
-- Added lyric editor
+- Added lyric editor: edit lines & timestamps
 - Removed album from lyric
+- Added `HoldingGesture` with ink reaction for the duration of the hold
+- `dialogWithActions` accepts `Widget` instead of `RichText`

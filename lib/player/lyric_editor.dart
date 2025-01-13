@@ -6,6 +6,7 @@ import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../setting/timestamp_editor.dart';
 
 class LyricEditor extends StatefulWidget {
   final int songID;
@@ -19,7 +20,8 @@ class LyricEditor extends StatefulWidget {
 class _LyricEditorState extends State<LyricEditor> {
   late final MusicTrack song;
   late final Lyric lyric;
-  final lineEditController = TextEditingController(), timeEditController = TextEditingController();
+
+  final lineEditController = TextEditingController();
   int listCount = 0, editingIndex = -1;
   bool hasChanged = false, isEditing = false;
 
@@ -39,7 +41,7 @@ class _LyricEditorState extends State<LyricEditor> {
         );
     updateListCount();
     LogHandler.log('Editing lyric for ${song.id}');
-    // LogHandler.log('Lyric info \n$lyric');
+    debugPrint('Lyric info \n$lyric');
   }
 
   @override
@@ -115,8 +117,10 @@ class _LyricEditorState extends State<LyricEditor> {
                         ],
                       ).then((value) {
                         if (value != true) return;
-                        song.lyricPath = lyric.path;
-                        song.update();
+                        if (song.lyricPath != lyric.path) {
+                          song.lyricPath = lyric.path;
+                          song.update();
+                        }
                         LyricHandler.addLyric(lyric);
                         Globals.lyricChangedController.add(null);
                         Navigator.of(context).pop();
@@ -145,39 +149,22 @@ class _LyricEditorState extends State<LyricEditor> {
             if (isEditing && index == editingIndex) {
               return ListTile(
                 leading: Text(item.timestamp.toLyricTimestamp()),
-                // leading: TextField(
-                //   controller: timeEditController,
-                //   style: const TextStyle(fontSize: 12),
-                //   decoration: textFieldDecoration(
-                //     context,
-                //     fillColor: Theme.of(context).colorScheme.surface,
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(10),
-                //     ),
-                //     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                //     constraints: const BoxConstraints(maxWidth: 80),
-                //   ),
-                // ),
                 title: TextField(
                   controller: lineEditController,
                   maxLines: null,
                   decoration: textFieldDecoration(
                     context,
-                    fillColor: Theme.of(context).colorScheme.surface,
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.check_rounded),
                       onPressed: () {
-                        // final parts = timeEditController.text //
-                        //     .split(RegExp(r'[:.]'))
-                        //     .map(int.parse)
-                        //     .toList();
-                        lyric.list[index] = LyricItem(
-                          // timestamp: Duration(minutes: parts[0], seconds: parts[1], milliseconds: parts[2]),
-                          timestamp: item.timestamp,
-                          line: lineEditController.text,
-                        );
                         isEditing = false;
-                        hasChanged = true;
+                        hasChanged = item.line != lineEditController.text;
+                        if (hasChanged) {
+                          lyric.list[index] = LyricItem(
+                            timestamp: item.timestamp,
+                            line: lineEditController.text,
+                          );
+                        }
                         setState(() {});
                       },
                     ),
@@ -190,7 +177,35 @@ class _LyricEditorState extends State<LyricEditor> {
               );
             }
             return ListTile(
-              leading: Text(item.timestamp.toLyricTimestamp()),
+              leading: GestureDetector(
+                onTap: () {
+                  final parts = item.timestamp
+                      .toLyricTimestamp() //
+                      .split(RegExp(r'[:.]'))
+                      .map(int.parse)
+                      .toList();
+                  final timestamp = (parts[0], parts[1], parts[2] * 10);
+
+                  Navigator.push<List<int>>(
+                    context,
+                    DialogRoute(
+                      context: context,
+                      builder: (context) => TimestampEditor(timestamp: timestamp),
+                    ),
+                  ).then((value) {
+                    if (value == null) return;
+                    hasChanged = timestamp != (value[0], value[1], value[2]);
+                    if (!hasChanged) return;
+
+                    lyric.list[index] = LyricItem(
+                      timestamp: Duration(minutes: value[0], seconds: value[1], milliseconds: value[2]),
+                      line: item.line,
+                    );
+                    setState(() {});
+                  });
+                },
+                child: Text(item.timestamp.toLyricTimestamp()),
+              ),
               title: GestureDetector(
                 onTap: () {
                   isEditing = true;

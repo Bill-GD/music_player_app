@@ -4,11 +4,11 @@
   Current line is highlighted, others are dimmed.
   Auto scroll when playing the timestamp is reached.
   Can be scrolled freely and will auto scroll after a short delay.
-- Added feature that allow adding lyric to song: select file & edit
+- Added feature that allow adding lyric to song: select file, edit lines & timestamps
 - Added feature that allow reordering album songs
+- Added scroll bar to playlist sheet
 - Added popup message when there's an app error
 - Added app version checking feature
-- Added scroll bar to playlist sheet
 
 ## Changes
 
@@ -19,6 +19,7 @@
 - Changed playlist icon: glass -> list
 - More detailed app version info in-app
 - Moved backup, app version display (& related interactions) into `Settings`
+- Playlist sheet now scrolls to the current song
 
 ## Fixes
 
