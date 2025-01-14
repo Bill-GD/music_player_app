@@ -1,1 +1,3 @@
 - Changed `VersionCheck` to `AboutPage`
+- Added `VersionDialog` to show the version (& changelog)
+- Improved checking for dev release: get tags -> latest dev tag -> release 

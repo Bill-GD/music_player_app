@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
+import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import 'version_dialog.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -67,87 +67,82 @@ class _AboutPageState extends State<AboutPage> {
                 ),
               ),
             ),
-            ListView(
-              children: [
-                ListTile(
-                  title: leadingText(context, 'Current version', false, 16),
-                  subtitle: const Text(Globals.appVersion),
-                ),
-                ListTile(
-                  title: leadingText(context, 'Check latest', false, 16),
-                  subtitle: const Text('Check for the latest stable version of the app'),
-                  onTap: () {
-                    if (!isInternetConnected) return;
+            Flexible(
+              child: ListView(
+                children: [
+                  ListTile(
+                    title: leadingText(context, 'Current version', false, 16),
+                    subtitle: const Text(Globals.appVersion),
+                  ),
+                  ListTile(
+                    title: leadingText(context, 'Check latest', false, 16),
+                    subtitle: const Text('Check for the latest stable version of the app'),
+                    onTap: () {
+                      if (!isInternetConnected) return;
 
-                    http.get(
-                      Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases/latest'),
-                      headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
-                    ).then((value) {
-                      final json = jsonDecode(value.body);
-                      if (json == null) throw Exception('Rate limited. Please come back later.');
-                      if (json is! Map) {
-                        LogHandler.log('JSON received is not a map', LogLevel.error);
-                        throw Exception(
-                          'Something is wrong when trying to get stable version. Please create an issue or consult the dev.',
-                        );
-                      }
+                      Navigator.of(context).push(RawDialogRoute(
+                        transitionDuration: 300.ms,
+                        barrierDismissible: true,
+                        barrierLabel: '',
+                        transitionBuilder: (_, anim1, __, child) {
+                          return ScaleTransition(
+                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                            alignment: Alignment.center,
+                            child: child,
+                          );
+                        },
+                        pageBuilder: (context, __, ___) {
+                          return const VersionDialog();
+                        },
+                      ));
+                    },
+                  ),
+                  ListTile(
+                    title: leadingText(context, 'Check pre-releases', false, 16),
+                    subtitle: const Text('Check for the latest dev version of the app'),
+                    onTap: () {
+                      if (!isInternetConnected) return;
 
-                      final tag = json['tag_name'] as String;
-                      showToast(context, tag);
-                      LogHandler.log('Checked for latest stable version: $tag');
-                    });
-                  },
-                ),
-                ListTile(
-                  title: leadingText(context, 'Check pre-releases', false, 16),
-                  subtitle: const Text('Check for the latest dev version of the app'),
-                  onTap: () {
-                    if (!isInternetConnected) return;
-
-                    http.get(
-                      Uri.parse('https://api.github.com/repos/Bill-GD/music_player_app/releases?per_page=4&page=1'),
-                      headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
-                    ).then((value) {
-                      final json = jsonDecode(value.body);
-                      if (json == null) throw Exception('Rate limited. Please come back later.');
-                      if (json is! List) {
-                        LogHandler.log('JSON received is not a list', LogLevel.error);
-                        throw Exception(
-                          'Something is wrong when trying to get dev version. Please create an issue or consult the dev.',
-                        );
-                      }
-
-                      final latestDev = (json).firstWhere(
-                        (r) => (r['tag_name'] as String).contains('_dev_'),
+                      Navigator.of(context).push(RawDialogRoute(
+                        transitionDuration: 300.ms,
+                        barrierDismissible: true,
+                        barrierLabel: '',
+                        transitionBuilder: (_, anim1, __, child) {
+                          return ScaleTransition(
+                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                            alignment: Alignment.center,
+                            child: child,
+                          );
+                        },
+                        pageBuilder: (context, __, ___) {
+                          return const VersionDialog(dev: true);
+                        },
+                      ));
+                    },
+                  ),
+                  ListTile(
+                    title: leadingText(context, 'Licenses', false, 16),
+                    subtitle: const Text('View open-source licenses'),
+                    onTap: () {
+                      showLicensePage(
+                        context: context,
+                        applicationName: Globals.appName,
+                        applicationVersion: 'v${Globals.appVersion}${isDev ? '' : ' - stable'}',
                       );
-                      final tag = latestDev?['tag_name'] as String;
-                      showToast(context, tag);
-                      LogHandler.log('Checked for latest dev version: $tag');
-                    });
-                  },
-                ),
-                ListTile(
-                  title: leadingText(context, 'Licenses', false, 16),
-                  subtitle: const Text('View open-source licenses'),
-                  onTap: () {
-                    showLicensePage(
-                      context: context,
-                      applicationName: Globals.appName,
-                      applicationVersion: 'v${Globals.appVersion}${isDev ? '' : ' - stable'}',
-                    );
-                  },
-                ),
-                ListTile(
-                  title: leadingText(context, 'GitHub Repo', false, 16),
-                  subtitle: const Text('Open GitHub repository of this app'),
-                  onTap: () async {
-                    const url = 'https://github.com/Bill-GD/music_player_app';
-                    final canLaunch = await canLaunchUrl(Uri.parse(url));
-                    LogHandler.log('Can launch URL: $canLaunch');
-                    if (canLaunch) launchUrl(Uri.parse(url));
-                  },
-                ),
-              ],
+                    },
+                  ),
+                  ListTile(
+                    title: leadingText(context, 'GitHub Repo', false, 16),
+                    subtitle: const Text('Open GitHub repository of this app'),
+                    onTap: () async {
+                      const url = 'https://github.com/Bill-GD/music_player_app';
+                      final canLaunch = await canLaunchUrl(Uri.parse(url));
+                      LogHandler.log('Can launch URL: $canLaunch');
+                      if (canLaunch) launchUrl(Uri.parse(url));
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
