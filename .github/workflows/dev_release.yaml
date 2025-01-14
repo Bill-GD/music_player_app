@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  build_and_release:
+  build_and_release_dev:
     name: Release dev build Music Hub on GitHub
     if: startsWith(github.event.head_commit.message, '[dev_release]')
     runs-on: ubuntu-latest

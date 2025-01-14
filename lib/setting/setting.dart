@@ -5,8 +5,8 @@ import '../globals/extensions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../main_screen/backup.dart';
+import 'about.dart';
 import 'theme_setting.dart';
-import 'version_check.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -182,7 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () {
                 Navigator.of(context).push(
                   PageRouteBuilder(
-                    pageBuilder: (_, __, ___) => const VersionCheck(),
+                    pageBuilder: (_, __, ___) => const AboutPage(),
                     transitionsBuilder: (context, anim, _, child) {
                       return SlideTransition(
                         position: Tween<Offset>(

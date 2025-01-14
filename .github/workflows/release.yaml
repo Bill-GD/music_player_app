@@ -1,7 +1,7 @@
 name: Build and create a release
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
 
 permissions:
   contents: write
