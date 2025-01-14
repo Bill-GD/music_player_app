@@ -10,9 +10,7 @@ import '../globals/widgets.dart';
 import '../player/lyric_editor.dart';
 
 class LyricStrip extends StatefulWidget {
-  final int songID;
-
-  const LyricStrip({super.key, required this.songID});
+  const LyricStrip({super.key});
 
   @override
   State<LyricStrip> createState() => _LyricStripState();
@@ -22,7 +20,7 @@ class _LyricStripState extends State<LyricStrip> {
   final scrollController = PageController(viewportFraction: 0.3);
   final List<StreamSubscription> subs = [];
   var lines = <String>[], timestampList = <Duration>[];
-  int currentLine = 0, viewLine = 0, lineCount = 0;
+  int currentLine = 0, viewLine = 0, lineCount = 0, currentSongID = 0;
   bool canAutoScroll = true;
 
   late Lyric lyric;
@@ -46,10 +44,11 @@ class _LyricStripState extends State<LyricStrip> {
   }
 
   void updateLyric() {
-    final song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
-    lyric = LyricHandler.getLyric(widget.songID, Globals.lyricPath + song.lyricPath) ??
+    final song = Globals.allSongs.firstWhere((e) => e.id == Globals.currentSongID);
+    currentSongID = song.id;
+    lyric = LyricHandler.getLyric(currentSongID, Globals.lyricPath + song.lyricPath) ??
         Lyric(
-          songId: widget.songID,
+          songId: currentSongID,
           name: song.name,
           artist: song.artist,
           path: song.path,
@@ -65,6 +64,7 @@ class _LyricStripState extends State<LyricStrip> {
       }
     }
     lineCount = lines.length;
+    LogHandler.log('Updated lyric for $currentSongID: ${song.lyricPath}');
     setState(() {});
   }
 
@@ -166,7 +166,7 @@ class _LyricStripState extends State<LyricStrip> {
             icon: const Icon(Icons.edit_note_rounded),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => LyricEditor(songID: widget.songID),
+                builder: (context) => LyricEditor(songID: currentSongID),
               ));
             },
           ),

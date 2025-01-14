@@ -4,4 +4,4 @@
 
 ## Fixes
 
-- 
+- Fixed lyric not updating when changing song

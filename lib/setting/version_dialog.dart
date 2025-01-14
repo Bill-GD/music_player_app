@@ -16,10 +16,12 @@ class VersionDialog extends StatefulWidget {
 }
 
 class _VersionDialogState extends State<VersionDialog> {
+  final baseApiUrl = 'https://api.github.com/repos/Bill-GD/music_player_app';
+
   late final isStable = !widget.dev;
   bool loading = true;
   String tag = '';
-  List<String> bodyLines = [];
+  String body = '';
 
   @override
   void initState() {
@@ -27,58 +29,53 @@ class _VersionDialogState extends State<VersionDialog> {
     getRelease();
   }
 
-  // TODO separate into get tags & get release (latest/by tag)
-  void getRelease() {
-    final url =
-        'https://api.github.com/repos/Bill-GD/music_player_app/releases${isStable ? '/latest' : '?per_page=4&page=1'}';
-    http.get(
-      Uri.parse(url),
+  Future<http.Response> apiQuery(String query) {
+    LogHandler.log('Querying $query');
+    return http.get(
+      Uri.parse('$baseApiUrl$query'),
       headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
-    ).then((value) {
-      final json = jsonDecode(value.body);
-      if (json == null) throw Exception('Rate limited. Please come back later.');
-      if (isStable && json is! Map) {
-        LogHandler.log('JSON received is not a map', LogLevel.error);
-        throw Exception(
-          'Something is wrong when trying to get stable version. Please create an issue or consult the dev.',
-        );
-      }
-      if (!isStable && json is! List) {
-        LogHandler.log('JSON received is not a list', LogLevel.error);
-        throw Exception(
-          'Something is wrong when trying to get dev version. Please create an issue or consult the dev.',
-        );
-      }
+    );
+  }
 
-      if (isStable) {
-        tag = json['tag_name'] as String;
-        bodyLines = (json['body'] as String).split(RegExp(r'(\r\n)|\n|(\n\n)'));
-      } else {
-        final latestDev = (json as List).firstWhere(
-          (r) => (r['tag_name'] as String).contains('_dev_'),
-        );
-        tag = latestDev?['tag_name'] as String;
-        bodyLines = (latestDev?['body'] as String).split(RegExp(r'(\r\n)|\n|(\n\n)'));
-      }
+  Future<void> getRelease() async {
+    final res = await apiQuery(isStable ? '/releases/latest' : '/releases/tags/${await getLatestDevTag()}');
+    final json = jsonDecode(res.body);
 
-      if (tag.isEmpty) throw Exception('Tag is empty. Please try again later.');
-      if (bodyLines.isEmpty) {
-        bodyLines = ['No description provided.'];
-      } else {
-        bodyLines.removeWhere((e) => e.contains('**Full Changelog**'));
-        for (int i = bodyLines.length - 1; i >= 0; i--) {
-          if (bodyLines[i].trim().isNotEmpty) break;
-          bodyLines.removeAt(i);
-        }
-      }
+    if (json == null) throw Exception('Rate limited. Please come back later.');
+    if (json is! Map) {
+      LogHandler.log('JSON received is not a map', LogLevel.error);
+      throw Exception(
+        'Something is wrong when trying to get version. Please create an issue or consult the dev.',
+      );
+    }
 
-      LogHandler.log('Checked for latest stable version: $tag');
-      setState(() => loading = false);
-    });
+    tag = json['tag_name'] as String;
+    body = json['body'] as String;
+
+    LogHandler.log('Checked for latest ${isStable ? 'stable' : 'dev'} version: $tag');
+    setState(() => loading = false);
+  }
+
+  Future<String> getLatestDevTag() async {
+    final res = await apiQuery('/git/refs/tags');
+
+    final json = (jsonDecode(res.body) as List) //
+        .map((e) => e['ref'] as String)
+        .where((e) => e.contains('_dev_'))
+        .toList();
+
+    return json.last.split('/').last;
   }
 
   List<InlineSpan> getBody() {
-    final List<InlineSpan> body = [];
+    final List<InlineSpan> bodySpans = [];
+    final List<String> bodyLines = body //
+        .split(RegExp(r'(\r\n)|\n|(\n\n)'))
+        .where((e) => !e.contains('**Full Changelog**'))
+        .toList();
+    while (bodyLines.isNotEmpty && bodyLines.last.trim().isEmpty) {
+      bodyLines.removeLast();
+    }
 
     for (final l in bodyLines) {
       int titleLevel = 0;
@@ -92,7 +89,7 @@ class _VersionDialogState extends State<VersionDialog> {
         text = l.trim();
       }
 
-      body.add(TextSpan(
+      bodySpans.add(TextSpan(
         text: '$text\n',
         style: TextStyle(
           fontSize: titleLevel > 0 ? 24.0 - titleLevel : 16,
@@ -101,7 +98,7 @@ class _VersionDialogState extends State<VersionDialog> {
       ));
     }
 
-    return body;
+    return bodySpans;
   }
 
   @override
@@ -133,10 +130,6 @@ class _VersionDialogState extends State<VersionDialog> {
           onPressed: Navigator.of(context).pop,
           child: const Text('OK'),
         ),
-        // TextButton(
-        //   onPressed: () {},
-        //   child: const Text('Update'),
-        // ),
       ],
       actionsPadding: const EdgeInsets.only(top: 16, bottom: 15),
       shape: RoundedRectangleBorder(

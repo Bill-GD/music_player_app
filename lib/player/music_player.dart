@@ -245,7 +245,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                               ),
                             ],
                           )
-                        : LyricStrip(songID: song.id),
+                        : const LyricStrip(),
                   ],
                 ),
               ),

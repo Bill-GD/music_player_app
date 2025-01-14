@@ -1,3 +1,4 @@
 - Changed `VersionCheck` to `AboutPage`
 - Added `VersionDialog` to show the version (& changelog)
-- Improved checking for dev release: get tags -> latest dev tag -> release 
+- Improved checking for dev release: get tags -> latest dev tag -> release
+- Fixed not updating lyrics when changing song
