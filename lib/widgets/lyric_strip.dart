@@ -88,6 +88,10 @@ class _LyricStripState extends State<LyricStrip> {
       viewLine = currentLine = findCurrentLine();
       scroll(600.ms);
     }));
+
+    subs.add(Globals.audioHandler.onSongChange.listen((_) {
+      Globals.lyricChangedController.add(null);
+    }));
   }
 
   @override
@@ -133,6 +137,13 @@ class _LyricStripState extends State<LyricStrip> {
                 leading: Text(
                   timestampList[index].toMMSS(),
                   style: TextStyle(
+                    shadows: [
+                      if (isCurrent)
+                        Shadow(
+                          color: Theme.of(context).colorScheme.inverseSurface,
+                          blurRadius: 25,
+                        ),
+                    ],
                     color: !isCurrent ? Colors.grey.withOpacity(0.07) : null,
                   ),
                 ),
