@@ -158,251 +158,254 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
               ),
             ],
           ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // "Image" & Lyric
-              ConstrainedBox(
-                constraints: const BoxConstraints.tightFor(height: 320),
-                child: TabBarView(
-                  controller: tabController,
-                  children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          constraints: BoxConstraints.tight(const Size(320, 320)),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context).colorScheme.primaryContainer,
-                                Colors.white70,
-                                Theme.of(context).colorScheme.primaryContainer,
+          body: Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // "Image" & Lyric
+                ConstrainedBox(
+                  constraints: const BoxConstraints.tightFor(height: 320),
+                  child: TabBarView(
+                    controller: tabController,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            constraints: BoxConstraints.tight(const Size(320, 320)),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primaryContainer,
+                                  Colors.white70,
+                                  Theme.of(context).colorScheme.primaryContainer,
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              border: Border.all(
+                                width: 1,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.music_note_rounded,
+                              color: Colors.grey[850],
+                              size: 180,
+                            ),
+                          ),
+                        ],
+                      ),
+                      song.lyricPath.isEmpty || lyric.list.isEmpty
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  style: const ButtonStyle(
+                                    backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                    side: WidgetStatePropertyAll(BorderSide(
+                                      color: Colors.white54,
+                                    )),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => LyricEditor(songID: song.id),
+                                    ));
+                                  },
+                                  child: const Text(
+                                    'Add lyric',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    var path = await FilesystemPicker.open(
+                                      context: context,
+                                      allowedExtensions: ['.lrc'],
+                                      rootDirectory: Directory(Globals.lyricPath),
+                                    );
+                                    if (path == null) return;
+                                    path = path.split(Globals.lyricPath).last;
+                                    if (song.lyricPath == path) return;
+
+                                    LogHandler.log('Chosen new lrc: $path');
+                                    song.lyricPath = path;
+                                    await song.update();
+                                    updateLyric();
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor: WidgetStatePropertyAll(
+                                      Theme.of(context).colorScheme.onSecondaryContainer,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Select file',
+                                    style: TextStyle(color: Theme.of(context).colorScheme.surface),
+                                  ),
+                                ),
                               ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            border: Border.all(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.music_note_rounded,
-                            color: Colors.grey[850],
-                            size: 180,
-                          ),
+                            )
+                          : const LyricStrip(),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  child: PageIndicator(pageCount: 2, currentIndex: tabController.index),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(5),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      CupertinoModalPopupRoute(builder: (context) => const PlaylistSheet()),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.list_rounded),
+                        const SizedBox(width: 5),
+                        Text(
+                          Globals.audioHandler.playlistDisplayName,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                         ),
                       ],
                     ),
-                    song.lyricPath.isEmpty || lyric.list.isEmpty
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                style: const ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                  side: WidgetStatePropertyAll(BorderSide(
-                                    color: Colors.white54,
-                                  )),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => LyricEditor(songID: song.id),
-                                  ));
-                                },
-                                child: const Text(
-                                  'Add lyric',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  var path = await FilesystemPicker.open(
-                                    context: context,
-                                    allowedExtensions: ['.lrc'],
-                                    rootDirectory: Directory(Globals.lyricPath),
-                                  );
-                                  if (path == null) return;
-                                  path = path.split(Globals.lyricPath).last;
-                                  if (song.lyricPath == path) return;
-
-                                  LogHandler.log('Chosen new lrc: $path');
-                                  song.lyricPath = path;
-                                  await song.update();
-                                  updateLyric();
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    Theme.of(context).colorScheme.onSecondaryContainer,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Select file',
-                                  style: TextStyle(color: Theme.of(context).colorScheme.surface),
-                                ),
-                              ),
-                            ],
-                          )
-                        : const LyricStrip(),
-                  ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-                child: PageIndicator(pageCount: 2, currentIndex: tabController.index),
-              ),
-              InkWell(
-                borderRadius: BorderRadius.circular(5),
-                onTap: () {
-                  Navigator.of(context).push(
-                    CupertinoModalPopupRoute(builder: (context) => const PlaylistSheet()),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
+                // Song info
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 30, top: 12, left: 30, right: 30),
+                  child: Column(
                     children: [
-                      const Icon(Icons.list_rounded),
-                      const SizedBox(width: 5),
                       Text(
-                        Globals.audioHandler.playlistDisplayName,
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                        song.name,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+                      ),
+                      Text(
+                        song.artist,
+                        style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600, fontSize: 18),
                       ),
                     ],
                   ),
                 ),
-              ),
-              // Song info
-              Padding(
-                padding: const EdgeInsets.only(bottom: 30, top: 12, left: 30, right: 30),
-                child: Column(
-                  children: [
-                    Text(
-                      song.name,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
-                    ),
-                    Text(
-                      song.artist,
-                      style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600, fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Stack(
-                  children: [
-                    ProgressBar(
-                      progress: min(maxDuration, currentDuration).ms,
-                      total: maxDuration.ms,
-                      thumbCanPaintOutsideBar: false,
-                      timeLabelPadding: 5,
-                      timeLabelLocation: TimeLabelLocation.below,
-                      timeLabelType: TimeLabelType.totalTime,
-                      timeLabelTextStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      onSeek: (seekDuration) async {
-                        currentDuration = min(maxDuration, seekDuration.inMilliseconds);
-                        await Globals.audioHandler.seek(seekDuration);
-                        setState(() {});
-                      },
-                    ),
-                    Container(
-                      height: 4.5,
-                      width: 2,
-                      margin: EdgeInsets.only(
-                        top: 8,
-                        left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
-                      ),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ],
-                ),
-              ),
-              // Controls
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 70, left: 30, right: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Globals.audioHandler.changeShuffleMode();
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        CupertinoIcons.shuffle,
-                        color: Globals.audioHandler.isShuffled
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                        size: 30,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        await Globals.audioHandler.skipToPrevious();
-                      },
-                      icon: Icon(
-                        Icons.skip_previous_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 45,
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Stack(
+                    children: [
+                      ProgressBar(
+                        progress: min(maxDuration, currentDuration).ms,
+                        total: maxDuration.ms,
+                        thumbCanPaintOutsideBar: false,
+                        timeLabelPadding: 5,
+                        timeLabelLocation: TimeLabelLocation.below,
+                        timeLabelType: TimeLabelType.totalTime,
+                        timeLabelTextStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onSeek: (seekDuration) async {
+                          currentDuration = min(maxDuration, seekDuration.inMilliseconds);
+                          await Globals.audioHandler.seek(seekDuration);
                           setState(() {});
                         },
-                        icon: AnimatedIcon(
-                          icon: AnimatedIcons.play_pause,
-                          progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 70,
+                      ),
+                      Container(
+                        height: 4.5,
+                        width: 2,
+                        margin: EdgeInsets.only(
+                          top: 8,
+                          left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
+                        ),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
+                // Controls
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 70, left: 30, right: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Globals.audioHandler.changeShuffleMode();
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          CupertinoIcons.shuffle,
+                          color: Globals.audioHandler.isShuffled
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          size: 30,
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        await Globals.audioHandler.skipToNext();
-                      },
-                      icon: Icon(
-                        Icons.skip_next_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 45,
+                      IconButton(
+                        onPressed: () async {
+                          await Globals.audioHandler.skipToPrevious();
+                        },
+                        icon: Icon(
+                          Icons.skip_previous_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 45,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        await Globals.audioHandler.changeRepeatMode();
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        Globals.audioHandler.repeatMode == AudioServiceRepeatMode.one
-                            ? CupertinoIcons.repeat_1
-                            : CupertinoIcons.repeat,
-                        color: Globals.audioHandler.repeatMode == AudioServiceRepeatMode.none
-                            ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                            : Theme.of(context).colorScheme.primary,
-                        size: 35,
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
+                            setState(() {});
+                          },
+                          icon: AnimatedIcon(
+                            icon: AnimatedIcons.play_pause,
+                            progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 70,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      IconButton(
+                        onPressed: () async {
+                          await Globals.audioHandler.skipToNext();
+                        },
+                        icon: Icon(
+                          Icons.skip_next_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 45,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          await Globals.audioHandler.changeRepeatMode();
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          Globals.audioHandler.repeatMode == AudioServiceRepeatMode.one
+                              ? CupertinoIcons.repeat_1
+                              : CupertinoIcons.repeat,
+                          color: Globals.audioHandler.repeatMode == AudioServiceRepeatMode.none
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                              : Theme.of(context).colorScheme.primary,
+                          size: 35,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

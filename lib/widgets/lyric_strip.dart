@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
@@ -114,7 +115,7 @@ class _LyricStripState extends State<LyricStrip> {
           padEnds: true,
           itemCount: lines.length,
           itemBuilder: (context, index) {
-            final isCurrent = index == viewLine || index == currentLine;
+            final isCurrent = index == currentLine || index == viewLine, isViewed = index == viewLine;
 
             return Center(
               child: ListTile(
@@ -147,7 +148,14 @@ class _LyricStripState extends State<LyricStrip> {
                     color: !isCurrent ? Colors.grey.withOpacity(0.07) : null,
                   ),
                 ),
-                trailing: isCurrent ? const Icon(Icons.arrow_left_rounded) : const Text('    '),
+                trailing: isCurrent
+                    ? const Padding(
+                        padding: EdgeInsets.only(right: 5),
+                        child: FaIcon(FontAwesomeIcons.headphonesSimple, size: 15),
+                      )
+                    : isViewed
+                        ? const Icon(Icons.arrow_left_rounded)
+                        : const Text(''),
                 visualDensity: VisualDensity.compact,
                 dense: true,
               ),
