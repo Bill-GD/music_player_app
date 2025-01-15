@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
@@ -7,6 +9,8 @@ import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../setting/timestamp_editor.dart';
+import 'player_utils.dart';
+import 'type_lyric.dart';
 
 class LyricEditor extends StatefulWidget {
   final int songID;
@@ -17,19 +21,47 @@ class LyricEditor extends StatefulWidget {
   State<LyricEditor> createState() => _LyricEditorState();
 }
 
-class _LyricEditorState extends State<LyricEditor> {
+class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStateMixin {
+  late final AnimationController animController;
   late final MusicTrack song;
   late final Lyric lyric;
 
   final lineEditController = TextEditingController();
-  int listCount = 0, editingIndex = -1;
+  final List<StreamSubscription> subs = [];
+  var timestampList = <Duration>[];
+  int lineCount = 0, editingIndex = -1, currentLine = 0;
+  Duration currentDuration = Duration.zero;
+
   bool hasChanged = false, isEditing = false;
 
-  void updateListCount() => listCount = lyric.list.length;
+  void updateList() {
+    timestampList = lyric.list.map((e) => e.timestamp).toList();
+    lineCount = lyric.list.length;
+  }
+
+  void addNewLyricItem([String line = '']) {
+    lyric.list.add(LyricItem(
+      timestamp: lyric.list.isNotEmpty ? lyric.list.last.timestamp + 5.seconds : 0.ms,
+      line: line.trim(),
+    ));
+  }
+
+  int findCurrentLine() {
+    for (int i = lineCount - 1; i >= 0; i--) {
+      if (Globals.audioHandler.player.position.inMilliseconds >= timestampList[i].inMilliseconds) {
+        return i;
+      }
+    }
+    return 0;
+  }
 
   @override
   void initState() {
     super.initState();
+    animController = AnimationController(duration: 300.ms, reverseDuration: 300.ms, vsync: this);
+    Globals.audioHandler.playing ? animController.forward(from: 0) : animController.reverse(from: 1);
+    currentLine = findCurrentLine();
+
     song = Globals.allSongs.firstWhere((e) => e.id == widget.songID);
     lyric = LyricHandler.getLyric(song.id, Globals.lyricPath + song.lyricPath) ??
         Lyric(
@@ -39,14 +71,34 @@ class _LyricEditorState extends State<LyricEditor> {
           path: '${song.name}.lrc',
           list: [],
         );
-    updateListCount();
+    updateList();
+
+    subs.add(Globals.audioHandler.player.positionStream.listen((current) {
+      currentDuration = current;
+      final newLine = findCurrentLine();
+      if (newLine != currentLine) currentLine = newLine;
+      setState(() {});
+    }));
+    subs.add(Globals.audioHandler.onPlayingChange.listen((playing) {
+      if (playing) {
+        animController.forward(from: 0);
+      } else {
+        animController.reverse(from: 1);
+      }
+    }));
+
     LogHandler.log('Editing lyric for ${song.id}');
     debugPrint('Lyric info \n$lyric');
+    setState(() {});
   }
 
   @override
   void dispose() {
     lineEditController.dispose();
+    animController.dispose();
+    for (final sub in subs) {
+      sub.cancel();
+    }
     super.dispose();
   }
 
@@ -123,7 +175,8 @@ class _LyricEditorState extends State<LyricEditor> {
                         }
                         LyricHandler.addLyric(lyric);
                         Globals.lyricChangedController.add(null);
-                        Navigator.of(context).pop();
+                        setState(() => hasChanged = false);
+                        // Navigator.of(context).pop();
                       });
                     }
                   : null,
@@ -131,24 +184,95 @@ class _LyricEditorState extends State<LyricEditor> {
           ],
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(50),
-            child: ListTile(
-              title: const Icon(Icons.add_rounded),
-              onTap: () {
-                lyric.list.add(const LyricItem(timestamp: Duration.zero, line: ''));
-                updateListCount();
-                setState(() => hasChanged = true);
-              },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  icon: Icon(Icons.add_rounded, color: iconColor(context)),
+                  label: Text(
+                    'Add',
+                    style: TextStyle(color: iconColor(context)),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surface),
+                  ),
+                  onPressed: () {
+                    addNewLyricItem();
+                    updateList();
+                    setState(() => hasChanged = true);
+                  },
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.edit, color: iconColor(context), size: 20),
+                  label: Text(
+                    'Type',
+                    style: TextStyle(color: iconColor(context)),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surface),
+                  ),
+                  onPressed: () {
+                    Navigator.push<String>(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (_, __, ___) {
+                          return TypeLyric(
+                            lines: Config.appendLyric
+                                ? []
+                                : lyric.list.map((e) {
+                                    String line = e.line;
+                                    if (line.isEmpty) line = ' ';
+                                    return line;
+                                  }).toList(),
+                          );
+                        },
+                        transitionsBuilder: (context, anim1, _, child) {
+                          return SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0, -1),
+                              end: const Offset(0, 0),
+                            ).animate(anim1.drive(CurveTween(curve: Curves.decelerate))),
+                            child: child,
+                          );
+                        },
+                      ),
+                    ).then((value) {
+                      if (value == null) return;
+                      final lines = value //
+                          .split('\n')
+                          .where((e) => e.isNotEmpty)
+                          .toList();
+                      if (!Config.appendLyric) lyric.list.clear();
+
+                      for (final line in lines) {
+                        addNewLyricItem(line);
+                      }
+                      updateList();
+                      setState(() => hasChanged = true);
+                    });
+                  },
+                ),
+              ],
             ),
           ),
         ),
         body: ListView.builder(
-          itemCount: listCount,
+          itemCount: lineCount,
           itemBuilder: (context, index) {
             final item = lyric.list[index];
 
             if (isEditing && index == editingIndex) {
               return ListTile(
-                leading: Text(item.timestamp.toLyricTimestamp()),
+                leading: Text(item.timestamp.toLyricTimestamp(),
+                    style: TextStyle(
+                      shadows: [
+                        if (index == currentLine)
+                          Shadow(
+                            color: Theme.of(context).colorScheme.inverseSurface,
+                            blurRadius: 20,
+                          ),
+                      ],
+                    )),
                 title: TextField(
                   controller: lineEditController,
                   maxLines: null,
@@ -209,7 +333,16 @@ class _LyricEditorState extends State<LyricEditor> {
                     setState(() {});
                   });
                 },
-                child: Text(item.timestamp.toLyricTimestamp()),
+                child: Text(item.timestamp.toLyricTimestamp(),
+                    style: TextStyle(
+                      shadows: [
+                        if (index == currentLine)
+                          Shadow(
+                            color: Theme.of(context).colorScheme.inverseSurface,
+                            blurRadius: 20,
+                          ),
+                      ],
+                    )),
               ),
               title: GestureDetector(
                 onTap: () {
@@ -217,7 +350,6 @@ class _LyricEditorState extends State<LyricEditor> {
                   isEditing = true;
                   editingIndex = index;
                   lineEditController.text = item.line;
-                  // timeEditController.text = item.timestamp.toLyricTimestamp();
                   setState(() {});
                 },
                 child: Text(item.line),
@@ -230,12 +362,112 @@ class _LyricEditorState extends State<LyricEditor> {
                 ),
                 onPressed: () {
                   lyric.list.removeAt(index);
-                  updateListCount();
+                  updateList();
                   setState(() => hasChanged = true);
                 },
               ),
             );
           },
+        ),
+        bottomNavigationBar: Visibility(
+          visible: Globals.showMinimizedPlayer,
+          child: Container(
+            margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 5,
+                  offset: Offset(0, 5),
+                )
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      visualDensity: VisualDensity.compact,
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 14),
+                        child: Icon(
+                          Icons.music_note_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      title: Text(
+                        currentDuration.toLyricTimestamp(),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${currentDuration.inMilliseconds} ms',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Globals.audioHandler.seek(currentDuration - 5.seconds),
+                  icon: Icon(
+                    Icons.replay_5_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 30,
+                  ),
+                ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      strokeWidth: 2,
+                      value: getCurrentDuration() / getTotalDuration(),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        if (Globals.setDuplicate) {
+                          Globals.audioHandler.setPlayerSong(Globals.currentSongID);
+                        } else {
+                          Globals.audioHandler.playing ? Globals.audioHandler.pause() : Globals.audioHandler.play();
+                        }
+                        setState(() {});
+                      },
+                      icon: AnimatedIcon(
+                        icon: AnimatedIcons.play_pause,
+                        progress: Tween<double>(begin: 0.0, end: 1.0).animate(animController),
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 30,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () => Globals.audioHandler.seek(currentDuration + 5.seconds),
+                  icon: Icon(
+                    Icons.forward_5_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 30,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

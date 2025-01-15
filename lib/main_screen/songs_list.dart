@@ -33,45 +33,42 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
               children: [
                 // shuffle playback
                 TextButton.icon(
-                    style: const ButtonStyle(splashFactory: NoSplash.splashFactory),
-                    icon: FaIcon(
-                      FontAwesomeIcons.shuffle,
-                      size: 25,
+                  icon: FaIcon(
+                    FontAwesomeIcons.shuffle,
+                    size: 25,
+                    color: iconColor(context),
+                  ),
+                  label: Text(
+                    'Shuffle playback',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
                       color: iconColor(context),
                     ),
-                    label: Text(
-                      'Shuffle playback',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: iconColor(context),
-                      ),
-                    ),
-                    onPressed: () async {
-                      final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].id;
-                      if (!Globals.audioHandler.isShuffled) {
-                        Globals.audioHandler.changeShuffleMode();
-                      }
+                  ),
+                  onPressed: () async {
+                    final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].id;
+                    if (!Globals.audioHandler.isShuffled) {
+                      Globals.audioHandler.changeShuffleMode();
+                    }
 
-                      Globals.audioHandler.registerPlaylist(
-                        'All songs',
-                        Globals.allSongs.map((e) => e.id).toList(),
+                    Globals.audioHandler.registerPlaylist(
+                      'All songs',
+                      Globals.allSongs.map((e) => e.id).toList(),
+                      randomSong,
+                    );
+                    await Navigator.of(context).push(
+                      await getMusicPlayerRoute(
+                        context,
                         randomSong,
-                      );
-                      await Navigator.of(context).push(
-                        await getMusicPlayerRoute(
-                          context,
-                          randomSong,
-                        ),
-                      );
-                      setState(() {});
-                    }),
+                      ),
+                    );
+                    setState(() {});
+                  },
+                ),
                 // sort songs
                 Directionality(
                   textDirection: TextDirection.rtl,
                   child: TextButton.icon(
-                    style: const ButtonStyle(
-                      splashFactory: NoSplash.splashFactory,
-                    ),
                     icon: Icon(
                       CupertinoIcons.sort_down,
                       size: 30,

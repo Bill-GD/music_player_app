@@ -1,4 +1,13 @@
-- Changed `VersionCheck` to `AboutPage`
-- Added `VersionDialog` to show the version (& changelog)
-- Improved checking for dev release: get tags -> latest dev tag -> release
-- Fixed not updating lyrics when changing song
+- Added page to freely type lyric.
+- Added config option for appending/rewriting lyric.
+  If rewrite, current lyrics will be shown in the text area.
+- Added player top padding to compensate extended body.
+- Lyric strip have different icons for viewing & playing lines.
+- Saving in lyric editor no longer exits the editor.
+- Removed setting confirm dialog trailing new line.
+- Song info now shows the song's full lyric path.
+- Newly added lines will be 5 seconds later than previous line.
+- Stable Actions script can update release.
+- Changed some `TickerProviderMixin`s to `SingleTickerProviderStateMixin`s.
+- Player seeking position now clamped to the song's duration.
+- Lyric editor now has a mini player and highlights the current line.

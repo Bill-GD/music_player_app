@@ -148,13 +148,13 @@ class _LyricStripState extends State<LyricStrip> {
                     color: !isCurrent ? Colors.grey.withOpacity(0.07) : null,
                   ),
                 ),
-                trailing: isCurrent
-                    ? const Padding(
-                        padding: EdgeInsets.only(right: 5),
-                        child: FaIcon(FontAwesomeIcons.headphonesSimple, size: 15),
-                      )
-                    : isViewed
-                        ? const Icon(Icons.arrow_left_rounded)
+                trailing: isViewed
+                    ? const Icon(Icons.arrow_left_rounded)
+                    : isCurrent
+                        ? const Padding(
+                            padding: EdgeInsets.only(right: 5),
+                            child: FaIcon(FontAwesomeIcons.volumeHigh, size: 12),
+                          )
                         : const Text(''),
                 visualDensity: VisualDensity.compact,
                 dense: true,
@@ -164,7 +164,7 @@ class _LyricStripState extends State<LyricStrip> {
           onPageChanged: (index) {
             viewLine = index;
             canAutoScroll = false;
-            Future.delayed(300.ms, () => canAutoScroll = true);
+            Future.delayed(250.ms, () => canAutoScroll = true);
             setState(() {});
           },
         ),

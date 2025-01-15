@@ -16,11 +16,12 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  bool autoBackup = Config.backupOnLaunch;
   bool ignoreShortFile = Config.enableSongFiltering;
   int ignoreTimeLimit = Config.lengthLimitMilliseconds ~/ 1e3;
   bool autoPlay = Config.autoPlayNewSong;
   int delayBetween = Config.delayMilliseconds;
-  bool autoBackup = Config.backupOnLaunch;
+  bool appendLyric = Config.appendLyric;
   double volume = Config.volume;
 
   @override
@@ -49,6 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     autoPlay != Config.autoPlayNewSong ||
                     autoBackup != Config.backupOnLaunch ||
                     delayBetween != Config.delayMilliseconds ||
+                    appendLyric != Config.appendLyric ||
                     volume != Config.volume);
 
                 String changes = 'Confirm the following changes?\n\n';
@@ -69,6 +71,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         : 'Disable auto play\n'
                     : '';
 
+                changes += appendLyric != Config.appendLyric
+                    ? appendLyric
+                        ? 'Enable append lyric\n'
+                        : 'Disable append lyric\n'
+                    : '';
+
                 changes += autoBackup != Config.backupOnLaunch
                     ? autoBackup
                         ? 'Enable auto backup\n'
@@ -76,6 +84,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     : '';
                 changes += delayBetween != Config.delayMilliseconds ? 'Delay between songs: $delayBetween ms\n' : '';
                 changes += volume != Config.volume ? 'Volume: x$volume\n' : '';
+
+                if (changes.endsWith('\n')) changes = changes.substring(0, changes.length - 1);
 
                 if (hasChanges) {
                   await dialogWithActions(
@@ -93,11 +103,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       TextButton(
                         onPressed: () async {
                           needsUpdate = true;
+                          Config.backupOnLaunch = autoBackup;
                           Config.enableSongFiltering = ignoreShortFile;
                           Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
                           Config.autoPlayNewSong = autoPlay;
                           Config.delayMilliseconds = delayBetween;
-                          Config.backupOnLaunch = autoBackup;
+                          Config.appendLyric = appendLyric;
                           Config.volume = volume;
                           Globals.audioHandler.setVolume(Config.volume);
                           await Config.saveConfig();
@@ -280,6 +291,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ],
+            ),
+            SwitchListTile(
+              title: leadingText(context, 'Append lyric', false, 16),
+              subtitle: const Text('Add lines to lyric instead of rewriting'),
+              value: appendLyric,
+              onChanged: (value) {
+                setState(() => appendLyric = value);
+              },
             ),
             ListTile(
               title: leadingText(context, 'Volume', false, 16),
