@@ -73,12 +73,12 @@ jobs:
           echo "VERSION=${{ env.VERSION }}" > .env
           echo "GITHUB_TOKEN=${{ secrets.API_GITHUB_TOKEN }}" >> .env
 
-      - name: Build APKs
-        run: flutter build apk --dart-define-from-file=.env
-        env:
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+#      - name: Build APK
+#        run: flutter build apk --dart-define-from-file=.env
+#        env:
+#          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+#          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+#          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       - name: Build split APKs
         run: flutter build apk --split-per-abi --dart-define-from-file=.env
         env:
@@ -91,7 +91,7 @@ jobs:
           mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-arm64-v8a.apk
           mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-armeabi-v7a.apk
           mv build/app/outputs/flutter-apk/app-x86_64-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}-x86_64.apk
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}.apk
+#          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/music_hub_${{ env.VERSION_BIN }}.apk
 
       - name: Create Release
         uses: ncipollo/release-action@v1
