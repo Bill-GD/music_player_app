@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
@@ -40,9 +41,21 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
     lineCount = lyric.list.length;
   }
 
-  void addNewLyricItem([String line = '']) {
+  void addLyricItems(List<String> lines) {
+    Duration dur = const Duration(minutes: 59, seconds: 59, milliseconds: 900);
+    List<(String, Duration)> lyricItems = [];
+    for (int i = lines.length - 1; i >= 0; i--) {
+      lyricItems.add((lines[i], dur));
+      dur -= 100.milliseconds;
+    }
+    for (final (line, time) in lyricItems.reversed) {
+      addNewLyricItem(line, time);
+    }
+  }
+
+  void addNewLyricItem([String line = '', Duration? time]) {
     lyric.list.add(LyricItem(
-      timestamp: lyric.list.isNotEmpty ? lyric.list.last.timestamp + 5.seconds : 0.ms,
+      timestamp: time ?? (lyric.list.isNotEmpty ? lyric.list.last.timestamp + 5.seconds : 0.ms),
       line: line.trim(),
     ));
   }
@@ -256,12 +269,12 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                         if (isShorten) {
                           lyric.list.removeRange(count, lyric.list.length);
                         }
-                        // lyric.list.clear();
                       }
+                      addLyricItems(lines);
+                      // for (final line in lines) {
+                      //   addNewLyricItem(line);
+                      // }
 
-                      for (final line in lines) {
-                        addNewLyricItem(line);
-                      }
                       updateList();
                       setState(() => hasChanged = true);
                     });
@@ -318,6 +331,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
               tileColor: index == currentLine //
                   ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.1)
                   : null,
+              contentPadding: const EdgeInsets.only(left: 16, right: 0),
               leading: GestureDetector(
                 onTap: () {
                   if (isEditing) return;
@@ -359,17 +373,54 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                 },
                 child: Text(item.line),
               ),
-              trailing: IconButton(
-                icon: Icon(
-                  Icons.delete_forever_rounded,
-                  color: Theme.of(context).colorScheme.error,
-                  size: 25,
-                ),
-                onPressed: () {
-                  lyric.list.removeAt(index);
-                  updateList();
-                  setState(() => hasChanged = true);
-                },
+              trailing: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const FaIcon(FontAwesomeIcons.clock, size: 20),
+                    onPressed: () {
+                      lyric.list[index] = LyricItem(
+                        timestamp: currentDuration,
+                        line: item.line,
+                      );
+                      updateList();
+                      setState(() => hasChanged = true);
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_forever_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      dialogWithActions(
+                        context,
+                        title: 'Delete lyric line',
+                        titleFontSize: 16,
+                        textContent: 'Are you sure you want to delete this lyric line?',
+                        contentFontSize: 14,
+                        time: 150.ms,
+                        actions: [
+                          TextButton(
+                            child: const Text('No'),
+                            onPressed: () => Navigator.of(context).pop(false),
+                          ),
+                          TextButton(
+                            child: const Text('Yes'),
+                            onPressed: () => Navigator.of(context).pop(true),
+                          ),
+                        ],
+                      ).then((value) {
+                        if (value != true) return;
+                        lyric.list.removeAt(index);
+                        updateList();
+                        setState(() => hasChanged = true);
+                      });
+                    },
+                  ),
+                ],
               ),
             );
           },
