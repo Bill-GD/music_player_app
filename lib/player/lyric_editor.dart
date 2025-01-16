@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -79,6 +80,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
       if (newLine != currentLine) currentLine = newLine;
       setState(() {});
     }));
+
     subs.add(Globals.audioHandler.onPlayingChange.listen((playing) {
       if (playing) {
         animController.forward(from: 0);
@@ -112,10 +114,8 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
-              if (!hasChanged) {
-                Navigator.of(context).pop();
-                return;
-              }
+              if (!hasChanged) return Navigator.of(context).pop();
+
               dialogWithActions<bool>(
                 context,
                 title: 'Discard changes',
@@ -222,6 +222,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                                     if (line.isEmpty) line = ' ';
                                     return line;
                                   }).toList(),
+                            // : File(Globals.lyricPath + lyric.path).readAsLinesSync(),
                           );
                         },
                         transitionsBuilder: (context, anim1, _, child) {
@@ -240,7 +241,23 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                           .split('\n')
                           .where((e) => e.isNotEmpty)
                           .toList();
-                      if (!Config.appendLyric) lyric.list.clear();
+
+                      if (!Config.appendLyric) {
+                        final count = min(lines.length, lyric.list.length);
+                        final isShorten = count < lyric.list.length;
+
+                        for (int i = 0; i < count; i++) {
+                          lyric.list[i] = LyricItem(
+                            timestamp: lyric.list[i].timestamp,
+                            line: lines[i],
+                          );
+                        }
+                        lines.removeRange(0, count);
+                        if (isShorten) {
+                          lyric.list.removeRange(count, lyric.list.length);
+                        }
+                        // lyric.list.clear();
+                      }
 
                       for (final line in lines) {
                         addNewLyricItem(line);

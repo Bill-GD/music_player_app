@@ -216,7 +216,7 @@ class _SongInfoState extends State<SongInfo> {
                     child: TextFormField(
                       readOnly: true,
                       scrollPadding: const EdgeInsets.only(right: 0),
-                      initialValue: Globals.lyricPath + song.lyricPath,
+                      initialValue: song.lyricPath.isNotEmpty ? Globals.lyricPath + song.lyricPath : 'No lyric',
                       decoration: textFieldDecoration(
                         context,
                         fillColor: Theme.of(context).colorScheme.surface,

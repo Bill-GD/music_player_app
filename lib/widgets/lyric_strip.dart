@@ -115,46 +115,55 @@ class _LyricStripState extends State<LyricStrip> {
           padEnds: true,
           itemCount: lines.length,
           itemBuilder: (context, index) {
-            final isCurrent = index == currentLine || index == viewLine, isViewed = index == viewLine;
+            final isCurrent = index == currentLine, isViewed = index == viewLine;
+            final highlight = isCurrent || isViewed;
 
             return Center(
               child: ListTile(
+                leading: Text(
+                  timestampList[index].toMMSS(),
+                  style: TextStyle(
+                    shadows: [
+                      if (highlight)
+                        Shadow(
+                          color: Theme.of(context).colorScheme.inverseSurface.withOpacity(isViewed ? 1 : 0.4),
+                          blurRadius: 25,
+                        ),
+                    ],
+                    color: isViewed
+                        ? null
+                        : isCurrent
+                            ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.4)
+                            : Colors.grey.withOpacity(0.07),
+                  ),
+                ),
                 title: Text(
                   lines[index],
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     shadows: [
-                      if (isCurrent)
+                      if (highlight)
                         Shadow(
                           color: Theme.of(context).colorScheme.inverseSurface,
-                          blurRadius: 35,
+                          blurRadius: isViewed ? 30 : 20,
                         ),
                     ],
-                    fontSize: isCurrent ? 16 : null,
-                    fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                    color: !isCurrent ? Colors.grey.withOpacity(0.15) : null,
+                    fontSize: highlight ? 16 : null,
+                    fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+                    color: isViewed
+                        ? null
+                        : isCurrent
+                            ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.4)
+                            : Colors.grey.withOpacity(0.15),
                   ),
                 ),
-                leading: Text(
-                  timestampList[index].toMMSS(),
-                  style: TextStyle(
-                    shadows: [
-                      if (isCurrent)
-                        Shadow(
-                          color: Theme.of(context).colorScheme.inverseSurface,
-                          blurRadius: 25,
-                        ),
-                    ],
-                    color: !isCurrent ? Colors.grey.withOpacity(0.07) : null,
-                  ),
-                ),
-                trailing: isViewed
-                    ? const Icon(Icons.arrow_left_rounded)
-                    : isCurrent
-                        ? const Padding(
-                            padding: EdgeInsets.only(right: 5),
-                            child: FaIcon(FontAwesomeIcons.volumeHigh, size: 12),
-                          )
+                trailing: isCurrent
+                    ? const Padding(
+                        padding: EdgeInsets.only(right: 5),
+                        child: FaIcon(FontAwesomeIcons.volumeHigh, size: 10),
+                      )
+                    : isViewed
+                        ? const Icon(Icons.arrow_left_rounded)
                         : const Text(''),
                 visualDensity: VisualDensity.compact,
                 dense: true,

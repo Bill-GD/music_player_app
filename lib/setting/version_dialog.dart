@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
 import '../globals/variables.dart';
 
@@ -85,7 +86,15 @@ class _VersionDialogState extends State<VersionDialog> {
       );
     }
 
-    final Map tagJson = json.firstWhere((e) => e['ref'] == 'refs/tags/${selectedTag ?? 'v${Globals.appVersion}'}');
+    final Map? tagJson = json //
+        .firstWhereOrNull((e) => e['ref'] == 'refs/tags/${selectedTag ?? 'v${Globals.appVersion}'}');
+    if (tagJson == null) {
+      if (mounted) Navigator.pop(context);
+      LogHandler.log('Tag ${selectedTag ?? 'v${Globals.appVersion}'} not found', LogLevel.error);
+      throw Exception(
+        'Tag not found. Please create an issue or consult the dev.',
+      );
+    }
     tag = selectedTag ?? 'v${Globals.appVersion}';
     // sha =
     return (tagJson['object']['sha'] as String).substring(0, 7);

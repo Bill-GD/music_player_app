@@ -1,13 +1,13 @@
-- Added page to freely type lyric.
-- Added config option for appending/rewriting lyric.
-  If rewrite, current lyrics will be shown in the text area.
-- Added player top padding to compensate extended body.
-- Lyric strip have different icons for viewing & playing lines.
-- Saving in lyric editor no longer exits the editor.
-- Removed setting confirm dialog trailing new line.
-- Song info now shows the song's full lyric path.
-- Newly added lines will be 5 seconds later than previous line.
-- Stable Actions script can update release.
-- Changed some `TickerProviderMixin`s to `SingleTickerProviderStateMixin`s.
-- Player seeking position now clamped to the song's duration.
-- Lyric editor now has a mini player and highlights the current line.
+- Removed some pages' app bar elevation tint.
+- About page (might list all versions in the future):
+    - Tapping current version gets the changelog.
+    - Added a button to get dev changes of latest version.
+    - Added code string formatting to changelog.
+- Lyric editor line highlighting now highlights the whole tile.
+- Using lyric editor in rewrite mode now only change the line, not the timestamp.
+- Updated `Append lyric` description in settings.
+- Lyric strip: viewing line is brighter, playing line is dimmed but has icon priority.
+- Fixed not updating internal list when changing timestamp.
+- Fixed cancel changing line turns `hasChanged` flag to false regardless of changes.
+- Fixed trying to `setState` when `VersionDialog` is not mounted.
+- Specifies no lyric in song info if lyric path is empty.
