@@ -9,7 +9,7 @@ import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import 'version_dialog.dart';
+import 'version_list.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -73,91 +73,28 @@ class _AboutPageState extends State<AboutPage> {
                   ListTile(
                     title: leadingText(context, 'Current version', false, 16),
                     subtitle: const Text(Globals.appVersion),
-                    onTap: () {
-                      if (!isInternetConnected) return;
-
-                      Navigator.of(context).push(RawDialogRoute(
-                        transitionDuration: 300.ms,
-                        barrierDismissible: true,
-                        barrierLabel: '',
-                        transitionBuilder: (_, anim1, __, child) {
-                          return ScaleTransition(
-                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                            alignment: Alignment.center,
-                            child: child,
-                          );
-                        },
-                        pageBuilder: (context, __, ___) {
-                          return const VersionDialog(changelog: true);
-                        },
-                      ));
-                    },
                   ),
                   ListTile(
-                    title: leadingText(context, 'Dev changes', false, 16),
-                    subtitle: const Text('Get the dev changes of the latest version'),
+                    title: leadingText(context, 'Version list', false, 16),
+                    subtitle: const Text('View the list of versions of this app'),
                     onTap: () {
                       if (!isInternetConnected) return;
 
-                      Navigator.of(context).push(RawDialogRoute(
+                      Navigator.of(context).push(PageRouteBuilder(
                         transitionDuration: 300.ms,
                         barrierDismissible: true,
                         barrierLabel: '',
-                        transitionBuilder: (_, anim1, __, child) {
-                          return ScaleTransition(
-                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                            alignment: Alignment.center,
+                        transitionsBuilder: (_, anim1, __, child) {
+                          return SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(-1, 0),
+                              end: const Offset(0, 0),
+                            ).animate(anim1),
                             child: child,
                           );
                         },
                         pageBuilder: (context, __, ___) {
-                          return const VersionDialog(dev: true, changelog: true);
-                        },
-                      ));
-                    },
-                  ),
-                  ListTile(
-                    title: leadingText(context, 'Check latest', false, 16),
-                    subtitle: const Text('Check for the latest stable version of the app'),
-                    onTap: () {
-                      if (!isInternetConnected) return;
-
-                      Navigator.of(context).push(RawDialogRoute(
-                        transitionDuration: 300.ms,
-                        barrierDismissible: true,
-                        barrierLabel: '',
-                        transitionBuilder: (_, anim1, __, child) {
-                          return ScaleTransition(
-                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                            alignment: Alignment.center,
-                            child: child,
-                          );
-                        },
-                        pageBuilder: (context, __, ___) {
-                          return const VersionDialog();
-                        },
-                      ));
-                    },
-                  ),
-                  ListTile(
-                    title: leadingText(context, 'Check pre-releases', false, 16),
-                    subtitle: const Text('Check for the latest dev version of the app'),
-                    onTap: () {
-                      if (!isInternetConnected) return;
-
-                      Navigator.of(context).push(RawDialogRoute(
-                        transitionDuration: 300.ms,
-                        barrierDismissible: true,
-                        barrierLabel: '',
-                        transitionBuilder: (_, anim1, __, child) {
-                          return ScaleTransition(
-                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-                            alignment: Alignment.center,
-                            child: child,
-                          );
-                        },
-                        pageBuilder: (context, __, ___) {
-                          return const VersionDialog(dev: true);
+                          return const VersionList();
                         },
                       ));
                     },

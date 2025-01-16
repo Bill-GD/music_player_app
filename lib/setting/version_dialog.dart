@@ -1,150 +1,69 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-import '../globals/extensions.dart';
+import '../globals/functions.dart';
 import '../globals/log_handler.dart';
-import '../globals/variables.dart';
 
 class VersionDialog extends StatefulWidget {
+  final String tag;
+  final String sha;
   final bool dev;
-  final bool changelog;
 
-  const VersionDialog({super.key, this.dev = false, this.changelog = false});
+  const VersionDialog({super.key, required this.tag, required this.sha, this.dev = false});
 
   @override
   State<VersionDialog> createState() => _VersionDialogState();
 }
 
 class _VersionDialogState extends State<VersionDialog> {
-  final baseApiUrl = 'https://api.github.com/repos/Bill-GD/music_player_app';
-
-  late final isStable = !widget.dev, getChangelog = widget.changelog;
   bool loading = true;
-  String tag = '', body = '', changelog = ''; //, sha = '';
+  String body = '';
 
   @override
   void initState() {
     super.initState();
-    if (getChangelog) {
-      getChangelogContent();
-    } else {
-      getRelease();
-    }
+    LogHandler.log('Getting changelog of: ${widget.tag}');
+    getChangelog();
   }
 
-  Future<void> getChangelogContent() async {
-    final filename = isStable ? 'release_note.md' : 'dev_changes.md';
-    final sha = await getSHA(isStable ? null : await getLatestTag());
-    final res = await apiQuery('/contents/$filename?ref=$sha');
+  Future<void> getChangelog() async {
+    // body = widget.dev ? await getRelease() : await getNote();
+    try {
+      body = widget.dev ? await getNote() : await getRelease();
+    } catch (e) {
+      if (mounted) Navigator.pop(context);
+      rethrow;
+    }
+    if (mounted) setState(() => loading = false);
+  }
+
+  Future<String> getRelease() async {
+    final res = await apiQuery('/releases/tags/${widget.tag}');
     final json = jsonDecode(res.body);
 
     if (json == null) throw Exception('Rate limited. Please come back later.');
-    if (json is! Map) {
-      LogHandler.log('JSON received is not a map', LogLevel.error);
-      throw Exception(
-        'Something is wrong when trying to get changelog. Please create an issue or consult the dev.',
-      );
-    }
+    if (json is! Map) throw Exception('Something is wrong, JSON received is not a map.');
 
-    changelog = utf8.decode(base64Decode(
+    LogHandler.log('Got release of: t=${widget.tag}, sha=${widget.sha}');
+    return json['body'] as String;
+  }
+
+  Future<String> getNote() async {
+    // final filename = widget.dev ? 'release_note.md' : 'dev_changes.md';
+    const filename = 'dev_changes.md';
+    final res = await apiQuery('/contents/$filename?ref=${widget.sha}');
+    final json = jsonDecode(res.body);
+
+    if (json == null) throw Exception('Rate limited. Please come back later.');
+    if (json is! Map) throw Exception('Something is wrong, JSON received is not a map.');
+
+    if (json['content'] == null) return getRelease();
+
+    LogHandler.log('Got markdown of: t=${widget.tag}, sha=${widget.sha}');
+    return utf8.decode(base64Decode(
       (json['content'] as String).replaceAll('\n', ''),
     ));
-    LogHandler.log('Checked for latest dev changelog: $tag');
-    if (mounted) setState(() => loading = false);
-  }
-
-  Future<void> getRelease() async {
-    final res = await apiQuery(isStable ? '/releases/latest' : '/releases/tags/${await getLatestDevTag()}');
-    final json = jsonDecode(res.body);
-
-    if (json == null) throw Exception('Rate limited. Please come back later.');
-    if (json is! Map) {
-      LogHandler.log('JSON received is not a map', LogLevel.error);
-      throw Exception(
-        'Something is wrong when trying to get version. Please create an issue or consult the dev.',
-      );
-    }
-
-    tag = json['tag_name'] as String;
-    body = json['body'] as String;
-
-    LogHandler.log('Checked for latest ${isStable ? 'stable' : 'dev'} version: $tag');
-    if (mounted) setState(() => loading = false);
-  }
-
-  Future<String> getSHA([String? selectedTag]) async {
-    final res = await apiQuery('/git/refs/tags');
-    final json = jsonDecode(res.body);
-
-    if (json == null) throw Exception('Rate limited. Please come back later.');
-    if (json is! List) {
-      LogHandler.log('JSON received is not a list', LogLevel.error);
-      throw Exception(
-        'Something is wrong when trying to get SHA. Please create an issue or consult the dev.',
-      );
-    }
-
-    final Map? tagJson = json //
-        .firstWhereOrNull((e) => e['ref'] == 'refs/tags/${selectedTag ?? 'v${Globals.appVersion}'}');
-    if (tagJson == null) {
-      if (mounted) Navigator.pop(context);
-      LogHandler.log('Tag ${selectedTag ?? 'v${Globals.appVersion}'} not found', LogLevel.error);
-      throw Exception(
-        'Tag not found. Please create an issue or consult the dev.',
-      );
-    }
-    tag = selectedTag ?? 'v${Globals.appVersion}';
-    // sha =
-    return (tagJson['object']['sha'] as String).substring(0, 7);
-  }
-
-  Future<String> getLatestDevTag() async {
-    final res = await apiQuery('/git/refs/tags');
-    final json = jsonDecode(res.body);
-
-    if (json == null) throw Exception('Rate limited. Please come back later.');
-    if (json is! List) {
-      LogHandler.log('JSON received is not a list', LogLevel.error);
-      throw Exception(
-        'Something is wrong when trying to get latest dev tag. Please create an issue or consult the dev.',
-      );
-    }
-
-    final List<String> devTags = json //
-        .map((e) => e['ref'] as String)
-        .where((e) => e.contains('_dev_'))
-        .toList();
-
-    return devTags.last.split('/').last;
-  }
-
-  Future<String> getLatestTag() async {
-    final res = await apiQuery('/git/refs/tags');
-    final json = jsonDecode(res.body);
-
-    if (json == null) throw Exception('Rate limited. Please come back later.');
-    if (json is! List) {
-      LogHandler.log('JSON received is not a list', LogLevel.error);
-      throw Exception(
-        'Something is wrong when trying to get latest tag. Please create an issue or consult the dev.',
-      );
-    }
-
-    final List<String> tags = json //
-        .map((e) => e['ref'] as String)
-        .toList();
-
-    return tags.last.split('/').last;
-  }
-
-  Future<http.Response> apiQuery(String query) {
-    LogHandler.log('Querying $query');
-    return http.get(
-      Uri.parse('$baseApiUrl$query'),
-      headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
-    );
   }
 
   List<InlineSpan> getContent(String body) {
@@ -157,6 +76,7 @@ class _VersionDialogState extends State<VersionDialog> {
     while (bodyLines.isNotEmpty && bodyLines.last.trim().isEmpty) {
       bodyLines.removeLast();
     }
+    bodyLines[bodyLines.length - 1] = bodyLines.last.trim();
 
     for (int i = 0; i < bodyLines.length; i++) {
       if (!bodyLines[i].contains('`')) continue;
@@ -191,7 +111,11 @@ class _VersionDialogState extends State<VersionDialog> {
       bodySpans.add(TextSpan(
         text: text,
         style: TextStyle(
-          fontSize: titleLevel > 0 ? 24.0 - titleLevel : 16,
+          fontSize: titleLevel > 0
+              ? 24.0 - titleLevel
+              : isCode
+                  ? 14
+                  : 16,
           fontWeight: titleLevel > 0 ? FontWeight.bold : null,
           fontFamily: isCode ? 'monospace' : null,
           color: isCode ? Theme.of(context).colorScheme.onSurface : null,
@@ -206,7 +130,7 @@ class _VersionDialogState extends State<VersionDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        '${getChangelog ? '${isStable ? 'C' : 'Dev c'}hangelog for' : 'Latest ${isStable ? 'stable' : 'dev'} version'}\n$tag',
+        widget.tag,
         textAlign: TextAlign.center,
         overflow: TextOverflow.ellipsis,
       ),
@@ -221,7 +145,7 @@ class _VersionDialogState extends State<VersionDialog> {
             )
           : SingleChildScrollView(
               child: RichText(
-                text: TextSpan(children: getContent(getChangelog ? changelog : body)),
+                text: TextSpan(children: getContent(body)),
               ),
             ),
       contentPadding: const EdgeInsets.only(left: 20, right: 20, top: 15),

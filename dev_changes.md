@@ -1,13 +1,5 @@
-- Removed some pages' app bar elevation tint.
-- About page (might list all versions in the future):
-    - Tapping current version gets the changelog.
-    - Added a button to get dev changes of latest version.
-    - Added code string formatting to changelog.
-- Lyric editor line highlighting now highlights the whole tile.
-- Using lyric editor in rewrite mode now only change the line, not the timestamp.
-- Updated `Append lyric` description in settings.
-- Lyric strip: viewing line is brighter, playing line is dimmed but has icon priority.
-- Fixed not updating internal list when changing timestamp.
-- Fixed cancel changing line turns `hasChanged` flag to false regardless of changes.
-- Fixed trying to `setState` when `VersionDialog` is not mounted.
-- Specifies no lyric in song info if lyric path is empty.
+- Removed dev normal APK build.
+- Added version list page to view changelog of all versions.
+  View both release and dev, if no `dev_changes.md`, fallback to release note.
+  For dev builds, can only view dev changes.
+- Smaller code format font size.

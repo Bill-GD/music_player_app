@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 import 'database_handler.dart';
 import 'extensions.dart';
@@ -15,6 +16,15 @@ String getTimeString(int milliseconds) {
 
 String sanitizeFilePath(String path) {
   return path.replaceAll(RegExp(r'[\\|?*<":>+\[\]/]'), '').replaceAll("'", '');
+}
+
+Future<Response> apiQuery(String query) {
+  const baseApiUrl = 'https://api.github.com/repos/Bill-GD/music_player_app';
+  LogHandler.log('Querying $query');
+  return get(
+    Uri.parse('$baseApiUrl$query'),
+    headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
+  );
 }
 
 String getSizeString(double bytes) {
