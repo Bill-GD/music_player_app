@@ -107,6 +107,8 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          surfaceTintColor: Colors.transparent,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
@@ -189,12 +191,10 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
               children: [
                 ElevatedButton.icon(
                   icon: Icon(Icons.add_rounded, color: iconColor(context)),
-                  label: Text(
-                    'Add',
-                    style: TextStyle(color: iconColor(context)),
-                  ),
+                  label: Text('Add', style: TextStyle(color: iconColor(context))),
                   style: ButtonStyle(
                     backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surface),
+                    side: WidgetStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.surface)),
                   ),
                   onPressed: () {
                     addNewLyricItem();
@@ -204,12 +204,10 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                 ),
                 ElevatedButton.icon(
                   icon: Icon(Icons.edit, color: iconColor(context), size: 20),
-                  label: Text(
-                    'Type',
-                    style: TextStyle(color: iconColor(context)),
-                  ),
+                  label: Text('Type', style: TextStyle(color: iconColor(context))),
                   style: ButtonStyle(
                     backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surface),
+                    side: WidgetStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.surface)),
                   ),
                   onPressed: () {
                     Navigator.push<String>(
@@ -263,16 +261,10 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
 
             if (isEditing && index == editingIndex) {
               return ListTile(
-                leading: Text(item.timestamp.toLyricTimestamp(),
-                    style: TextStyle(
-                      shadows: [
-                        if (index == currentLine)
-                          Shadow(
-                            color: Theme.of(context).colorScheme.inverseSurface,
-                            blurRadius: 20,
-                          ),
-                      ],
-                    )),
+                tileColor: index == currentLine //
+                    ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.1)
+                    : null,
+                leading: Text(item.timestamp.toLyricTimestamp()),
                 title: TextField(
                   controller: lineEditController,
                   maxLines: null,
@@ -286,7 +278,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                       ),
                       onPressed: () {
                         isEditing = false;
-                        hasChanged = item.line != lineEditController.text;
+                        if (!hasChanged) hasChanged = item.line != lineEditController.text;
                         if (hasChanged) {
                           lyric.list[index] = LyricItem(
                             timestamp: item.timestamp,
@@ -304,7 +296,11 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                 ),
               );
             }
+
             return ListTile(
+              tileColor: index == currentLine //
+                  ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.1)
+                  : null,
               leading: GestureDetector(
                 onTap: () {
                   if (isEditing) return;
@@ -330,19 +326,11 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                       timestamp: Duration(minutes: value[0], seconds: value[1], milliseconds: value[2]),
                       line: item.line,
                     );
+                    updateList();
                     setState(() {});
                   });
                 },
-                child: Text(item.timestamp.toLyricTimestamp(),
-                    style: TextStyle(
-                      shadows: [
-                        if (index == currentLine)
-                          Shadow(
-                            color: Theme.of(context).colorScheme.inverseSurface,
-                            blurRadius: 20,
-                          ),
-                      ],
-                    )),
+                child: Text(item.timestamp.toLyricTimestamp()),
               ),
               title: GestureDetector(
                 onTap: () {

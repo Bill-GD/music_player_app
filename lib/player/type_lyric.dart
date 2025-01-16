@@ -18,6 +18,8 @@ class _TypeLyricState extends State<TypeLyric> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          surfaceTintColor: Colors.transparent,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: Navigator.of(context).pop,

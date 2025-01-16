@@ -73,6 +73,25 @@ class _AboutPageState extends State<AboutPage> {
                   ListTile(
                     title: leadingText(context, 'Current version', false, 16),
                     subtitle: const Text(Globals.appVersion),
+                    onTap: () {
+                      if (!isInternetConnected) return;
+
+                      Navigator.of(context).push(RawDialogRoute(
+                        transitionDuration: 300.ms,
+                        barrierDismissible: true,
+                        barrierLabel: '',
+                        transitionBuilder: (_, anim1, __, child) {
+                          return ScaleTransition(
+                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                            alignment: Alignment.center,
+                            child: child,
+                          );
+                        },
+                        pageBuilder: (context, __, ___) {
+                          return const VersionDialog(changelog: true);
+                        },
+                      ));
+                    },
                   ),
                   ListTile(
                     title: leadingText(context, 'Check latest', false, 16),
@@ -93,6 +112,29 @@ class _AboutPageState extends State<AboutPage> {
                         },
                         pageBuilder: (context, __, ___) {
                           return const VersionDialog();
+                        },
+                      ));
+                    },
+                  ),
+                  ListTile(
+                    title: leadingText(context, 'Dev changes', false, 16),
+                    subtitle: const Text('Get the dev changes of this version'),
+                    onTap: () {
+                      if (!isInternetConnected) return;
+
+                      Navigator.of(context).push(RawDialogRoute(
+                        transitionDuration: 300.ms,
+                        barrierDismissible: true,
+                        barrierLabel: '',
+                        transitionBuilder: (_, anim1, __, child) {
+                          return ScaleTransition(
+                            scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
+                            alignment: Alignment.center,
+                            child: child,
+                          );
+                        },
+                        pageBuilder: (context, __, ___) {
+                          return const VersionDialog(dev: true, changelog: true);
                         },
                       ));
                     },

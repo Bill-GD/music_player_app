@@ -8,8 +8,9 @@ import '../globals/variables.dart';
 
 class VersionDialog extends StatefulWidget {
   final bool dev;
+  final bool changelog;
 
-  const VersionDialog({super.key, this.dev = false});
+  const VersionDialog({super.key, this.dev = false, this.changelog = false});
 
   @override
   State<VersionDialog> createState() => _VersionDialogState();
@@ -18,23 +19,39 @@ class VersionDialog extends StatefulWidget {
 class _VersionDialogState extends State<VersionDialog> {
   final baseApiUrl = 'https://api.github.com/repos/Bill-GD/music_player_app';
 
-  late final isStable = !widget.dev;
+  late final isStable = !widget.dev, getChangelog = widget.changelog;
   bool loading = true;
-  String tag = '';
-  String body = '';
+  String tag = '', body = '', changelog = ''; //, sha = '';
 
   @override
   void initState() {
     super.initState();
-    getRelease();
+    if (getChangelog) {
+      getChangelogContent();
+    } else {
+      getRelease();
+    }
   }
 
-  Future<http.Response> apiQuery(String query) {
-    LogHandler.log('Querying $query');
-    return http.get(
-      Uri.parse('$baseApiUrl$query'),
-      headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
-    );
+  Future<void> getChangelogContent() async {
+    final filename = isStable ? 'release_note.md' : 'dev_changes.md';
+    final sha = await getSHA(isStable ? null : await getLatestTag());
+    final res = await apiQuery('/contents/$filename?ref=$sha');
+    final json = jsonDecode(res.body);
+
+    if (json == null) throw Exception('Rate limited. Please come back later.');
+    if (json is! Map) {
+      LogHandler.log('JSON received is not a map', LogLevel.error);
+      throw Exception(
+        'Something is wrong when trying to get changelog. Please create an issue or consult the dev.',
+      );
+    }
+
+    changelog = utf8.decode(base64Decode(
+      (json['content'] as String).replaceAll('\n', ''),
+    ));
+    LogHandler.log('Checked for latest dev changelog: $tag');
+    setState(() => loading = false);
   }
 
   Future<void> getRelease() async {
@@ -56,44 +73,119 @@ class _VersionDialogState extends State<VersionDialog> {
     setState(() => loading = false);
   }
 
+  Future<String> getSHA([String? selectedTag]) async {
+    final res = await apiQuery('/git/refs/tags');
+    final json = jsonDecode(res.body);
+
+    if (json == null) throw Exception('Rate limited. Please come back later.');
+    if (json is! List) {
+      LogHandler.log('JSON received is not a list', LogLevel.error);
+      throw Exception(
+        'Something is wrong when trying to get SHA. Please create an issue or consult the dev.',
+      );
+    }
+
+    final Map tagJson = json.firstWhere((e) => e['ref'] == 'refs/tags/${selectedTag ?? 'v${Globals.appVersion}'}');
+    tag = selectedTag ?? 'v${Globals.appVersion}';
+    // sha =
+    return (tagJson['object']['sha'] as String).substring(0, 7);
+  }
+
   Future<String> getLatestDevTag() async {
     final res = await apiQuery('/git/refs/tags');
+    final json = jsonDecode(res.body);
 
-    final json = (jsonDecode(res.body) as List) //
+    if (json == null) throw Exception('Rate limited. Please come back later.');
+    if (json is! List) {
+      LogHandler.log('JSON received is not a list', LogLevel.error);
+      throw Exception(
+        'Something is wrong when trying to get latest dev tag. Please create an issue or consult the dev.',
+      );
+    }
+
+    final List<String> devTags = json //
         .map((e) => e['ref'] as String)
         .where((e) => e.contains('_dev_'))
         .toList();
 
-    return json.last.split('/').last;
+    return devTags.last.split('/').last;
   }
 
-  List<InlineSpan> getBody() {
+  Future<String> getLatestTag() async {
+    final res = await apiQuery('/git/refs/tags');
+    final json = jsonDecode(res.body);
+
+    if (json == null) throw Exception('Rate limited. Please come back later.');
+    if (json is! List) {
+      LogHandler.log('JSON received is not a list', LogLevel.error);
+      throw Exception(
+        'Something is wrong when trying to get latest tag. Please create an issue or consult the dev.',
+      );
+    }
+
+    final List<String> tags = json //
+        .map((e) => e['ref'] as String)
+        .toList();
+
+    return tags.last.split('/').last;
+  }
+
+  Future<http.Response> apiQuery(String query) {
+    LogHandler.log('Querying $query');
+    return http.get(
+      Uri.parse('$baseApiUrl$query'),
+      headers: {'Authorization': 'Bearer ${Globals.githubToken}'},
+    );
+  }
+
+  List<InlineSpan> getContent(String body) {
     final List<InlineSpan> bodySpans = [];
     final List<String> bodyLines = body //
         .split(RegExp(r'(\r\n)|\n|(\n\n)'))
         .where((e) => !e.contains('**Full Changelog**'))
+        .map((e) => '$e\n')
         .toList();
     while (bodyLines.isNotEmpty && bodyLines.last.trim().isEmpty) {
       bodyLines.removeLast();
     }
 
+    for (int i = 0; i < bodyLines.length; i++) {
+      if (!bodyLines[i].contains('`')) continue;
+      final split = bodyLines[i].split('`'), idx = i;
+
+      bodyLines[i] = split.first;
+      for (int j = 1; j < split.length; j++) {
+        bodyLines.insert(
+          idx + j,
+          '${j % 2 != 0 ? '`' : ''}${split[j]}',
+        );
+        i++;
+      }
+    }
+
     for (final l in bodyLines) {
       int titleLevel = 0;
       String text = '';
+      bool isCode = false;
 
       if (l.startsWith('#')) {
         final hashIndex = l.lastIndexOf('#');
         titleLevel = l.substring(0, hashIndex + 1).length;
-        text = l.substring(hashIndex + 1).trim();
+        text = l.substring(hashIndex + 1);
+      } else if (l.startsWith('`')) {
+        isCode = true;
+        text = l.substring(1);
       } else {
-        text = l.trim();
+        text = l;
       }
 
       bodySpans.add(TextSpan(
-        text: '$text\n',
+        text: text,
         style: TextStyle(
           fontSize: titleLevel > 0 ? 24.0 - titleLevel : 16,
           fontWeight: titleLevel > 0 ? FontWeight.bold : null,
+          fontFamily: isCode ? 'monospace' : null,
+          color: isCode ? Theme.of(context).colorScheme.onSurface : null,
         ),
       ));
     }
@@ -105,7 +197,7 @@ class _VersionDialogState extends State<VersionDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Latest ${isStable ? 'stable' : 'dev'} version\n$tag',
+        '${getChangelog ? '${isStable ? 'C' : 'Dev c'}hangelog for' : 'Latest ${isStable ? 'stable' : 'dev'} version'}\n$tag',
         textAlign: TextAlign.center,
         overflow: TextOverflow.ellipsis,
       ),
@@ -120,7 +212,7 @@ class _VersionDialogState extends State<VersionDialog> {
             )
           : SingleChildScrollView(
               child: RichText(
-                text: TextSpan(children: getBody()),
+                text: TextSpan(children: getContent(getChangelog ? changelog : body)),
               ),
             ),
       contentPadding: const EdgeInsets.only(left: 20, right: 20, top: 15),
