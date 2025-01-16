@@ -294,7 +294,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             SwitchListTile(
               title: leadingText(context, 'Append lyric', false, 16),
-              subtitle: const Text('Add lines to lyric instead of rewriting'),
+              subtitle: const Text('Only add lines instead of free lyric editing'),
               value: appendLyric,
               onChanged: (value) {
                 setState(() => appendLyric = value);

@@ -51,7 +51,7 @@ class _VersionDialogState extends State<VersionDialog> {
       (json['content'] as String).replaceAll('\n', ''),
     ));
     LogHandler.log('Checked for latest dev changelog: $tag');
-    setState(() => loading = false);
+    if (mounted) setState(() => loading = false);
   }
 
   Future<void> getRelease() async {
@@ -70,7 +70,7 @@ class _VersionDialogState extends State<VersionDialog> {
     body = json['body'] as String;
 
     LogHandler.log('Checked for latest ${isStable ? 'stable' : 'dev'} version: $tag');
-    setState(() => loading = false);
+    if (mounted) setState(() => loading = false);
   }
 
   Future<String> getSHA([String? selectedTag]) async {
