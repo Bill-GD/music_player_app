@@ -38,7 +38,18 @@ String getSizeString(double bytes) {
 }
 
 void showToast(BuildContext context, String msg) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(
+      content: Text(msg),
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.only(bottom: 10, left: 15, right: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      action: SnackBarAction(
+        label: 'OK',
+        onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar,
+      ),
+    ));
 }
 
 Future<bool> checkInternetConnection([List<ConnectivityResult>? result]) async {
