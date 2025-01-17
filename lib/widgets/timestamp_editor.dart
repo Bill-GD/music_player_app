@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
-import '../widgets/hold_gesture.dart';
+import 'hold_gesture.dart';
 
 class TimestampEditor extends StatefulWidget {
   final (int, int, int) timestamp;
@@ -22,11 +22,11 @@ class _TimestampEditorState extends State<TimestampEditor> {
         edit[0] = (edit[0] + 1) % 60;
         break;
       case 1:
-        if (edit[1] == 59) upTime(0);
+        if (edit[1] >= 59) upTime(0);
         edit[1] = (edit[1] + 1) % 60;
         break;
       case 2:
-        if (edit[2] == 900) upTime(1);
+        if (edit[2] >= 900) upTime(1);
         edit[2] = (edit[2] + 100) % 1000;
         break;
     }
@@ -38,11 +38,11 @@ class _TimestampEditorState extends State<TimestampEditor> {
         edit[0] = (edit[0] - 1) % 60;
         break;
       case 1:
-        if (edit[1] == 0) downTime(0);
+        if (edit[1] <= 0) downTime(0);
         edit[1] = (edit[1] - 1) % 60;
         break;
       case 2:
-        if (edit[2] == 0) downTime(1);
+        if (edit[2] <= 0) downTime(1);
         edit[2] = (edit[2] - 100) % 1000;
         break;
     }

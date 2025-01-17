@@ -10,7 +10,7 @@ import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../setting/timestamp_editor.dart';
+import '../widgets/timestamp_editor.dart';
 import 'player_utils.dart';
 import 'type_lyric.dart';
 
@@ -45,10 +45,10 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
     Duration dur = const Duration(minutes: 59, seconds: 59, milliseconds: 900);
     List<(String, Duration)> lyricItems = [];
     for (int i = lines.length - 1; i >= 0; i--) {
-      lyricItems.add((lines[i], dur));
+      lyricItems.insert(0, (lines[i], dur));
       dur -= 100.milliseconds;
     }
-    for (final (line, time) in lyricItems.reversed) {
+    for (final (line, time) in lyricItems) {
       addNewLyricItem(line, time);
     }
   }
