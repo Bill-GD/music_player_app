@@ -1,1 +1,2 @@
 - Fixed not updating timestamp second (& minute) if millisecond is not divisible by 10.
+- Prioritize getting release note for dev build instead of `dev_changes.md`.

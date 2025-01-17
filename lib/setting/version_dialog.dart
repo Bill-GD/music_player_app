@@ -28,9 +28,12 @@ class _VersionDialogState extends State<VersionDialog> {
   }
 
   Future<void> getChangelog() async {
-    // body = widget.dev ? await getRelease() : await getNote();
     try {
-      body = widget.dev ? await getNote() : await getRelease();
+      body = widget.tag.contains('_dev_')
+          ? await getRelease()
+          : widget.dev
+              ? await getNote()
+              : await getRelease();
     } catch (e) {
       if (mounted) Navigator.pop(context);
       rethrow;
