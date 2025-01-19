@@ -27,6 +27,24 @@ Future<Response> apiQuery(String query) {
   );
 }
 
+Future<List<(String, String)>> getAllTags() async {
+  final value = await apiQuery('/git/refs/tags');
+  final json = jsonDecode(value.body);
+  if (json == null) {
+    throw Exception('Rate limited. Please come back later.');
+  }
+  if (json is! List) {
+    LogHandler.log('JSON received is not a list', LogLevel.error);
+    throw Exception('Something is wrong when trying to get version list.');
+  }
+
+  return json.map((e) {
+    final tag = e['ref'].toString().trim().split('/').last;
+    final sha = e['object']['sha'].toString().trim().substring(0, 7);
+    return (tag, sha);
+  }).toList();
+}
+
 String getSizeString(double bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
   int unitIndex = 0;

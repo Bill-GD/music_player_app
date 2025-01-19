@@ -111,6 +111,16 @@ class _AboutPageState extends State<AboutPage> {
                     },
                   ),
                   ListTile(
+                    title: leadingText(context, 'Get releases', false, 16),
+                    subtitle: const Text('Get the releases of this app'),
+                    onTap: () async {
+                      const url = 'https://github.com/Bill-GD/music_player_app/releases';
+                      final canLaunch = await canLaunchUrl(Uri.parse(url));
+                      LogHandler.log('Can launch URL: $canLaunch');
+                      if (canLaunch) launchUrl(Uri.parse(url));
+                    },
+                  ),
+                  ListTile(
                     title: leadingText(context, 'GitHub Repo', false, 16),
                     subtitle: const Text('Open GitHub repository of this app'),
                     onTap: () async {

@@ -31,29 +31,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late final AnimationController animController;
   int _childParam = 0;
 
-  void updateChildren() {
-    _childParam = _childParam == 0 ? 1 : 0;
-    setState(() {});
-  }
-
-  Future<PermissionStatus> _checkStoragePermission() async {
-    PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
-    if (!storagePermissionStatus.isGranted && context.mounted) {
-      LogHandler.log('Storage permission not granted, redirecting to request page');
-
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (_) => const StoragePermissionDialog(),
-          barrierDismissible: false,
-        );
-      }
-
-      storagePermissionStatus = await Permission.manageExternalStorage.status;
-    }
-    return storagePermissionStatus;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -86,12 +63,49 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         animController.reverse(from: 1);
       }
     });
+    checkNewVersion();
   }
 
   @override
   void dispose() {
     super.dispose();
     Globals.audioHandler.player.dispose();
+  }
+
+  void updateChildren() {
+    _childParam = _childParam == 0 ? 1 : 0;
+    setState(() {});
+  }
+
+  Future<PermissionStatus> _checkStoragePermission() async {
+    PermissionStatus storagePermissionStatus = await Permission.manageExternalStorage.status;
+    if (!storagePermissionStatus.isGranted && context.mounted) {
+      LogHandler.log('Storage permission not granted, redirecting to request page');
+
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (_) => const StoragePermissionDialog(),
+          barrierDismissible: false,
+        );
+      }
+
+      storagePermissionStatus = await Permission.manageExternalStorage.status;
+    }
+    return storagePermissionStatus;
+  }
+
+  Future<void> checkNewVersion() async {
+    final tags = (await getAllTags()).map((e) => e.$1).toList();
+    if (tags.isEmpty || 'v${Globals.appVersion}' == tags.last) return;
+    if (mounted) {
+      showPopupMessage(
+        context,
+        title: 'New version available',
+        content: 'Current version: v${Globals.appVersion}\n'
+            'New version: ${tags.last}',
+      );
+    }
   }
 
   @override

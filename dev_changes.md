@@ -1,2 +1,4 @@
 - Version list can now be refreshed.
-- Removed unecessary `SizedBox` in song list.
+- Removed unnecessary `SizedBox` in song list.
+- Simple new version checking when app starts. If current is not latest, a dialog will show.
+- Added button in `About` to quickly get to GitHub releases page. 

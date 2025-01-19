@@ -264,7 +264,7 @@ Future<void> showPopupMessage(
   required String content,
   Duration time = const Duration(milliseconds: 200),
   bool centerContent = true,
-  double horizontalPadding = 50,
+  double? horizontalPadding,
   bool enableButton = true,
   bool barrierDismissible = true,
 }) async {
@@ -358,7 +358,7 @@ Future<T?> dialogWithActions<T>(
   List<Widget> actions = const [],
   required Duration time,
   Alignment scaleAlignment = Alignment.center,
-  double horizontalPadding = 40,
+  double? horizontalPadding,
   bool barrierDismissible = true,
   bool allowScroll = false,
 }) async {
@@ -411,8 +411,8 @@ Future<T?> dialogWithActions<T>(
           side: BorderSide(color: Theme.of(context).colorScheme.onSurface),
         ),
         insetPadding: EdgeInsets.only(
-          left: horizontalPadding,
-          right: horizontalPadding,
+          left: horizontalPadding ?? 40,
+          right: horizontalPadding ?? 40,
           top: 40,
           bottom: 16,
         ),
