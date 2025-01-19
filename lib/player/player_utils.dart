@@ -401,8 +401,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
   }
 
   @override
-  Future<void> seek(Duration pos) async {
-    _player.seek(pos.inMilliseconds.clamp(0, _totalDuration.inMilliseconds).ms);
+  Future<void> seek(Duration position) async {
+    _player.seek(position.inMilliseconds.clamp(0, _totalDuration.inMilliseconds).ms);
   }
 
   @override

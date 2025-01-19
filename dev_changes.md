@@ -1,8 +1,2 @@
-- Prioritize getting release note for dev build instead of `dev_changes.md`.
-- `toDateString` extension now returns localized date string.
-- Changelog dialog now shows the time uploaded of the release.
-- Improved snack bar.
-- Updated changelog code format color.
-- Fixed not updating timestamp second (& minute) if millisecond is not divisible by 100.
-- Fixed not filtering the PR note in release note.
-- Fixed version changelog text color doesn't use context color.
+- Version list can now be refreshed.
+- Removed unecessary `SizedBox` in song list.

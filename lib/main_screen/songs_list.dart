@@ -24,119 +24,116 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // shuffle playback
-                TextButton.icon(
-                  icon: FaIcon(
-                    FontAwesomeIcons.shuffle,
-                    size: 25,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // shuffle playback
+              TextButton.icon(
+                icon: FaIcon(
+                  FontAwesomeIcons.shuffle,
+                  size: 20,
+                  color: iconColor(context),
+                ),
+                label: Text(
+                  'Shuffle playback',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: iconColor(context),
+                  ),
+                ),
+                onPressed: () async {
+                  final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].id;
+                  if (!Globals.audioHandler.isShuffled) {
+                    Globals.audioHandler.changeShuffleMode();
+                  }
+
+                  Globals.audioHandler.registerPlaylist(
+                    'All songs',
+                    Globals.allSongs.map((e) => e.id).toList(),
+                    randomSong,
+                  );
+                  await Navigator.of(context).push(
+                    await getMusicPlayerRoute(
+                      context,
+                      randomSong,
+                    ),
+                  );
+                  setState(() {});
+                },
+              ),
+              // sort songs
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextButton.icon(
+                  icon: Icon(
+                    CupertinoIcons.sort_down,
+                    size: 30,
                     color: iconColor(context),
                   ),
                   label: Text(
-                    'Shuffle playback',
+                    Config.getSortOptionString(),
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: iconColor(context),
                     ),
                   ),
                   onPressed: () async {
-                    final randomSong = Globals.allSongs[Random().nextInt(Globals.allSongs.length)].id;
-                    if (!Globals.audioHandler.isShuffled) {
-                      Globals.audioHandler.changeShuffleMode();
-                    }
-
-                    Globals.audioHandler.registerPlaylist(
-                      'All songs',
-                      Globals.allSongs.map((e) => e.id).toList(),
-                      randomSong,
-                    );
-                    await Navigator.of(context).push(
-                      await getMusicPlayerRoute(
-                        context,
-                        randomSong,
+                    await getBottomSheet(
+                      context,
+                      const Text(
+                        'Sort Songs',
+                        style: bottomSheetTitle,
+                        textAlign: TextAlign.center,
+                        softWrap: true,
                       ),
+                      [
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
+                          title: const Text('By name', style: bottomSheetText),
+                          onTap: () {
+                            setState(() => sortAllSongs(SortOptions.name));
+                            Navigator.of(context).pop();
+                            Config.saveConfig();
+                          },
+                        ),
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          leading: FaIcon(FontAwesomeIcons.arrowDown91, color: iconColor(context)),
+                          title: const Text('By the number of times played', style: bottomSheetText),
+                          onTap: () {
+                            setState(() => sortAllSongs(SortOptions.mostPlayed));
+                            Navigator.of(context).pop();
+                            Config.saveConfig();
+                          },
+                        ),
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          leading: FaIcon(FontAwesomeIcons.clock, color: iconColor(context)),
+                          title: const Text('By adding time', style: bottomSheetText),
+                          onTap: () {
+                            setState(() => sortAllSongs(SortOptions.recentlyAdded));
+                            Navigator.of(context).pop();
+                            Config.saveConfig();
+                          },
+                        ),
+                      ],
                     );
-                    setState(() {});
                   },
                 ),
-                // sort songs
-                Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: TextButton.icon(
-                    icon: Icon(
-                      CupertinoIcons.sort_down,
-                      size: 30,
-                      color: iconColor(context),
-                    ),
-                    label: Text(
-                      Config.getSortOptionString(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: iconColor(context),
-                      ),
-                    ),
-                    onPressed: () async {
-                      await getBottomSheet(
-                        context,
-                        const Text(
-                          'Sort Songs',
-                          style: bottomSheetTitle,
-                          textAlign: TextAlign.center,
-                          softWrap: true,
-                        ),
-                        [
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
-                            title: const Text('By name', style: bottomSheetText),
-                            onTap: () {
-                              setState(() => sortAllSongs(SortOptions.name));
-                              Navigator.of(context).pop();
-                              Config.saveConfig();
-                            },
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            leading: FaIcon(FontAwesomeIcons.arrowDown91, color: iconColor(context)),
-                            title: const Text('By the number of times played', style: bottomSheetText),
-                            onTap: () {
-                              setState(() => sortAllSongs(SortOptions.mostPlayed));
-                              Navigator.of(context).pop();
-                              Config.saveConfig();
-                            },
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            leading: FaIcon(FontAwesomeIcons.clock, color: iconColor(context)),
-                            title: const Text('By adding time', style: bottomSheetText),
-                            onTap: () {
-                              setState(() => sortAllSongs(SortOptions.recentlyAdded));
-                              Navigator.of(context).pop();
-                              Config.saveConfig();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         // song list
@@ -145,9 +142,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
             onRefresh: () async {
               await updateMusicData();
               sortAllSongs();
-              if (context.mounted) {
-                setState(() {});
-              }
+              if (context.mounted) setState(() {});
             },
             child: ListView.builder(
               itemCount: Globals.allSongs.length,
