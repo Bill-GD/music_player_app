@@ -36,15 +36,14 @@ class MusicDownloaderState extends State<MusicDownloader> {
   late StreamSubscription<List<ConnectivityResult>> connectStream;
 
   void validateInput(String text) {
-    errorText = null;
-    if (text.isEmpty) {
-      errorText = null;
-    } else if (RegExp(r'^(?:https://)?on\.soundcloud\.com(?:\S+)?$').hasMatch(text)) {
+    if (RegExp(r'^(?:https://)?on\.soundcloud\.com(?:\S+)?$').hasMatch(text)) {
       errorText = 'Please use full URL, SoundCloud API is weird';
-    } else if (!RegExp(r'^(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9-]{11})(?:\S+)?$')
+    } else if (!RegExp(r'^(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9-_]{11})(?:\S+)?$')
             .hasMatch(text) &&
         !RegExp(r'^(?:https://)?(m\.)?soundcloud\.com/([a-zA-Z0-9-]*)/([a-zA-Z0-9-])(?:\S+)?$').hasMatch(text)) {
       errorText = 'Invalid URL';
+    } else {
+      errorText = null;
     }
     setState(() {});
   }

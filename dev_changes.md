@@ -1,4 +1,6 @@
 - Version list can now be refreshed.
 - Removed unnecessary `SizedBox` in song list.
 - Simple new version checking when app starts. If current is not latest, a dialog will show.
-- Added button in `About` to quickly get to GitHub releases page. 
+- Added button in `About` to quickly get to GitHub releases page.
+- Remade `Android` folder with new Flutter version.
+- Fixed missing `_` in YouTube URL RegExp.
