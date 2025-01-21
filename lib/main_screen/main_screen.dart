@@ -82,6 +82,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     if (!storagePermissionStatus.isGranted && context.mounted) {
       LogHandler.log('Storage permission not granted, redirecting to request page');
 
+      Config.backupOnLaunch = false;
+      Config.saveConfig();
+
       if (mounted) {
         await showDialog(
           context: context,

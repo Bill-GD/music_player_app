@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
@@ -70,8 +69,8 @@ class _MainDrawerState extends State<MainDrawer> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     leading: Icon(Icons.download_rounded, color: iconColor(context)),
                     title: const Text('Download Music', style: bottomSheetTitle),
-                    onTap: () async {
-                      final hasChanged = await Navigator.of(context).push<bool>(
+                    onTap: () {
+                      Navigator.of(context).push<bool>(
                         PageRouteBuilder(
                           pageBuilder: (_, __, ___) {
                             return const MusicDownloader();
@@ -87,11 +86,6 @@ class _MainDrawerState extends State<MainDrawer> {
                           },
                         ),
                       );
-                      if (hasChanged == true) {
-                        await updateMusicData();
-                        sortAllSongs();
-                        // updateChildren();
-                      }
                     },
                   ),
                   listItemDivider(),

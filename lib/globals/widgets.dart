@@ -171,7 +171,7 @@ Future<void> showSongOptionsMenu(
                     }
                     Globals.audioHandler.pause();
                     await song.delete();
-                    File(song.path).deleteSync();
+                    File(Globals.downloadPath + song.path).deleteSync();
                     songDeleted = true;
                     if (context.mounted) Navigator.of(context).pop();
                   },

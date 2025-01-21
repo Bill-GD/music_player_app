@@ -1,6 +1,7 @@
-- Version list can now be refreshed.
-- Removed unnecessary `SizedBox` in song list.
-- Simple new version checking when app starts. If current is not latest, a dialog will show.
-- Added button in `About` to quickly get to GitHub releases page.
-- Remade `Android` folder with new Flutter version.
-- Fixed missing `_` in YouTube URL RegExp.
+- Added widget error page.
+- Confirm before backing up data.
+- No longer auto update song list after downloading.
+- Backup on launch is disabled if storage permission is not granted (re-installed).
+- Fixed not using absolute path when deleting song.
+- Fixed not updating progress bar properly when downloading song.
+- Fixed being able to exit downloader while downloading using Android's back button.

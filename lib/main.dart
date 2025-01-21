@@ -11,6 +11,7 @@ import 'globals/variables.dart';
 import 'globals/widgets.dart';
 import 'main_screen/main_screen.dart';
 import 'player/player_utils.dart';
+import 'widgets/widget_error.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -106,6 +107,20 @@ class MusicPlayerApp extends StatelessWidget {
           builder: (context) {
             return MaterialApp(
               navigatorKey: navKey,
+              builder: (context, child) {
+                ErrorWidget.builder = (errorDetails) => WidgetErrorScreen(e: errorDetails);
+                // updateDebugOverlay = () {
+                //   // logHandler.info('Updating debug overlay');
+                //   if (context.mounted) setState(() {});
+                // };
+                // return Stack(
+                //   children: [
+                //     child!,
+                //     showDebugInfo ? debugOverlay() : const SizedBox(),
+                //   ],
+                // );
+                return child!;
+              },
               theme: ThemeProvider.themeOf(context).data,
               title: 'Music Hub',
               home: const MainScreen(),

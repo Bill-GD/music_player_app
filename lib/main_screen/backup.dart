@@ -61,7 +61,29 @@ class _BackupScreenState extends State<BackupScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      await backupData(context, bu);
+                      final res = await dialogWithActions<bool>(
+                        context,
+                        title: 'Backup data',
+                        titleFontSize: 24,
+                        textContent: 'Do you want to back up the current data? '
+                            'This will overwrite the backed up data.\n'
+                            'Is disabled if app is just re-installed.',
+                        contentFontSize: 16,
+                        time: 300.ms,
+                        barrierDismissible: false,
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('No'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Yes'),
+                          ),
+                        ],
+                      );
+                      if (res != true) return;
+                      if (context.mounted) await backupData(context, bu);
                       setState(() => getFileStats());
                     },
                     child: const Text('Backup Data'),
@@ -75,7 +97,7 @@ class _BackupScreenState extends State<BackupScreen> {
 
                       final res = await dialogWithActions<bool>(
                         context,
-                        title: 'Overwrite Data',
+                        title: 'Overwrite data',
                         titleFontSize: 24,
                         textContent: 'Do you want to recover data from backup? '
                             'This will overwrite current data '

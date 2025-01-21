@@ -54,7 +54,11 @@ Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String u
 }
 
 Future<void> downloadYoutubeMP3(
-    BuildContext context, String url, String videoTitle, void Function(int, int) onReceiveProgress) async {
+  BuildContext context,
+  String url,
+  String videoTitle,
+  void Function(int, int) onReceiveProgress,
+) async {
   final yt = YoutubeExplode();
   final dio = Dio();
   final file = File('/storage/emulated/0/Download/${sanitizeFilePath(videoTitle)}.mp3');
