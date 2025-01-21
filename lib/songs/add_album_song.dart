@@ -58,6 +58,7 @@ class _AddAlbumSongState extends State<AddAlbumSong> {
                     final unknown = Globals.albums.firstWhere((e) => e.id == 1);
                     for (final i in range(1, songAddedCount)) {
                       final si = availableSongs[order.indexOf(i)].id;
+                      Globals.allSongs.firstWhereOrNull((e) => e.id == si)?.hasAlbum = true;
                       album.songs.add(si);
                       unknown.songs.remove(si);
                     }

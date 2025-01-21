@@ -25,16 +25,16 @@ class AlbumSongs extends StatefulWidget {
 
 class _AlbumSongsState extends State<AlbumSongs> {
   late Album album;
-  late List<MusicTrack> songs;
+  List<MusicTrack> songs = [];
   late int totalSongCount;
 
   void getSongs() {
     album = Globals.albums.firstWhere((e) => e.id == widget.albumID);
-    songs = album.songs
-        .map(
-          (e) => Globals.allSongs.firstWhere((s) => s.id == e),
-        )
-        .toList();
+    songs = [];
+    for (final sId in album.songs) {
+      final s = Globals.allSongs.firstWhereOrNull((s) => s.id == sId);
+      if (s != null) songs.add(s);
+    }
     totalSongCount = songs.length;
   }
 

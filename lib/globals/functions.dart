@@ -95,6 +95,10 @@ Future<void> backupData(BuildContext context, File bu) async {
   if (context.mounted) showToast(context, 'Data backed up successfully');
 }
 
+bool hasSong(int id) {
+  return Globals.allSongs.firstWhereOrNull((e) => e.id == id) != null;
+}
+
 /// [start] and [end] are inclusive
 List<int> range(int start, int end) {
   return List<int>.generate(end - start + 1, (i) => i + start);

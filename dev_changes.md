@@ -1,8 +1,10 @@
 - Added widget error page.
+- Added `addToUnknown` field for adding new songs to 'Unknown' album.
 - Confirm before backing up data.
 - No longer auto update song list after downloading.
 - Backup on launch is disabled if storage permission is not granted (re-installed).
+- Only add song to album during update if the song exists.
 - Fixed not using absolute path when deleting song.
 - Fixed not updating progress bar properly when downloading song.
 - Fixed being able to exit downloader while downloading using Android's back button.
-- Added `addToUnknown` field for adding new songs to 'Unknown' album.
+- Fixed possible null error when showing album songs.

@@ -11,13 +11,10 @@ import 'log_handler.dart';
 import 'variables.dart';
 
 class MusicTrack {
-  int id;
-  String path;
-  String name, artist;
-  int timeListened;
-  String lyricPath;
+  int id, timeListened;
+  String path, name, artist, lyricPath;
   DateTime timeAdded = DateTime.now();
-  bool addToUnknown = false;
+  bool hasAlbum = false;
 
   String get fullPath => Globals.downloadPath + path;
 
@@ -276,7 +273,6 @@ Future<void> updateListOfSongs() async {
     if (s.id >= 0) {
       await s.update(false);
     } else {
-      s.addToUnknown = true;
       await s.insert();
     }
   }
@@ -373,17 +369,28 @@ Future<void> updateAlbumList() async {
       orderBy: 'track_order',
     );
     // LogHandler.log('$s');
-    a.songs.addAll(s.map((a) => a['track_id'] as int));
-    LogHandler.log('Got album: id=${a.id}, n=${a.name}, l=${a.songs.length}');
+    final idList = s.map((e) => e['track_id'] as int).where((e) => hasSong(e));
+    for (final id in idList) {
+      final addingSongIdx = Globals.allSongs.indexWhere((e) => e.id == id);
+      if (addingSongIdx < 0 || Globals.allSongs[addingSongIdx].hasAlbum) continue;
+      Globals.allSongs[addingSongIdx].hasAlbum = true;
+    }
+    a.songs.addAll(idList);
+    LogHandler.log('Got album: id=${a.id}, n=${a.name}, l=${a.songs.length}, s=${a.songs}');
   }
 
   albums.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-  final unknown = albums.firstWhereOrNull((a) => a.name == 'Unknown');
+
+  final noAlbumSongs = Globals.allSongs.where((e) => !e.hasAlbum);
+  final unknown = albums.firstWhereOrNull((a) => a.id == 1);
   if (unknown != null) {
-    Globals.allSongs.where((e) => e.addToUnknown).forEach((e) {
-      e.addToUnknown = false;
+    for (final e in noAlbumSongs) {
+      // LogHandler.log('Adding song (${e.id}) to Unknown album');
+      e.hasAlbum = true;
       unknown.songs.add(e.id);
-    });
+    }
+    unknown.update();
   }
+
   Globals.albums = albums;
 }
