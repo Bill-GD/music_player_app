@@ -94,11 +94,24 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
+                          leading: FaIcon(FontAwesomeIcons.arrowDown19, color: iconColor(context)),
+                          title: const Text('By ID', style: bottomSheetText),
+                          onTap: () {
+                            setState(() => sortAllSongs(SortOptions.id));
+                            Navigator.pop(context);
+                            Config.saveConfig();
+                          },
+                        ),
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                           leading: FaIcon(FontAwesomeIcons.arrowDownAZ, color: iconColor(context)),
                           title: const Text('By name', style: bottomSheetText),
                           onTap: () {
                             setState(() => sortAllSongs(SortOptions.name));
-                            Navigator.of(context).pop();
+                            Navigator.pop(context);
                             Config.saveConfig();
                           },
                         ),
@@ -111,7 +124,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                           title: const Text('By the number of times played', style: bottomSheetText),
                           onTap: () {
                             setState(() => sortAllSongs(SortOptions.mostPlayed));
-                            Navigator.of(context).pop();
+                            Navigator.pop(context);
                             Config.saveConfig();
                           },
                         ),
@@ -124,7 +137,7 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                           title: const Text('By adding time', style: bottomSheetText),
                           onTap: () {
                             setState(() => sortAllSongs(SortOptions.recentlyAdded));
-                            Navigator.of(context).pop();
+                            Navigator.pop(context);
                             Config.saveConfig();
                           },
                         ),

@@ -4,6 +4,7 @@
 - No longer auto update song list after downloading.
 - Backup on launch is disabled if storage permission is not granted (re-installed).
 - Only add song to album during update if the song exists.
+- Allow sorting songs by ID.
 - Fixed not using absolute path when deleting song.
 - Fixed not updating progress bar properly when downloading song.
 - Fixed being able to exit downloader while downloading using Android's back button.

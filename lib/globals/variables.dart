@@ -81,6 +81,8 @@ class Config {
 
   static String getSortOptionString() {
     switch (currentSortOption) {
+      case SortOptions.id:
+        return 'ID';
       case SortOptions.name:
         return 'Name';
       case SortOptions.mostPlayed:
@@ -131,6 +133,7 @@ class Config {
 }
 
 enum SortOptions {
+  id,
   name,
   mostPlayed,
   recentlyAdded,

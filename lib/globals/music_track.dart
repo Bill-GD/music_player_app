@@ -322,6 +322,9 @@ void sortAllSongs([SortOptions? sortType]) {
   Config.currentSortOption = sortType ?? Config.currentSortOption;
   LogHandler.log('Sorting all songs: ${Config.currentSortOption.name}');
   switch (Config.currentSortOption) {
+    case SortOptions.id:
+      tracks.sort((track1, track2) => track1.id.compareTo(track2.id));
+      break;
     case SortOptions.name:
       tracks.sort((track1, track2) => track1.name.toLowerCase().compareTo(track2.name.toLowerCase()));
       break;
