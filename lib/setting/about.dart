@@ -117,7 +117,11 @@ class _AboutPageState extends State<AboutPage> {
                       const url = 'https://github.com/Bill-GD/music_player_app/releases';
                       final canLaunch = await canLaunchUrl(Uri.parse(url));
                       LogHandler.log('Can launch URL: $canLaunch');
-                      if (canLaunch) launchUrl(Uri.parse(url));
+                      if (canLaunch) {
+                        launchUrl(Uri.parse(url));
+                      } else if (context.mounted) {
+                        showToast(context, "Couldn't open link");
+                      }
                     },
                   ),
                   ListTile(
@@ -127,7 +131,11 @@ class _AboutPageState extends State<AboutPage> {
                       const url = 'https://github.com/Bill-GD/music_player_app';
                       final canLaunch = await canLaunchUrl(Uri.parse(url));
                       LogHandler.log('Can launch URL: $canLaunch');
-                      if (canLaunch) launchUrl(Uri.parse(url));
+                      if (canLaunch) {
+                        launchUrl(Uri.parse(url));
+                      } else if (context.mounted) {
+                        showToast(context, "Couldn't open link");
+                      }
                     },
                   ),
                 ],
