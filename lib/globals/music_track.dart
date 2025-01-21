@@ -17,6 +17,7 @@ class MusicTrack {
   int timeListened;
   String lyricPath;
   DateTime timeAdded = DateTime.now();
+  bool addToUnknown = false;
 
   String get fullPath => Globals.downloadPath + path;
 
@@ -275,6 +276,7 @@ Future<void> updateListOfSongs() async {
     if (s.id >= 0) {
       await s.update(false);
     } else {
+      s.addToUnknown = true;
       await s.insert();
     }
   }
@@ -374,7 +376,14 @@ Future<void> updateAlbumList() async {
     a.songs.addAll(s.map((a) => a['track_id'] as int));
     LogHandler.log('Got album: id=${a.id}, n=${a.name}, l=${a.songs.length}');
   }
+
   albums.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-  // LogHandler.log('${albums.map((e) => e.toJson())}');
+  final unknown = albums.firstWhereOrNull((a) => a.name == 'Unknown');
+  if (unknown != null) {
+    Globals.allSongs.where((e) => e.addToUnknown).forEach((e) {
+      e.addToUnknown = false;
+      unknown.songs.add(e.id);
+    });
+  }
   Globals.albums = albums;
 }

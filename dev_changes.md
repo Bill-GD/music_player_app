@@ -5,3 +5,4 @@
 - Fixed not using absolute path when deleting song.
 - Fixed not updating progress bar properly when downloading song.
 - Fixed being able to exit downloader while downloading using Android's back button.
+- Added `addToUnknown` field for adding new songs to 'Unknown' album.
