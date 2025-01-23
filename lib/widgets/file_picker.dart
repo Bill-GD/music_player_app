@@ -7,13 +7,13 @@ import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 
-class FilePage extends StatefulWidget {
+class FilePicker extends StatefulWidget {
   final Directory rootDirectory;
 
-  const FilePage({super.key, required this.rootDirectory});
+  const FilePicker({super.key, required this.rootDirectory});
 
   @override
-  State<FilePage> createState() => _FilePageState();
+  State<FilePicker> createState() => _FilePickerState();
 
   static Future<String?> open({
     required BuildContext context,
@@ -22,7 +22,7 @@ class FilePage extends StatefulWidget {
     return await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, _, __) => FilePage(rootDirectory: rootDirectory),
+        pageBuilder: (context, _, __) => FilePicker(rootDirectory: rootDirectory),
         transitionDuration: 300.ms,
         transitionsBuilder: (_, anim, __, child) {
           return SlideTransition(
@@ -44,7 +44,7 @@ class FilePage extends StatefulWidget {
     await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, _, __) => FilePage(rootDirectory: rootDirectory),
+        pageBuilder: (context, _, __) => FilePicker(rootDirectory: rootDirectory),
         transitionDuration: 300.ms,
         transitionsBuilder: (_, anim, __, child) {
           return SlideTransition(
@@ -60,7 +60,7 @@ class FilePage extends StatefulWidget {
   }
 }
 
-class _FilePageState extends State<FilePage> {
+class _FilePickerState extends State<FilePicker> {
   var fileEntities = <String>[], isDirectory = <bool>[], crumbs = <String>[];
   // late final initialRootDirName = widget.rootDirectory.absolute.path //
   //     .replaceAll(RegExp(r'/$'), '')

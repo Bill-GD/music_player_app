@@ -7,7 +7,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../setting/setting.dart';
-import '../widgets/file_page.dart';
+import '../widgets/file_picker.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({super.key});
@@ -106,7 +106,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     leading: FaIcon(Icons.developer_mode_rounded, color: iconColor(context)),
                     title: const Text('Log', style: bottomSheetTitle),
                     onTap: () {
-                      FilePage.open(
+                      FilePicker.open(
                         context: context,
                         rootDirectory: Directory(Globals.lyricPath),
                       );
