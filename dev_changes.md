@@ -1,1 +1,2 @@
+- Added `FilePage` to view directories and pick a single file (return absolute path).
 - Notifies if URL can be launched.

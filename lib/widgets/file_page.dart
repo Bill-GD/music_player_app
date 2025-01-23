@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
+import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 
 class FilePage extends StatefulWidget {
@@ -61,51 +62,29 @@ class FilePage extends StatefulWidget {
 
 class _FilePageState extends State<FilePage> {
   var fileEntities = <String>[], isDirectory = <bool>[], crumbs = <String>[];
+  // late final initialRootDirName = widget.rootDirectory.absolute.path //
+  //     .replaceAll(RegExp(r'/$'), '')
+  //     .split('/')
+  //     .last;
   String currentRootPath = '';
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    LogHandler.log('File picker: ${widget.rootDirectory}');
     getEntities(widget.rootDirectory);
-  }
-
-  void getEntities(Directory root) {
-    List<FileSystemEntity> entities;
-    try {
-      entities = root.listSync();
-    } catch (e) {
-      // showToast(context, 'Permission denied');
-      root = root.parent;
-      entities = root.listSync();
-      rethrow;
-    }
-
-    fileEntities.clear();
-    isDirectory.clear();
-
-    currentRootPath = root.absolute.path;
-
-    LogHandler.log('Getting file entities from $currentRootPath');
-
-    for (final entity in entities) {
-      fileEntities.add(entity.path.split(currentRootPath).last.split('/').last);
-      isDirectory.add(entity is Directory);
-    }
-    // LogHandler.log('Entities: $fileEntities');
-
     getCrumbs();
-    setState(() => isLoading = false);
   }
 
   void getCrumbs() {
-    final parts = currentRootPath //
-        .split(widget.rootDirectory.absolute.path)
-        .last
-        .split('/')
-        .where((e) => e.isNotEmpty)
-        .toList()
-      ..insert(0, '/');
+    final parts = [
+      widget.rootDirectory.absolute.path,
+      ...currentRootPath //
+          .split(widget.rootDirectory.absolute.path)
+          .last
+          .split('/')
+          .where((e) => e.isNotEmpty)
+    ];
     LogHandler.log('Parts: $parts');
 
     crumbs.clear();
@@ -114,6 +93,33 @@ class _FilePageState extends State<FilePage> {
       crumbs.add(' > ');
     }
     crumbs.removeLast();
+    // setState(() {});
+  }
+
+  void getEntities(Directory root) {
+    List<FileSystemEntity> entities;
+    try {
+      entities = root.listSync();
+    } catch (e) {
+      if (e is PathAccessException) {
+        return showToast(context, 'Permission denied');
+      } else {
+        rethrow;
+      }
+    }
+
+    fileEntities.clear();
+    isDirectory.clear();
+
+    currentRootPath = root.absolute.path;
+    if (!currentRootPath.endsWith('/')) currentRootPath += '/';
+
+    LogHandler.log('Getting file entities from $currentRootPath');
+
+    for (final entity in entities) {
+      fileEntities.add(entity.path.split(currentRootPath).last.split('/').last);
+      isDirectory.add(entity is Directory);
+    }
   }
 
   String getCrumbPath(int index) {
@@ -124,12 +130,10 @@ class _FilePageState extends State<FilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Storage'),
+        title: const Text('Storage'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: const Icon(Icons.keyboard_arrow_left_rounded, size: 40),
+          onPressed: Navigator.of(context).pop,
         ),
       ),
       body: Column(
@@ -150,41 +154,41 @@ class _FilePageState extends State<FilePage> {
                             fontWeight: FontWeight.w700,
                           )
                         : null,
-                    recognizer: i % 2 == 0
+                    recognizer: i % 2 == 0 && i < crumbs.length - 1
                         ? (TapGestureRecognizer()
                           ..onTap = () {
-                            setState(() => isLoading = true);
                             getEntities(i == 0 ? widget.rootDirectory : Directory(getCrumbPath(i)));
+                            getCrumbs();
+                            setState(() {});
                           })
                         : null,
                   ),
               ]),
             ),
           ),
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Flexible(
-                  child: ListView.builder(
-                    itemCount: fileEntities.length,
-                    itemBuilder: (context, index) {
-                      final entity = fileEntities[index];
+          Flexible(
+            child: ListView.builder(
+              itemCount: fileEntities.length,
+              itemBuilder: (context, index) {
+                final entity = fileEntities[index];
 
-                      return ListTile(
-                        leading: Icon(isDirectory[index] ? Icons.folder : Icons.file_copy),
-                        title: Text(entity),
-                        onTap: () async {
-                          if (isDirectory[index]) {
-                            setState(() => isLoading = true);
-                            getEntities(Directory('$currentRootPath/$entity'));
-                          } else {
-                            LogHandler.log('Selected file: ${'$currentRootPath/$entity'}');
-                            // Navigator.of(context).pop(entity);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
+                return ListTile(
+                  leading: Icon(isDirectory[index] ? Icons.folder : Icons.file_copy),
+                  title: Text(entity),
+                  onTap: () async {
+                    if (isDirectory[index]) {
+                      getEntities(Directory('$currentRootPath$entity'));
+                      getCrumbs();
+                      setState(() {});
+                    } else {
+                      LogHandler.log('Selected file: ${'$currentRootPath$entity'}');
+                      // Navigator.of(context).pop(entity);
+                    }
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

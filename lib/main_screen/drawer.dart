@@ -108,7 +108,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     onTap: () {
                       FilePage.open(
                         context: context,
-                        rootDirectory: Directory('/storage/emulated/0/'),
+                        rootDirectory: Directory(Globals.lyricPath),
                       );
                     },
                   ),
