@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -5,6 +7,7 @@ import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../setting/setting.dart';
+import '../widgets/file_page.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({super.key});
@@ -95,6 +98,18 @@ class _MainDrawerState extends State<MainDrawer> {
                     title: const Text('Log', style: bottomSheetTitle),
                     onTap: () {
                       showLogPopup(context, title: 'Application log');
+                    },
+                  ),
+                  listItemDivider(),
+                  ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    leading: FaIcon(Icons.developer_mode_rounded, color: iconColor(context)),
+                    title: const Text('Log', style: bottomSheetTitle),
+                    onTap: () {
+                      FilePage.open(
+                        context: context,
+                        rootDirectory: Directory('/storage/emulated/0/'),
+                      );
                     },
                   ),
                 ],
