@@ -252,7 +252,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                         nIdx--;
                         if (nIdx > totalSongCount || album.id == 1 || nIdx == oIdx || nIdx < 0) return;
                         final oldSongId = songs[oIdx].id, newSongId = songs[nIdx].id;
-                        LogHandler.log('Reorder album: $oIdx ($oldSongId) -> $nIdx ($newSongId)');
+                        LogHandler.log('Reorder album: $oIdx (id=$oldSongId) -> $nIdx (id=$newSongId)');
                         album.songs.insert(nIdx, album.songs.removeAt(oIdx));
                         album.update();
                         setState(getSongs);

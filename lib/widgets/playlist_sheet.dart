@@ -135,7 +135,7 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
                     onReorder: (oIdx, nIdx) {
                       if (nIdx > oIdx) nIdx--;
                       LogHandler.log(
-                        'Reorder: old: $oIdx (${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (${Globals.audioHandler.playlist[nIdx]})',
+                        'Reorder: old: $oIdx (id=${Globals.audioHandler.playlist[oIdx]}) - new: $nIdx (id=${Globals.audioHandler.playlist[nIdx]})',
                       );
                       Globals.audioHandler.moveSong(oIdx, nIdx);
                       // final idx = content.
