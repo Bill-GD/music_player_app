@@ -3,3 +3,4 @@
 - Removed dependency `filesystem_picker` in favor of the new `FilePicker`.
 - Notifies if URL can be launched.
 - Clarifies song ID when reordering songs.
+- Fixed not being able to open URLs. 

@@ -114,13 +114,15 @@ class _AboutPageState extends State<AboutPage> {
                     title: leadingText(context, 'Get releases', false, 16),
                     subtitle: const Text('Get the releases of this app'),
                     onTap: () async {
-                      const url = 'https://github.com/Bill-GD/music_player_app/releases';
-                      final canLaunch = await canLaunchUrl(Uri.parse(url));
-                      LogHandler.log('Can launch URL: $canLaunch');
+                      final uri = Uri.parse('https://github.com/Bill-GD/music_player_app/releases');
+                      final canLaunch = await canLaunchUrl(uri);
+                      launchUrl(uri);
                       if (canLaunch) {
-                        launchUrl(Uri.parse(url));
+                        LogHandler.log('The system has found a handler, can launch URL');
                       } else if (context.mounted) {
-                        showToast(context, "Couldn't open link");
+                        LogHandler.log(
+                          'URL launcher support query is not specified or can\'t launch URL, but opening regardless',
+                        );
                       }
                     },
                   ),
@@ -128,13 +130,15 @@ class _AboutPageState extends State<AboutPage> {
                     title: leadingText(context, 'GitHub Repo', false, 16),
                     subtitle: const Text('Open GitHub repository of this app'),
                     onTap: () async {
-                      const url = 'https://github.com/Bill-GD/music_player_app';
-                      final canLaunch = await canLaunchUrl(Uri.parse(url));
-                      LogHandler.log('Can launch URL: $canLaunch');
+                      final uri = Uri.parse('https://github.com/Bill-GD/music_player_app');
+                      final canLaunch = await canLaunchUrl(uri);
+                      launchUrl(uri);
                       if (canLaunch) {
-                        launchUrl(Uri.parse(url));
+                        LogHandler.log('The system has found a handler, can launch URL');
                       } else if (context.mounted) {
-                        showToast(context, "Couldn't open link");
+                        LogHandler.log(
+                          'URL launcher support query is not specified or can\'t launch URL, but opening regardless',
+                        );
                       }
                     },
                   ),
