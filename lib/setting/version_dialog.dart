@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' show Response;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../globals/extensions.dart';
 import '../globals/functions.dart';
@@ -198,6 +199,21 @@ class _VersionDialogState extends State<VersionDialog> {
           TextButton(
             onPressed: Navigator.of(context).pop,
             child: const Text('OK'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final uri = Uri.parse('https://github.com/Bill-GD/music_player_app/releases/tag/${widget.tag}');
+              final canLaunch = await canLaunchUrl(uri);
+              launchUrl(uri);
+              if (canLaunch) {
+                LogHandler.log('The system has found a handler, can launch URL');
+              } else if (context.mounted) {
+                LogHandler.log(
+                  'URL launcher support query is not specified or can\'t launch URL, but opening regardless',
+                );
+              }
+            },
+            child: const Text('Get version'),
           ),
         ],
         actionsPadding: const EdgeInsets.symmetric(vertical: 12),

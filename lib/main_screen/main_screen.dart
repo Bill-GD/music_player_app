@@ -101,6 +101,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Future<void> checkNewVersion() async {
+    final hasInternet = await checkInternetConnection();
+    if (!hasInternet) return;
     final tags = (await getAllTags()).map((e) => e.$1).toList();
     if (tags.isEmpty || 'v${Globals.appVersion}' == tags.last) return;
     if (mounted) {

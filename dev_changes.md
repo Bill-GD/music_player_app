@@ -1,6 +1,2 @@
-- Added `FilePicker` to view directories and pick a single file (returns absolute path).
-  Can specify file extensions to filter files.
-- Removed dependency `filesystem_picker` in favor of the new `FilePicker`.
-- Notifies if URL can be launched.
-- Clarifies song ID when reordering songs.
-- Fixed not being able to open URLs. 
+- Added a button to redirect to the release page of each version's dialog.
+- Abort checking for new version if internet is not connected.
