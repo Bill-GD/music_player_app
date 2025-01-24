@@ -3,14 +3,16 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../globals/extensions.dart';
 import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 
 class FilePicker extends StatefulWidget {
   final Directory rootDirectory;
 
-  const FilePicker({super.key, required this.rootDirectory});
+  /// LIst of allowed file extensions, example: ['mp3', 'lrc']
+  final List<String> allowedExtensions;
+
+  const FilePicker({super.key, required this.rootDirectory, required this.allowedExtensions});
 
   @override
   State<FilePicker> createState() => _FilePickerState();
@@ -18,12 +20,16 @@ class FilePicker extends StatefulWidget {
   static Future<String?> open({
     required BuildContext context,
     required Directory rootDirectory,
+    List<String> allowedExtensions = const [],
   }) async {
     return await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, _, __) => FilePicker(rootDirectory: rootDirectory),
-        transitionDuration: 300.ms,
+        pageBuilder: (context, _, __) => FilePicker(
+          rootDirectory: rootDirectory,
+          allowedExtensions: allowedExtensions,
+        ),
+        transitionDuration: const Duration(milliseconds: 300),
         transitionsBuilder: (_, anim, __, child) {
           return SlideTransition(
             position: Tween<Offset>(
@@ -44,8 +50,11 @@ class FilePicker extends StatefulWidget {
     await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, _, __) => FilePicker(rootDirectory: rootDirectory),
-        transitionDuration: 300.ms,
+        pageBuilder: (context, _, __) => FilePicker(
+          rootDirectory: rootDirectory,
+          allowedExtensions: const [],
+        ),
+        transitionDuration: const Duration(milliseconds: 300),
         transitionsBuilder: (_, anim, __, child) {
           return SlideTransition(
             position: Tween<Offset>(
@@ -62,10 +71,6 @@ class FilePicker extends StatefulWidget {
 
 class _FilePickerState extends State<FilePicker> {
   var fileEntities = <String>[], isDirectory = <bool>[], crumbs = <String>[];
-  // late final initialRootDirName = widget.rootDirectory.absolute.path //
-  //     .replaceAll(RegExp(r'/$'), '')
-  //     .split('/')
-  //     .last;
   String currentRootPath = '';
 
   @override
@@ -93,7 +98,6 @@ class _FilePickerState extends State<FilePicker> {
       crumbs.add(' > ');
     }
     crumbs.removeLast();
-    // setState(() {});
   }
 
   void getEntities(Directory root) {
@@ -103,9 +107,14 @@ class _FilePickerState extends State<FilePicker> {
     } catch (e) {
       if (e is PathAccessException) {
         return showToast(context, 'Permission denied');
-      } else {
-        rethrow;
       }
+      rethrow;
+    }
+
+    if (widget.allowedExtensions.isNotEmpty) {
+      entities = entities //
+          .where((e) => e is Directory || (e is File && widget.allowedExtensions.contains(e.path.split('.').last)))
+          .toList();
     }
 
     fileEntities.clear();
@@ -123,16 +132,18 @@ class _FilePickerState extends State<FilePicker> {
   }
 
   String getCrumbPath(int index) {
-    return widget.rootDirectory.absolute.path + crumbs.sublist(1, index + 1).where((e) => !e.contains('>')).join('/');
+    return '${widget.rootDirectory.absolute.path}/'
+        '${crumbs.sublist(1, index + 1).where((e) => !e.contains('>')).join('/')}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        surfaceTintColor: Colors.transparent,
         title: const Text('Storage'),
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_left_rounded, size: 40),
+        leading: CloseButton(
           onPressed: Navigator.of(context).pop,
         ),
       ),
@@ -147,13 +158,18 @@ class _FilePickerState extends State<FilePicker> {
                 for (var i = 0; i < crumbs.length; i++)
                   TextSpan(
                     text: crumbs[i],
-                    style: i % 2 == 0
+                    style: i % 2 == 0 && i < crumbs.length - 1
                         ? TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
+                            decoration: TextDecoration.underline,
+                            decorationThickness: 2,
                           )
-                        : null,
+                        : TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                          ),
                     recognizer: i % 2 == 0 && i < crumbs.length - 1
                         ? (TapGestureRecognizer()
                           ..onTap = () {
@@ -167,27 +183,38 @@ class _FilePickerState extends State<FilePicker> {
             ),
           ),
           Flexible(
-            child: ListView.builder(
-              itemCount: fileEntities.length,
-              itemBuilder: (context, index) {
-                final entity = fileEntities[index];
+            child: fileEntities.isEmpty
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.folder_open_rounded, size: 70),
+                        Text('Empty', style: TextStyle(fontSize: 24)),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: fileEntities.length,
+                    itemBuilder: (context, index) {
+                      final entity = fileEntities[index];
 
-                return ListTile(
-                  leading: Icon(isDirectory[index] ? Icons.folder : Icons.file_copy),
-                  title: Text(entity),
-                  onTap: () async {
-                    if (isDirectory[index]) {
-                      getEntities(Directory('$currentRootPath$entity'));
-                      getCrumbs();
-                      setState(() {});
-                    } else {
-                      LogHandler.log('Selected file: ${'$currentRootPath$entity'}');
-                      // Navigator.of(context).pop(entity);
-                    }
-                  },
-                );
-              },
-            ),
+                      return ListTile(
+                        leading: Icon(isDirectory[index] ? Icons.folder : Icons.file_copy),
+                        title: Text(entity),
+                        onTap: () async {
+                          if (isDirectory[index]) {
+                            getEntities(Directory(currentRootPath + entity));
+                            getCrumbs();
+                            setState(() {});
+                          } else {
+                            // LogHandler.log('Selected file: $currentRootPath$entity');
+                            Navigator.of(context).pop(currentRootPath + entity);
+                          }
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

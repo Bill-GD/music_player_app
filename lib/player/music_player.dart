@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +13,7 @@ import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../widgets/file_picker.dart';
 import '../widgets/lyric_strip.dart';
 import '../widgets/page_indicator.dart';
 import '../widgets/playlist_sheet.dart';
@@ -221,10 +221,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderSt
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    var path = await FilesystemPicker.open(
+                                    var path = await FilePicker.open(
                                       context: context,
-                                      allowedExtensions: ['.lrc'],
                                       rootDirectory: Directory(Globals.lyricPath),
+                                      allowedExtensions: const ['lrc'],
                                     );
                                     if (path == null) return;
                                     path = path.split(Globals.lyricPath).last;
