@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
-import '../globals/functions.dart';
 import '../globals/log_handler.dart';
+import '../globals/utils.dart';
 import '../globals/variables.dart';
 import 'version_dialog.dart';
 

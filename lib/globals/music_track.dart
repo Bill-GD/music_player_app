@@ -6,8 +6,8 @@ import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 
 import 'database_handler.dart';
 import 'extensions.dart';
-import 'functions.dart';
 import 'log_handler.dart';
+import 'utils.dart';
 import 'variables.dart';
 
 class MusicTrack {

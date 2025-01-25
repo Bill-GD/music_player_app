@@ -10,6 +10,7 @@ import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../widgets/action_dialog.dart';
 import '../widgets/timestamp_editor.dart';
 import 'player_utils.dart';
 import 'type_lyric.dart';
@@ -129,7 +130,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
             onPressed: () {
               if (!hasChanged) return Navigator.of(context).pop();
 
-              dialogWithActions<bool>(
+              ActionDialog.static<bool>(
                 context,
                 title: 'Discard changes',
                 titleFontSize: 18,
@@ -165,7 +166,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
               icon: const Icon(Icons.save_rounded),
               onPressed: hasChanged
                   ? () {
-                      dialogWithActions<bool>(
+                      ActionDialog.static<bool>(
                         context,
                         title: 'Save changes',
                         titleFontSize: 18,
@@ -395,7 +396,7 @@ class _LyricEditorState extends State<LyricEditor> with SingleTickerProviderStat
                       size: 20,
                     ),
                     onPressed: () {
-                      dialogWithActions(
+                      ActionDialog.static<bool>(
                         context,
                         title: 'Delete lyric line',
                         titleFontSize: 16,

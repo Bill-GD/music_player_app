@@ -5,6 +5,7 @@ import '../globals/extensions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../main_screen/backup.dart';
+import '../widgets/action_dialog.dart';
 import 'about.dart';
 import 'theme_setting.dart';
 
@@ -88,7 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 if (changes.endsWith('\n')) changes = changes.substring(0, changes.length - 1);
 
                 if (hasChanges) {
-                  await dialogWithActions(
+                  await ActionDialog.static<void>(
                     context,
                     title: 'Confirm changes',
                     titleFontSize: 24,

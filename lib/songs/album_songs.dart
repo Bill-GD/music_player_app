@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
-import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
+import '../globals/utils.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
+import '../widgets/action_dialog.dart';
 import 'add_album_song.dart';
 import 'album_info.dart';
 
@@ -116,7 +117,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                         onTap: () async {
                           bool deleteAlbum = false;
 
-                          await dialogWithActions<bool>(
+                          await ActionDialog.static<bool>(
                             context,
                             icon: Icon(
                               Icons.warning_rounded,
@@ -362,7 +363,7 @@ class _AlbumSongsState extends State<AlbumSongs> {
                   title: const Text('Remove from playlist', style: bottomSheetText),
                   onTap: () async {
                     bool songRemoved = false;
-                    await dialogWithActions<bool>(
+                    await ActionDialog.static<bool>(
                       context,
                       title: 'Remove from album',
                       titleFontSize: 24,

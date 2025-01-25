@@ -7,8 +7,8 @@ import '../globals/extensions.dart';
 import '../globals/log_handler.dart';
 import '../globals/lyric_handler.dart';
 import '../globals/variables.dart';
-import '../globals/widgets.dart';
 import '../player/lyric_editor.dart';
+import 'action_dialog.dart';
 
 class LyricStrip extends StatefulWidget {
   const LyricStrip({super.key});
@@ -193,7 +193,7 @@ class _LyricStripState extends State<LyricStrip> {
           child: IconButton(
             icon: const Icon(Icons.delete_forever_rounded),
             onPressed: () {
-              dialogWithActions<bool>(
+              ActionDialog.static<bool>(
                 context,
                 title: 'Delete lyric',
                 titleFontSize: 18,

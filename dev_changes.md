@@ -1,2 +1,3 @@
-- Added a button to redirect to the release page of each version's dialog.
-- Abort checking for new version if internet is not connected.
+- Reorganized file & code structure.
+Exclusively used functions/widgets is included with its users.
+- Changed `dialogWithActions` to `ActionDialog` class with stateless and stateful version.

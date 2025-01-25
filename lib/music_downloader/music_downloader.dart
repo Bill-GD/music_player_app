@@ -8,7 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/extensions.dart';
-import '../globals/functions.dart';
+import '../globals/utils.dart';
 import '../globals/widgets.dart';
 import 'soundcloud_downloader.dart';
 import 'youtube_downloader.dart';
@@ -202,7 +202,7 @@ class MusicDownloaderState extends State<MusicDownloader> {
                                     setState(() => isGettingData = false);
                                   }
                                 : null,
-                            style: textButtonStyle(context),
+                            style: _textButtonStyle(context),
                             child: const Text('Get Music Data'),
                           ),
                         ),
@@ -288,7 +288,7 @@ class MusicDownloaderState extends State<MusicDownloader> {
                                             );
                                       setState(() => isDownloading = false);
                                     },
-                              style: textButtonStyle(context),
+                              style: _textButtonStyle(context),
                               child: const Text('Download Music'),
                             ),
                           ],
@@ -351,4 +351,25 @@ String getSizeString(int bytes) {
     }
   }
   return result;
+}
+
+ButtonStyle _textButtonStyle(BuildContext context) {
+  return ButtonStyle(
+    textStyle: const WidgetStatePropertyAll<TextStyle>(
+      TextStyle(fontWeight: FontWeight.bold),
+    ),
+    backgroundColor: WidgetStateProperty.resolveWith<Color>(
+      (states) {
+        if (states.contains(WidgetState.disabled)) {
+          return Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5);
+        }
+        return Theme.of(context).colorScheme.primaryContainer;
+      },
+    ),
+    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+    ),
+  );
 }

@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:sqflite/sqflite.dart';
 
-import 'functions.dart';
 import 'log_handler.dart';
+import 'utils.dart';
 import 'variables.dart';
 
 class DatabaseHandler {

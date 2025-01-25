@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../globals/extensions.dart';
-import '../globals/functions.dart';
 import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
+import '../globals/utils.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../permission/storage_permission.dart';

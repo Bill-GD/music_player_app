@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 import '../globals/database_handler.dart';
 import '../globals/extensions.dart';
-import '../globals/functions.dart';
 import '../globals/log_handler.dart';
+import '../globals/utils.dart';
 import '../globals/variables.dart';
-import '../globals/widgets.dart';
+import '../widgets/action_dialog.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -61,7 +61,7 @@ class _BackupScreenState extends State<BackupScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      final res = await dialogWithActions<bool>(
+                      final res = await ActionDialog.static<bool>(
                         context,
                         title: 'Backup data',
                         titleFontSize: 24,
@@ -95,7 +95,7 @@ class _BackupScreenState extends State<BackupScreen> {
                         return showToast(context, 'No backup data found');
                       }
 
-                      final res = await dialogWithActions<bool>(
+                      final res = await ActionDialog.static<bool>(
                         context,
                         title: 'Overwrite data',
                         titleFontSize: 24,

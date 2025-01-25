@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../globals/functions.dart';
+import '../globals/utils.dart';
 import '../songs/song_info.dart';
+import '../widgets/action_dialog.dart';
 import 'extensions.dart';
 import 'music_track.dart';
 import 'variables.dart';
@@ -17,8 +18,6 @@ const TextStyle bottomSheetText = TextStyle(
   fontSize: 17,
   fontWeight: FontWeight.w600,
 );
-
-Divider listItemDivider() => const Divider(indent: 20, endIndent: 20);
 
 Color? iconColor(BuildContext context, [double opacity = 1]) => Theme.of(context).iconTheme.color?.withOpacity(opacity);
 
@@ -58,27 +57,6 @@ InputDecoration textFieldDecoration(
       border: border,
       constraints: constraints,
     );
-
-ButtonStyle textButtonStyle(BuildContext context) {
-  return ButtonStyle(
-    textStyle: const WidgetStatePropertyAll<TextStyle>(
-      TextStyle(fontWeight: FontWeight.bold),
-    ),
-    backgroundColor: WidgetStateProperty.resolveWith<Color>(
-      (states) {
-        if (states.contains(WidgetState.disabled)) {
-          return Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5);
-        }
-        return Theme.of(context).colorScheme.primaryContainer;
-      },
-    ),
-    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30),
-      ),
-    ),
-  );
-}
 
 Future<void> showSongOptionsMenu(
   BuildContext context,
@@ -140,7 +118,7 @@ Future<void> showSongOptionsMenu(
           title: const Text('Delete', style: bottomSheetText),
           onTap: () async {
             bool songDeleted = false;
-            await dialogWithActions(
+            await ActionDialog.static<void>(
               context,
               icon: Icon(
                 Icons.warning_rounded,
@@ -233,7 +211,7 @@ Future<void> getBottomSheet(
 }
 
 Future<void> showErrorPopup(BuildContext context, String error) async {
-  await dialogWithActions(
+  await ActionDialog.static<void>(
     context,
     barrierDismissible: true,
     time: 300.ms,
@@ -268,7 +246,7 @@ Future<void> showPopupMessage(
   bool enableButton = true,
   bool barrierDismissible = true,
 }) async {
-  await dialogWithActions<void>(
+  await ActionDialog.static<void>(
     context,
     icon: icon,
     title: title,
@@ -286,137 +264,5 @@ Future<void> showPopupMessage(
     horizontalPadding: horizontalPadding,
     barrierDismissible: barrierDismissible,
     allowScroll: true,
-  );
-}
-
-Future<void> showLogPopup(
-  BuildContext context, {
-  required String title,
-}) async {
-  final logLines = File(Globals.logPath).readAsLinesSync();
-  final contentLines = <String>[];
-
-  for (final line in logLines) {
-    if (line.isEmpty || !line.contains(']')) continue;
-
-    final isError = line.contains('[E]');
-    final time = line.substring(0, line.indexOf(']') + 1).trim();
-    final content = line.substring(line.indexOf(']') + 5).trim();
-    // final content = line;
-    contentLines.add('t$time\n');
-    contentLines.add('${isError ? 'e' : 'i'} - $content\n');
-    contentLines.add(' \n');
-  }
-  contentLines.removeLast();
-  contentLines.last = contentLines.last.substring(0, contentLines.last.length - 1);
-
-  await dialogWithActions(
-    context,
-    title: title,
-    titleFontSize: 28,
-    widgetContent: RichText(
-      text: TextSpan(
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
-        children: [
-          for (var line in contentLines)
-            TextSpan(
-              text: line.substring(1),
-              style: TextStyle(
-                color: line.startsWith('e')
-                    ? Theme.of(context).colorScheme.error
-                    : line.startsWith('t')
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-            ),
-        ],
-      ),
-    ),
-    contentFontSize: 16,
-    centerContent: false,
-    horizontalPadding: 24,
-    time: 300.ms,
-    allowScroll: true,
-    actions: [
-      TextButton(
-        onPressed: Navigator.of(context).pop,
-        child: const Text('OK'),
-      ),
-    ],
-  );
-}
-
-Future<T?> dialogWithActions<T>(
-  BuildContext context, {
-  Icon? icon,
-  required String title,
-  required double titleFontSize,
-  String? textContent,
-  Widget? widgetContent,
-  required double contentFontSize,
-  bool centerContent = true,
-  List<Widget> actions = const [],
-  required Duration time,
-  Alignment scaleAlignment = Alignment.center,
-  double? horizontalPadding,
-  bool barrierDismissible = true,
-  bool allowScroll = false,
-}) async {
-  assert(textContent != null || widgetContent != null, 'textContent or widgetContent parameter must be non-null');
-  return await showGeneralDialog<T>(
-    context: context,
-    transitionDuration: time,
-    barrierDismissible: barrierDismissible,
-    barrierLabel: '',
-    transitionBuilder: (_, anim1, __, child) {
-      return ScaleTransition(
-        scale: anim1.drive(CurveTween(curve: Curves.easeOutQuart)),
-        alignment: scaleAlignment,
-        child: child,
-      );
-    },
-    pageBuilder: (_, __, ___) {
-      final content = textContent != null
-          ? Text(
-              dedent(textContent),
-              textAlign: centerContent ? TextAlign.center : null,
-            )
-          : widgetContent!;
-      return AlertDialog(
-        icon: icon,
-        title: Text(
-          title,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 4,
-        ),
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontSize: titleFontSize,
-              fontWeight: FontWeight.w700,
-            ),
-        content: allowScroll ? SingleChildScrollView(child: content) : content,
-        contentTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: contentFontSize,
-            ),
-        contentPadding: const EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 15,
-        ),
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: actions,
-        actionsPadding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          side: BorderSide(color: Theme.of(context).colorScheme.onSurface),
-        ),
-        insetPadding: EdgeInsets.only(
-          left: horizontalPadding ?? 40,
-          right: horizontalPadding ?? 40,
-          top: 40,
-          bottom: 16,
-        ),
-      );
-    },
   );
 }

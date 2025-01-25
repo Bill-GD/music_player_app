@@ -1,4 +1,4 @@
-import 'functions.dart';
+import 'utils.dart';
 
 extension DurationExtension on Duration {
   String toStringNoMilliseconds() {
