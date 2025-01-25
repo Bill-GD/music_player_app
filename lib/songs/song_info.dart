@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
+import '../globals/globals.dart';
 import '../globals/music_track.dart';
-import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
 class SongInfo extends StatefulWidget {

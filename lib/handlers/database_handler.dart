@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:sqflite/sqflite.dart';
 
-import 'log_handler.dart';
+import '../globals/globals.dart';
 import '../globals/utils.dart';
-import '../globals/variables.dart';
+import 'log_handler.dart';
 
 class DatabaseHandler {
   static final String _path = Globals.dbPath;

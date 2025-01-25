@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import '../globals/extensions.dart';
-import '../globals/variables.dart';
+import '../globals/globals.dart';
 import 'log_handler.dart';
 
 class LyricHandler {

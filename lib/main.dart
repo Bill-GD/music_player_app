@@ -5,7 +5,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:theme_provider/theme_provider.dart';
 
-import 'globals/variables.dart';
+import 'globals/config.dart';
+import 'globals/globals.dart';
 import 'globals/widgets.dart';
 import 'handlers/database_handler.dart';
 import 'handlers/log_handler.dart';

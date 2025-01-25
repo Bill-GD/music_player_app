@@ -4,9 +4,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../globals/config.dart';
 import '../globals/extensions.dart';
+import '../globals/globals.dart';
 import '../globals/music_track.dart';
-import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../handlers/log_handler.dart';
 import '../handlers/lyric_handler.dart';

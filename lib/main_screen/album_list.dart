@@ -4,8 +4,8 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
+import '../globals/globals.dart';
 import '../globals/music_track.dart';
-import '../globals/variables.dart';
 import '../songs/album_songs.dart';
 import 'add_album.dart';
 

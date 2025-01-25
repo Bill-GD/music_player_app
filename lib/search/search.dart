@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../globals/variables.dart';
+import '../globals/globals.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 

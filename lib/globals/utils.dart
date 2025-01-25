@@ -8,7 +8,7 @@ import 'package:http/http.dart';
 import '../handlers/database_handler.dart';
 import '../handlers/log_handler.dart';
 import 'extensions.dart';
-import 'variables.dart';
+import 'globals.dart';
 
 String getTimeString(int milliseconds) {
   return Duration(milliseconds: milliseconds).toStringNoMilliseconds();

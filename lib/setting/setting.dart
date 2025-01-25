@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../globals/config.dart';
 import '../globals/extensions.dart';
-import '../globals/variables.dart';
+import '../globals/globals.dart';
 import '../globals/widgets.dart';
 import '../widgets/action_dialog.dart';
 import 'about.dart';

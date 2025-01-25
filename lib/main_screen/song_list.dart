@@ -4,8 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../globals/config.dart';
+import '../globals/globals.dart';
 import '../globals/music_track.dart';
-import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
 

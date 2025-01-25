@@ -7,8 +7,8 @@ import '../globals/utils.dart';
 import '../songs/song_info.dart';
 import '../widgets/action_dialog.dart';
 import 'extensions.dart';
+import 'globals.dart';
 import 'music_track.dart';
-import 'variables.dart';
 
 const TextStyle bottomSheetTitle = TextStyle(
   fontSize: 18,

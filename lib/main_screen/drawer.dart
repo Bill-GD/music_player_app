@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
-import '../globals/variables.dart';
+import '../globals/globals.dart';
 import '../globals/widgets.dart';
 import '../music_downloader/music_downloader.dart';
 import '../setting/setting.dart';

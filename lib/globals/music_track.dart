@@ -6,9 +6,10 @@ import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 
 import '../handlers/database_handler.dart';
 import '../handlers/log_handler.dart';
+import 'config.dart';
 import 'extensions.dart';
+import 'globals.dart';
 import 'utils.dart';
-import 'variables.dart';
 
 class MusicTrack {
   int id, timeListened;

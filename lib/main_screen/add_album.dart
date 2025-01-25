@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../globals/globals.dart';
 import '../globals/music_track.dart';
-import '../globals/variables.dart';
 import '../globals/widgets.dart';
 
 class AddAlbum extends StatefulWidget {

@@ -4,10 +4,11 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../globals/config.dart';
 import '../globals/extensions.dart';
+import '../globals/globals.dart';
 import '../globals/music_track.dart';
 import '../globals/utils.dart';
-import '../globals/variables.dart';
 import '../globals/widgets.dart';
 import '../handlers/log_handler.dart';
 import '../permission/storage_permission.dart';
