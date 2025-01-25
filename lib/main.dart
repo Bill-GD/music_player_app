@@ -8,6 +8,7 @@ import 'package:theme_provider/theme_provider.dart';
 import 'globals/config.dart';
 import 'globals/globals.dart';
 import 'globals/widgets.dart';
+import 'handlers/backup_handler.dart';
 import 'handlers/database_handler.dart';
 import 'handlers/log_handler.dart';
 import 'main_screen/main_screen.dart';
@@ -22,7 +23,7 @@ void main() async {
   Globals.logPath = '${Globals.storagePath}/files/log.txt';
   Globals.jsonPath = '${Globals.storagePath}/files/tracks.json';
   Globals.dbPath = '${Globals.storagePath}/database/database.db';
-  Globals.backupPath = '/storage/emulated/0/Android/music_hub_backup.json';
+  // Globals.backupPath = '${Globals.storagePath}/music_hub_backup/';
 
   LogHandler.init();
   LogHandler.log('App version: ${Globals.appVersion}, isDev: $isDev');
@@ -30,6 +31,7 @@ void main() async {
   Globals.audioHandler = (await initAudioHandler()) as AudioPlayerHandler;
   await Config.loadConfig();
   await DatabaseHandler.init();
+  BackupHandler.init();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   PlatformDispatcher.instance.onError = (e, s) {

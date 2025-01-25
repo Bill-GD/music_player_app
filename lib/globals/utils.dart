@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-import '../handlers/database_handler.dart';
 import '../handlers/log_handler.dart';
 import 'extensions.dart';
 import 'globals.dart';
@@ -75,24 +73,6 @@ Future<bool> checkInternetConnection([List<ConnectivityResult>? result]) async {
   final isInternetConnected = !connectivityResult.contains(ConnectivityResult.none);
   LogHandler.log('Internet connected: $isInternetConnected');
   return isInternetConnected;
-}
-
-Future<void> backupData(BuildContext context, File bu) async {
-  if (!File(Globals.dbPath).existsSync()) {
-    return showToast(context, 'No data to backup');
-  }
-  if (!bu.existsSync()) bu.createSync();
-  LogHandler.log('Backing up data to: ${bu.path}');
-
-  // TODO query & write to backup
-  final data = {
-    'songs': await DatabaseHandler.db.query(Globals.songTable),
-    'albums': await DatabaseHandler.db.query(Globals.albumTable),
-    'album_songs': await DatabaseHandler.db.query(Globals.albumSongsTable),
-  };
-
-  bu.writeAsStringSync(jsonEncode(data));
-  if (context.mounted) showToast(context, 'Data backed up successfully');
 }
 
 bool hasSong(int id) {

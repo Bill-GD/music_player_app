@@ -18,6 +18,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  bool hasChanges = false;
+
   bool autoBackup = Config.backupOnLaunch;
   bool ignoreShortFile = Config.enableSongFiltering;
   int ignoreTimeLimit = Config.lengthLimitMilliseconds ~/ 1e3;
@@ -25,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int delayBetween = Config.delayMilliseconds;
   bool appendLyric = Config.appendLyric;
   double volume = Config.volume;
+  int backupCount = Config.backupCount;
 
   @override
   Widget build(BuildContext context) {
@@ -42,89 +45,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(Icons.check_rounded, size: 30),
-              onPressed: () async {
-                bool needsUpdate = false, hasChanges = false;
-                FocusManager.instance.primaryFocus?.unfocus();
+              icon: const Icon(Icons.save_rounded),
+              onPressed: hasChanges
+                  ? () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
 
-                hasChanges = (ignoreShortFile != Config.enableSongFiltering ||
-                    ignoreTimeLimit != Config.lengthLimitMilliseconds ~/ 1e3 ||
-                    autoPlay != Config.autoPlayNewSong ||
-                    autoBackup != Config.backupOnLaunch ||
-                    delayBetween != Config.delayMilliseconds ||
-                    appendLyric != Config.appendLyric ||
-                    volume != Config.volume);
+                      String changes = 'Confirm the following changes?\n\n';
 
-                String changes = 'Confirm the following changes?\n\n';
+                      changes += ignoreShortFile != Config.enableSongFiltering
+                          ? ignoreShortFile
+                              ? 'Enable song filtering\n'
+                              : 'Disable song filtering\n'
+                          : '';
 
-                changes += ignoreShortFile != Config.enableSongFiltering
-                    ? ignoreShortFile
-                        ? 'Enable song filtering\n'
-                        : 'Disable song filtering\n'
-                    : '';
+                      changes += ignoreShortFile && ignoreTimeLimit != Config.lengthLimitMilliseconds ~/ 1e3
+                          ? 'Filter file shorter than: $ignoreTimeLimit s\n'
+                          : '';
 
-                changes += ignoreShortFile && ignoreTimeLimit != Config.lengthLimitMilliseconds ~/ 1e3
-                    ? 'Filter file shorter than: $ignoreTimeLimit s\n'
-                    : '';
+                      changes += autoPlay != Config.autoPlayNewSong
+                          ? autoPlay
+                              ? 'Enable auto play\n'
+                              : 'Disable auto play\n'
+                          : '';
 
-                changes += autoPlay != Config.autoPlayNewSong
-                    ? autoPlay
-                        ? 'Enable auto play\n'
-                        : 'Disable auto play\n'
-                    : '';
+                      changes += appendLyric != Config.appendLyric
+                          ? appendLyric
+                              ? 'Enable append lyric\n'
+                              : 'Disable append lyric\n'
+                          : '';
 
-                changes += appendLyric != Config.appendLyric
-                    ? appendLyric
-                        ? 'Enable append lyric\n'
-                        : 'Disable append lyric\n'
-                    : '';
+                      changes += autoBackup != Config.backupOnLaunch
+                          ? autoBackup
+                              ? 'Enable auto backup\n'
+                              : 'Disable auto backup\n'
+                          : '';
+                      changes +=
+                          delayBetween != Config.delayMilliseconds ? 'Delay between songs: $delayBetween ms\n' : '';
+                      changes += volume != Config.volume ? 'Volume: x$volume\n' : '';
+                      changes += backupCount != Config.backupCount ? 'Backup count: $backupCount\n' : '';
 
-                changes += autoBackup != Config.backupOnLaunch
-                    ? autoBackup
-                        ? 'Enable auto backup\n'
-                        : 'Disable auto backup\n'
-                    : '';
-                changes += delayBetween != Config.delayMilliseconds ? 'Delay between songs: $delayBetween ms\n' : '';
-                changes += volume != Config.volume ? 'Volume: x$volume\n' : '';
+                      if (changes.endsWith('\n')) changes = changes.substring(0, changes.length - 1);
 
-                if (changes.endsWith('\n')) changes = changes.substring(0, changes.length - 1);
+                      if (hasChanges) {
+                        final needsUpdate = await ActionDialog.static<bool>(
+                          context,
+                          title: 'Confirm changes',
+                          titleFontSize: 24,
+                          textContent: changes,
+                          contentFontSize: 16,
+                          time: 300.ms,
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('No'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Config.backupOnLaunch = autoBackup;
+                                Config.enableSongFiltering = ignoreShortFile;
+                                Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
+                                Config.autoPlayNewSong = autoPlay;
+                                Config.delayMilliseconds = delayBetween;
+                                Config.appendLyric = appendLyric;
+                                Config.volume = volume;
+                                Globals.audioHandler.setVolume(Config.volume);
+                                Config.backupCount = backupCount;
+                                await Config.saveConfig();
+                                if (context.mounted) Navigator.of(context).pop(true);
+                              },
+                              child: const Text('Yes'),
+                            ),
+                          ],
+                        );
 
-                if (hasChanges) {
-                  await ActionDialog.static<void>(
-                    context,
-                    title: 'Confirm changes',
-                    titleFontSize: 24,
-                    textContent: changes,
-                    contentFontSize: 16,
-                    time: 300.ms,
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('No'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          needsUpdate = true;
-                          Config.backupOnLaunch = autoBackup;
-                          Config.enableSongFiltering = ignoreShortFile;
-                          Config.lengthLimitMilliseconds = ignoreTimeLimit * 1000;
-                          Config.autoPlayNewSong = autoPlay;
-                          Config.delayMilliseconds = delayBetween;
-                          Config.appendLyric = appendLyric;
-                          Config.volume = volume;
-                          Globals.audioHandler.setVolume(Config.volume);
-                          await Config.saveConfig();
-                          if (context.mounted) Navigator.of(context).pop();
-                        },
-                        child: const Text('Yes'),
-                      ),
-                    ],
-                  );
-                }
-                if ((needsUpdate || !hasChanges) && context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
+                        if (needsUpdate == true) setState(() => hasChanges = false);
+                      }
+                    }
+                  : null,
             ),
           ],
         ),
@@ -143,6 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: const Text('Backup data on app launch. May be undesirable in certain situations.'),
               value: autoBackup,
               onChanged: (value) {
+                hasChanges = value != Config.backupOnLaunch;
                 setState(() => autoBackup = value);
               },
             ),
@@ -188,6 +186,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
+            Column(
+              children: [
+                ListTile(
+                  title: leadingText(context, 'Backup count', false, 16),
+                  subtitle: Text('Number of backups to keep: $backupCount'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('5'),
+                      Expanded(
+                        child: Slider(
+                          value: backupCount.toDouble(),
+                          min: 5,
+                          max: 15,
+                          onChanged: (value) {
+                            hasChanges = value.toInt() != Config.backupCount;
+                            setState(() => backupCount = value.toInt());
+                          },
+                        ),
+                      ),
+                      const Text('15'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             ListTile(
               title: leadingText(context, 'Version', false, 16),
               subtitle: const Text(Globals.appVersion),
@@ -220,7 +246,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: leadingText(context, 'Song Filter', false, 16),
               subtitle: const Text('Ignore short files'),
               value: ignoreShortFile,
-              onChanged: (value) => setState(() => ignoreShortFile = value),
+              onChanged: (value) {
+                hasChanges = value != Config.enableSongFiltering;
+                setState(() => ignoreShortFile = value);
+              },
             ),
             Visibility(
               visible: ignoreShortFile,
@@ -242,6 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             max: 300,
                             onChanged: (value) {
                               if (!ignoreShortFile) return;
+                              hasChanges = value.toInt() != Config.lengthLimitMilliseconds ~/ 1e3;
                               setState(() => ignoreTimeLimit = value.toInt());
                             },
                             divisions: 30,
@@ -266,6 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: const Text('Starts playing when choosing a new song'),
               value: autoPlay,
               onChanged: (value) {
+                hasChanges = value != Config.autoPlayNewSong;
                 setState(() => autoPlay = value);
               },
             ),
@@ -285,7 +316,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: delayBetween.toDouble(),
                           min: 0.0,
                           max: 500.0,
-                          onChanged: (value) => setState(() => delayBetween = value.toInt()),
+                          onChanged: (value) {
+                            hasChanges = value.toInt() != Config.delayMilliseconds;
+                            setState(() => delayBetween = value.toInt());
+                          },
                         ),
                       ),
                       const Text('500'),
@@ -299,6 +333,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: const Text('Only add lines instead of free lyric editing'),
               value: appendLyric,
               onChanged: (value) {
+                hasChanges = value != Config.appendLyric;
                 setState(() => appendLyric = value);
               },
             ),
@@ -316,7 +351,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       value: volume,
                       min: 0,
                       max: 1,
-                      onChanged: (value) => setState(() => volume = value),
+                      onChanged: (value) {
+                        hasChanges = value != Config.volume;
+                        setState(() => volume = value);
+                      },
                       divisions: 100,
                     ),
                   ),

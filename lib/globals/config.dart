@@ -26,6 +26,9 @@ class Config {
   /// The base volume of the player, default `1`. Range `[0, 1]`.
   static double volume = 1;
 
+  /// How many backups to keep. Default `5`.
+  static int backupCount = 5;
+
   /// Current sorting order of the song list, default [SortOptions.name].
   static SortOptions currentSortOption = SortOptions.name;
 
@@ -52,6 +55,7 @@ class Config {
     await prefs.setInt('delayMilliseconds', delayMilliseconds);
     await prefs.setBool('appendLyric', appendLyric);
     await prefs.setDouble('volume', volume);
+    await prefs.setInt('backupCount', backupCount);
     await prefs.setString('currentSortOption', currentSortOption.name);
     await prefs.setBool('isShuffled', Globals.audioHandler.isShuffled);
     await prefs.setString('repeatMode', Globals.audioHandler.repeatMode.name);
@@ -68,6 +72,7 @@ class Config {
     delayMilliseconds = prefs.getInt('delayMilliseconds') ?? 0;
     appendLyric = prefs.getBool('appendLyric') ?? false;
     volume = (prefs.getDouble('volume') ?? 1).clamp(0, 1);
+    backupCount = prefs.getInt('backupCount') ?? 5;
 
     currentSortOption = SortOptions.values.firstWhere(
       (option) => option.name == prefs.getString('currentSortOption'),

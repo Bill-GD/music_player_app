@@ -1,13 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../globals/config.dart';
 import '../globals/extensions.dart';
-import '../globals/globals.dart';
 import '../globals/utils.dart';
-import '../handlers/database_handler.dart';
+import '../handlers/backup_handler.dart';
 import '../handlers/log_handler.dart';
 import '../widgets/action_dialog.dart';
 
@@ -19,18 +17,16 @@ class BackupScreen extends StatefulWidget {
 }
 
 class _BackupScreenState extends State<BackupScreen> {
-  final bu = File(Globals.backupPath);
-  late FileStat dataStat, buStat;
+  List<FileSystemEntity> backupFiles = [];
+
+  void updateBackupList() {
+    backupFiles = BackupHandler.getBackups();
+  }
 
   @override
   void initState() {
     super.initState();
-    getFileStats();
-    setState(() {});
-  }
-
-  void getFileStats() {
-    buStat = bu.statSync();
+    updateBackupList();
   }
 
   @override
@@ -46,17 +42,11 @@ class _BackupScreenState extends State<BackupScreen> {
             onPressed: Navigator.of(context).pop,
           ),
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            children: [
-              Text(
-                'Path: ${bu.path}'
-                '\nSize: ${max(buStat.size, 0)} bytes'
-                '\nLast modified: ${buStat.modified}',
-              ),
-              const SizedBox(height: 32),
-              Row(
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
@@ -83,16 +73,20 @@ class _BackupScreenState extends State<BackupScreen> {
                         ],
                       );
                       if (res != true) return;
-                      if (context.mounted) await backupData(context, bu);
-                      setState(() => getFileStats());
+                      await BackupHandler.backupData();
+                      if (context.mounted) showToast(context, 'Data backed up successfully');
+                      updateBackupList();
+                      setState(() {});
                     },
-                    child: const Text('Backup Data'),
+                    child: const Text('Backup data'),
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      if (!bu.existsSync()) {
-                        return showToast(context, 'No backup data found');
+                      if (BackupHandler.getBackups().isEmpty) {
+                        LogHandler.log('No backup data found');
+                        showToast(context, 'No backup data found');
+                        return;
                       }
 
                       final res = await ActionDialog.static<bool>(
@@ -116,43 +110,115 @@ class _BackupScreenState extends State<BackupScreen> {
                         ],
                       );
                       if (res != true) return;
-                      LogHandler.log('Recovering backup data from: ${bu.path}');
-
-                      if (!File(Globals.dbPath).existsSync()) {
-                        LogHandler.log('Database files should exists after app launched.', LogLevel.error);
-                        // DatabaseHandler.init(); // may init again, will see
-                      }
-
-                      // TODO parse json & delete -> insert
-                      final backupContent = bu
-                          .readAsStringSync()
-                          .replaceAll('timeAdded', 'time_added')
-                          .replaceAll('timeListened', 'time_listened');
-
-                      final json = jsonDecode(backupContent) as Map<String, dynamic>;
-
-                      await DatabaseHandler.clearAllData();
-                      for (final o in json['songs']!) {
-                        await DatabaseHandler.db.insert(Globals.songTable, o);
-                      }
-                      for (final o in json['albums']!) {
-                        await DatabaseHandler.db.insert(Globals.albumTable, o);
-                      }
-                      for (final o in json['album_songs']!) {
-                        await DatabaseHandler.db.insert(Globals.albumSongsTable, o);
-                      }
-
-                      if (context.mounted) {
-                        showToast(context, 'Data recovered successfully');
-                      }
-                      setState(() => getFileStats());
+                      await BackupHandler.recoverBackup(backupFiles.first as File);
+                      if (context.mounted) showToast(context, 'Data recovered successfully');
+                      updateBackupList();
+                      setState(() {});
                     },
-                    child: const Text('Recover Backup'),
+                    child: const Text('Recover backup'),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            if (backupFiles.isEmpty)
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.folder_open_rounded, size: 40),
+                    Text('No backup found', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.builder(
+                  itemCount: backupFiles.length,
+                  itemBuilder: (context, index) {
+                    FileStat stat = backupFiles[index].statSync();
+                    return ListTile(
+                      leading: Text(
+                        '${index + 1}/${Config.backupCount}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      title: Text(
+                        'Backup ${stat.modified.toDateString()}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      subtitle: Text(
+                        '${stat.size} B',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      contentPadding: const EdgeInsets.only(left: 18, right: 4),
+                      trailing: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.restore_rounded),
+                            onPressed: () async {
+                              final res = await ActionDialog.static<bool>(
+                                context,
+                                title: 'Overwrite data',
+                                titleFontSize: 18,
+                                textContent: 'Do you want to recover data from backup ${index + 1}? '
+                                    'This will overwrite current data '
+                                    'and you\'d want to refresh the songs.',
+                                contentFontSize: 14,
+                                time: 300.ms,
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('No'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: const Text('Yes'),
+                                  ),
+                                ],
+                              );
+                              if (res != true) return;
+                              await BackupHandler.recoverBackup(backupFiles[index] as File);
+                              if (context.mounted) showToast(context, 'Data recovered successfully');
+                              updateBackupList();
+                              setState(() {});
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_forever_rounded),
+                            onPressed: () async {
+                              final res = await ActionDialog.static<bool>(
+                                context,
+                                title: 'Delete backup',
+                                titleFontSize: 18,
+                                textContent: 'Are you sure you want to remove this backup?',
+                                contentFontSize: 14,
+                                time: 300.ms,
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('No'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: const Text('Yes'),
+                                  ),
+                                ],
+                              );
+                              if (res != true) return;
+                              backupFiles[index].deleteSync();
+                              updateBackupList();
+                              setState(() {});
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
         ),
       ),
     );

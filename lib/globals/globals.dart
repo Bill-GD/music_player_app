@@ -39,7 +39,8 @@ class Globals {
   static late final String jsonPath;
   static late final String dbPath;
   static late final String logPath;
-  static late final String backupPath;
+  // static late final String backupPath;
+  static const backupPath = '/storage/emulated/0/Android/music_hub_backup/';
   static const downloadPath = '/storage/emulated/0/Download/';
   static const lyricPath = '/storage/emulated/0/Lyrics/';
 

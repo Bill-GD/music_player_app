@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -10,6 +8,7 @@ import '../globals/globals.dart';
 import '../globals/music_track.dart';
 import '../globals/utils.dart';
 import '../globals/widgets.dart';
+import '../handlers/backup_handler.dart';
 import '../handlers/log_handler.dart';
 import '../permission/storage_permission.dart';
 import '../player/music_player.dart';
@@ -44,8 +43,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         await updateMusicData();
         sortAllSongs();
 
-        if (Config.backupOnLaunch && mounted) backupData(context, File(Globals.backupPath));
+        if (Config.backupOnLaunch) {
+          BackupHandler.backupData();
+          if (mounted) showToast(context, 'Data backed up successfully');
+        }
         await Globals.audioHandler.recoverSavedPlaylist();
+        Globals.showMinimizedPlayer = Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID) != null;
 
         setState(() => isLoading = false);
         LogHandler.log('App is ready');
@@ -275,7 +278,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         ),
                         title: Text(
                           Globals.currentSongID >= 0 && !isLoading
-                              ? Globals.allSongs.firstWhere((e) => e.id == Globals.currentSongID).name
+                              ? '${Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)?.name}'
                               : 'None',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -285,7 +288,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         ),
                         subtitle: Text(
                           Globals.currentSongID >= 0 && !isLoading
-                              ? Globals.allSongs.firstWhere((e) => e.id == Globals.currentSongID).artist
+                              ? '${Globals.allSongs.firstWhereOrNull((e) => e.id == Globals.currentSongID)?.artist}'
                               : 'None',
                         ),
                         onTap: isLoading

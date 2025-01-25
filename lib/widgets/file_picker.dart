@@ -160,15 +160,15 @@ class _FilePickerState extends State<FilePicker> {
                     text: crumbs[i],
                     style: i % 2 == 0 && i < crumbs.length - 1
                         ? TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.underline,
                             decorationThickness: 2,
                           )
                         : TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 16,
+                            fontWeight: FontWeight.w700,
                           ),
                     recognizer: i % 2 == 0 && i < crumbs.length - 1
                         ? (TapGestureRecognizer()
