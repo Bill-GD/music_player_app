@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
-import '../globals/lyric_handler.dart';
 import '../globals/variables.dart';
-import '../player/lyric_editor.dart';
-import 'action_dialog.dart';
+import '../handlers/log_handler.dart';
+import '../handlers/lyric_handler.dart';
+import '../widgets/action_dialog.dart';
+import 'lyric_editor.dart';
 
 class LyricStrip extends StatefulWidget {
   const LyricStrip({super.key});

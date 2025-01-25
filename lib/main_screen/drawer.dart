@@ -53,7 +53,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         context,
                         PageRouteBuilder(
                           pageBuilder: (_, __, ___) {
-                            return const SettingsPage();
+                            return const SettingsScreen();
                           },
                           transitionsBuilder: (context, anim1, _, child) {
                             return SlideTransition(

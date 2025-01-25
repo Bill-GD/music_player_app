@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'extensions.dart';
+import '../globals/extensions.dart';
+import '../globals/variables.dart';
 import 'log_handler.dart';
-import 'variables.dart';
 
 class LyricHandler {
   static void addLyric(Lyric lyric) {

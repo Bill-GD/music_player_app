@@ -5,20 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/utils.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../handlers/log_handler.dart';
 import 'version_list.dart';
 
-class AboutPage extends StatefulWidget {
-  const AboutPage({super.key});
+class AboutScreen extends StatefulWidget {
+  const AboutScreen({super.key});
 
   @override
-  State<AboutPage> createState() => _AboutPageState();
+  State<AboutScreen> createState() => _AboutScreenState();
 }
 
-class _AboutPageState extends State<AboutPage> {
+class _AboutScreenState extends State<AboutScreen> {
   late StreamSubscription<List<ConnectivityResult>> connectStream;
   bool isInternetConnected = false;
 

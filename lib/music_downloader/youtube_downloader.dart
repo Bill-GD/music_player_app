@@ -6,9 +6,9 @@ import 'package:http/http.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/utils.dart';
 import '../globals/widgets.dart';
+import '../handlers/log_handler.dart';
 
 Future<Map<String, dynamic>?> getYouTubeVideoData(BuildContext context, String urlText) async {
   try {

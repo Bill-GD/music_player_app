@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../globals/log_handler.dart';
 import '../globals/utils.dart';
+import '../handlers/log_handler.dart';
 
 class FilePicker extends StatefulWidget {
   final Directory rootDirectory;

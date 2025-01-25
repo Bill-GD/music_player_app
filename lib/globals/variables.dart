@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../handlers/log_handler.dart';
 import '../player/player_utils.dart';
-import 'log_handler.dart';
 import 'music_track.dart';
 
 final isDev = Globals.appVersion.contains('_dev_');

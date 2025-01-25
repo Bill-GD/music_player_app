@@ -5,19 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/utils.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../handlers/log_handler.dart';
 import '../permission/storage_permission.dart';
 import '../player/music_player.dart';
 import '../player/player_utils.dart';
-import '../search/search_page.dart';
+import '../search/search.dart';
 import '../songs/artist_songs.dart';
 import 'album_list.dart';
 import 'drawer.dart';
-import 'songs_list.dart';
+import 'song_list.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

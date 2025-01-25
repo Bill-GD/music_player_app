@@ -4,11 +4,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../globals/database_handler.dart';
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/utils.dart';
 import '../globals/variables.dart';
+import '../handlers/database_handler.dart';
+import '../handlers/log_handler.dart';
 import '../widgets/action_dialog.dart';
 
 class BackupScreen extends StatefulWidget {

@@ -5,8 +5,8 @@ import 'package:http/http.dart' show Response;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/utils.dart';
+import '../handlers/log_handler.dart';
 
 class VersionDialog extends StatefulWidget {
   final String tag;

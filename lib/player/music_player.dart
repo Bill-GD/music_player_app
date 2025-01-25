@@ -8,22 +8,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
-import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../handlers/log_handler.dart';
+import '../handlers/lyric_handler.dart';
+import '../lyric/lyric_editor.dart';
+import '../lyric/lyric_strip.dart';
 import '../widgets/file_picker.dart';
-import '../widgets/lyric_strip.dart';
 import '../widgets/page_indicator.dart';
 import '../widgets/playlist_sheet.dart';
-import 'lyric_editor.dart';
 import 'player_utils.dart';
 
 Future<Route> getMusicPlayerRoute(BuildContext context, int songID) async {
   await Globals.audioHandler.setPlayerSong(songID, shouldPlay: !Globals.setDuplicate);
   return PageRouteBuilder(
-    pageBuilder: (context, _, __) => MusicPlayerPage(songID: songID),
+    pageBuilder: (context, _, __) => MusicPlayer(songID: songID),
     transitionDuration: 400.ms,
     transitionsBuilder: (_, anim, __, child) {
       return SlideTransition(
@@ -37,16 +37,16 @@ Future<Route> getMusicPlayerRoute(BuildContext context, int songID) async {
   );
 }
 
-class MusicPlayerPage extends StatefulWidget {
+class MusicPlayer extends StatefulWidget {
   final int songID;
 
-  const MusicPlayerPage({super.key, required this.songID});
+  const MusicPlayer({super.key, required this.songID});
 
   @override
-  State<MusicPlayerPage> createState() => _MusicPlayerPageState();
+  State<MusicPlayer> createState() => _MusicPlayerState();
 }
 
-class _MusicPlayerPageState extends State<MusicPlayerPage> with TickerProviderStateMixin {
+class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin {
   int currentDuration = 0, maxDuration = 0;
   final List<StreamSubscription> subs = [];
   late final AnimationController animController;

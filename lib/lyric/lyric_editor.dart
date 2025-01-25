@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
-import '../globals/lyric_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
+import '../handlers/log_handler.dart';
+import '../handlers/lyric_handler.dart';
+import '../player/player_utils.dart';
 import '../widgets/action_dialog.dart';
-import '../widgets/timestamp_editor.dart';
-import 'player_utils.dart';
+import 'timestamp_editor.dart';
 import 'type_lyric.dart';
 
 class LyricEditor extends StatefulWidget {

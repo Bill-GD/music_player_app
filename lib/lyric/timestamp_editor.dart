@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
-import 'hold_gesture.dart';
+import '../handlers/log_handler.dart';
+import '../widgets/hold_gesture.dart';
 
 class TimestampEditor extends StatefulWidget {
   final (int, int, int) timestamp;

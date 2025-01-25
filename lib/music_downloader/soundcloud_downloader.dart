@@ -5,9 +5,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../globals/log_handler.dart';
 import '../globals/utils.dart';
 import '../globals/widgets.dart';
+import '../handlers/log_handler.dart';
 
 const _url = 'https://api-v2.soundcloud.com';
 

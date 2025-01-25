@@ -5,9 +5,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-import 'database_handler.dart';
+import '../handlers/database_handler.dart';
+import '../handlers/log_handler.dart';
 import 'extensions.dart';
-import 'log_handler.dart';
 import 'variables.dart';
 
 String getTimeString(int milliseconds) {

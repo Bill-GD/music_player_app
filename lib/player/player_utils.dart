@@ -4,11 +4,11 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
-import '../globals/database_handler.dart';
 import '../globals/extensions.dart';
-import '../globals/log_handler.dart';
 import '../globals/music_track.dart';
 import '../globals/variables.dart';
+import '../handlers/database_handler.dart';
+import '../handlers/log_handler.dart';
 
 /// Returns the current song duration in milliseconds
 int getCurrentDuration() => Globals.currentSongID >= 0

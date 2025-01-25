@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import '../globals/extensions.dart';
 import '../globals/variables.dart';
 import '../globals/widgets.dart';
-import '../main_screen/backup.dart';
 import '../widgets/action_dialog.dart';
 import 'about.dart';
+import 'backup.dart';
 import 'theme_setting.dart';
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsScreenState extends State<SettingsScreen> {
   bool autoBackup = Config.backupOnLaunch;
   bool ignoreShortFile = Config.enableSongFiltering;
   int ignoreTimeLimit = Config.lengthLimitMilliseconds ~/ 1e3;
@@ -194,7 +194,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () {
                 Navigator.of(context).push(
                   PageRouteBuilder(
-                    pageBuilder: (_, __, ___) => const AboutPage(),
+                    pageBuilder: (_, __, ___) => const AboutScreen(),
                     transitionsBuilder: (context, anim, _, child) {
                       return SlideTransition(
                         position: Tween<Offset>(

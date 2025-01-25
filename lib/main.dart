@@ -5,10 +5,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:theme_provider/theme_provider.dart';
 
-import 'globals/database_handler.dart';
-import 'globals/log_handler.dart';
 import 'globals/variables.dart';
 import 'globals/widgets.dart';
+import 'handlers/database_handler.dart';
+import 'handlers/log_handler.dart';
 import 'main_screen/main_screen.dart';
 import 'player/player_utils.dart';
 import 'widgets/widget_error.dart';
