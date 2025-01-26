@@ -3,3 +3,4 @@
 - Smaller progress bar thumb.
 - Song cover image is also applied to the media item.
 - Fixed path delimiter has the same color as the current directory in `FilePicker`.
+- Added a scroll bar to main song list.

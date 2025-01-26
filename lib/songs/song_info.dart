@@ -278,7 +278,7 @@ class _SongInfoState extends State<SongInfo> {
                             : null,
                         child: hasCover
                             ? ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(20),
                                 child: Image.file(
                                   File(imagePath),
                                   fit: BoxFit.cover,
@@ -288,10 +288,7 @@ class _SongInfoState extends State<SongInfo> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
-                                    Icons.image_not_supported_rounded,
-                                    size: 80,
-                                  ),
+                                  const Icon(Icons.image_not_supported_rounded, size: 80),
                                   Text(
                                     imagePath.isNotEmpty
                                         ? 'Image not found\nTap to relocate or change'
@@ -308,7 +305,7 @@ class _SongInfoState extends State<SongInfo> {
                             icon: const Icon(Icons.close_rounded),
                             style: ButtonStyle(
                               backgroundColor: WidgetStatePropertyAll(
-                                Theme.of(context).colorScheme.surface.withOpacity(0.3),
+                                Theme.of(context).colorScheme.surface.withOpacity(0.2),
                               ),
                             ),
                             onPressed: () {

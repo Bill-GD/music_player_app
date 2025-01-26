@@ -330,8 +330,12 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   Future<void> updateNotificationInfo({required int songID, Duration? duration}) async {
     if (mediaItem.value == null) return;
+    final song = Globals.allSongs.firstWhereOrNull((e) => e.id == songID);
     LogHandler.log('Updating media item of $songID');
-    final song = Globals.allSongs.firstWhere((e) => e.id == songID);
+
+    if (song == null) {
+      return LogHandler.log('Song not found', LogLevel.error);
+    }
 
     mediaItem.add(MediaItem(
       id: '$songID',
