@@ -123,16 +123,30 @@ Future<void> _showLogPopup(
   for (final line in logLines) {
     if (line.isEmpty || !line.contains(']')) continue;
 
-    final isError = line.contains('[E]');
+    final isError = line.contains('[E]'), isWarn = line.contains('[W]');
     final time = line.substring(0, line.indexOf(']') + 1).trim();
     final content = line.substring(line.indexOf(']') + 5).trim();
     // final content = line;
     contentLines.add('t$time\n');
-    contentLines.add('${isError ? 'e' : 'i'} - $content\n');
+    contentLines.add('${isError ? 'e' : isWarn ? 'w' : 'i'} - $content\n');
     contentLines.add(' \n');
   }
   contentLines.removeLast();
   contentLines.last = contentLines.last.substring(0, contentLines.last.length - 1);
+
+  final textSpans = <TextSpan>[];
+  for (var line in contentLines) {
+    final lineColor = switch (line[0]) {
+      'e' => Theme.of(context).colorScheme.error,
+      'w' => Colors.amber[700],
+      't' => Theme.of(context).colorScheme.secondary,
+      _ => Theme.of(context).textTheme.bodyMedium?.color,
+    };
+    textSpans.add(TextSpan(
+      text: line.substring(1),
+      style: TextStyle(color: lineColor),
+    ));
+  }
 
   await ActionDialog.static<void>(
     context,
@@ -141,19 +155,7 @@ Future<void> _showLogPopup(
     widgetContent: RichText(
       text: TextSpan(
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
-        children: [
-          for (var line in contentLines)
-            TextSpan(
-              text: line.substring(1),
-              style: TextStyle(
-                color: line.startsWith('e')
-                    ? Theme.of(context).colorScheme.error
-                    : line.startsWith('t')
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-            ),
-        ],
+        children: textSpans,
       ),
     ),
     contentFontSize: 16,

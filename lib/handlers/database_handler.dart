@@ -47,7 +47,7 @@ class DatabaseHandler {
       'name text not null,'
       'artist text not null,'
       'time_listened integer default 0,'
-      '${newVersion >= 3 ? 'lyric_path text not null default "",' : ''}'
+      'lyric_path text not null default "",'
       'time_added datetime not null'
       ');',
     );
@@ -68,26 +68,21 @@ class DatabaseHandler {
       'foreign key (album_id) references album (id)'
       ');',
     );
-    if (newVersion <= 1) return;
-
-    if (newVersion >= 2) {
-      LogHandler.log("Creating '${Globals.playlistTable}' table");
-      await db.execute(
-        'create table if not exists ${Globals.playlistTable} ('
-        'id integer primary key,'
-        'list_name text not null,'
-        'song_id integer not null,'
-        'is_current integer not null default 0'
-        ');',
-      );
-    }
+    // LogHandler.log("Creating '${Globals.playlistTable}' table");
+    await db.execute(
+      'create table if not exists ${Globals.playlistTable} ('
+      'id integer primary key,'
+      'list_name text not null,'
+      'song_id integer not null,'
+      'is_current integer not null default 0'
+      ');',
+    );
   }
 
   static Future<void> updateTables(Database db, int newVersion) async {
     if (newVersion >= 3) {
       LogHandler.log('Adding lyric_path column to ${Globals.songTable}');
       await db.execute('alter table ${Globals.songTable} add column lyric_path text not null default "";');
-      // rename these columns: timeAdded -> time_added, timeListened -> time_listened of Globals.songTable
       await db.execute('alter table ${Globals.songTable} rename column "timeAdded" to "time_added";');
       await db.execute('alter table ${Globals.songTable} rename column "timeListened" to "time_listened";');
       await db.execute('alter table ${Globals.albumTable} rename column "timeAdded" to "time_added";');
@@ -95,7 +90,10 @@ class DatabaseHandler {
   }
 
   static Future<void> clearAllData() async {
-    LogHandler.log('IMPORTANT! Deleting all data! This is irreversible if used without backing up first!');
+    LogHandler.log(
+      'IMPORTANT! Deleted all data! This is irreversible if used without backing up first!',
+      LogLevel.warn,
+    );
     await _db.delete(Globals.songTable);
     await _db.delete(Globals.albumTable);
     await _db.delete(Globals.albumSongsTable);

@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import '../globals/extensions.dart';
 import '../globals/globals.dart';
 
-enum LogLevel { info, error }
+enum LogLevel { info, warn, error }
 
 class LogHandler {
   static final _logFile = File(Globals.logPath);
