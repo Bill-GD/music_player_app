@@ -18,25 +18,26 @@ class WidgetErrorScreen extends StatelessWidget {
           icon: const Icon(Icons.keyboard_arrow_left_rounded, size: 40),
           onPressed: Navigator.of(context).pop,
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(30),
-          child: Padding(
+      ),
+      body: Column(
+        children: [
+          Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               '${e.exception}',
               style: const TextStyle(fontSize: 24),
             ),
           ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            e.stack.toString(),
-            style: const TextStyle(fontSize: 18),
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                e.stack.toString(),
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

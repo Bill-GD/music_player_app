@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../globals/extensions.dart';
 import '../globals/globals.dart';
 import '../globals/music_track.dart';
+import '../globals/utils.dart';
 import '../globals/widgets.dart';
 import '../handlers/log_handler.dart';
 import '../handlers/lyric_handler.dart';
@@ -85,6 +86,7 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
     LogHandler.log('Updating cover image');
     coverImage = null;
     if (File(song.imagePath).existsSync()) {
+      LogHandler.log('Cover image for song found');
       coverImage = Image.file(
         File(song.imagePath),
         fit: BoxFit.cover,
@@ -92,11 +94,18 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
     } else {
       final album = Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName);
       if (album != null && File(album.imagePath).existsSync()) {
+        LogHandler.log('Cover image for album found');
         coverImage = Image.file(
           File(album.imagePath),
           fit: BoxFit.cover,
         );
       }
+    }
+    if (coverImage == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showToast(context, 'Image for this song is not found.');
+      });
+      LogHandler.log('No cover image found');
     }
     setState(() {});
   }

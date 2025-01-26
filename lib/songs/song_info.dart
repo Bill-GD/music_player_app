@@ -288,15 +288,20 @@ class _SongInfoState extends State<SongInfo> {
                                   fit: BoxFit.cover,
                                 ),
                               )
-                            : const Column(
+                            : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.image_not_supported_rounded,
                                     size: 80,
                                   ),
-                                  Text('No cover image\nTap to change', textAlign: TextAlign.center),
+                                  Text(
+                                    imagePath.isNotEmpty
+                                        ? 'Image not found\nTap to relocate or change'
+                                        : 'No cover image\nTap to change',
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ],
                               ),
                       ),

@@ -7,3 +7,5 @@
   The player uses cover image and has a blurred version as background.
   Change cover image in song info screen.
 - Changed empty directory icon in `FilePicker`.
+- Notifies user if song has cover image but isn't found. Same applies to song info screen.
+- Updated `WidgetErrorScreen`: moved error message to body, on top of the stacktrace.
