@@ -102,9 +102,11 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
       }
     }
     if (coverImage == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) showToast(context, 'Image for this song is not found.');
-      });
+      if (song.imagePath.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) showToast(context, 'Image for this song is not found.');
+        });
+      }
       LogHandler.log('No cover image found');
     }
     setState(() {});
@@ -177,7 +179,7 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
         child: _applyBackFilter(
           hasImage: coverImage != null,
           child: Scaffold(
-            backgroundColor: coverImage == null ? Colors.transparent : Colors.white10,
+            backgroundColor: coverImage == null ? Colors.transparent : Colors.black26,
             extendBodyBehindAppBar: true,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
@@ -236,15 +238,19 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
                                         width: 1,
                                         color: Theme.of(context).colorScheme.onSurface,
                                       ),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(20),
                                     )
                                   : null,
-                              child: coverImage ??
-                                  Icon(
-                                    Icons.music_note_rounded,
-                                    color: Colors.grey[850],
-                                    size: 180,
-                                  ),
+                              child: coverImage == null
+                                  ? Icon(
+                                      Icons.music_note_rounded,
+                                      color: Colors.grey[850],
+                                      size: 180,
+                                    )
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: coverImage,
+                                    ),
                             ),
                           ],
                         ),
@@ -354,6 +360,7 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
                           progress: min(maxDuration, currentDuration).ms,
                           total: maxDuration.ms,
                           thumbCanPaintOutsideBar: false,
+                          thumbRadius: 6,
                           timeLabelPadding: 5,
                           timeLabelLocation: TimeLabelLocation.below,
                           timeLabelType: TimeLabelType.totalTime,
@@ -371,7 +378,7 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
                           height: 4.5,
                           width: 2,
                           margin: EdgeInsets.only(
-                            top: 8,
+                            top: 4,
                             left: Globals.audioHandler.minTimePercent * MediaQuery.of(context).size.width,
                           ),
                           color: Theme.of(context).colorScheme.primary,
