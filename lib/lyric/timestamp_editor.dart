@@ -42,7 +42,7 @@ class _TimestampEditorState extends State<TimestampEditor> {
         edit[1] = (edit[1] - 1) % 60;
         break;
       case 2:
-        if (edit[2] <= 0) downTime(1);
+        if (edit[2] <= 99) downTime(1);
         edit[2] = (edit[2] - 100) % 1000;
         break;
     }
