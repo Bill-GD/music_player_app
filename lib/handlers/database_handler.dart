@@ -19,8 +19,8 @@ class DatabaseHandler {
 
     _db = await openDatabase(
       _path,
-      // prev = 2
-      version: 3,
+      // prev = 3
+      version: 4,
       readOnly: false,
       onCreate: (db, version) async {
         LogHandler.log('Creating tables');
@@ -48,6 +48,7 @@ class DatabaseHandler {
       'artist text not null,'
       'time_listened integer default 0,'
       'lyric_path text not null default "",'
+      'image_path text not null default "",'
       'time_added datetime not null'
       ');',
     );
@@ -55,6 +56,7 @@ class DatabaseHandler {
       'create table if not exists ${Globals.albumTable} ('
       'id integer primary key,'
       'name text not null,'
+      'image_path text not null default "",'
       'time_added datetime not null'
       ');',
     );
@@ -80,12 +82,17 @@ class DatabaseHandler {
   }
 
   static Future<void> updateTables(Database db, int newVersion) async {
-    if (newVersion >= 3) {
-      LogHandler.log('Adding lyric_path column to ${Globals.songTable}');
+    if (newVersion == 3) {
+      LogHandler.log("Adding 'lyric_path' to ${Globals.songTable}, renaming columns to snake_case");
       await db.execute('alter table ${Globals.songTable} add column lyric_path text not null default "";');
       await db.execute('alter table ${Globals.songTable} rename column "timeAdded" to "time_added";');
       await db.execute('alter table ${Globals.songTable} rename column "timeListened" to "time_listened";');
       await db.execute('alter table ${Globals.albumTable} rename column "timeAdded" to "time_added";');
+    }
+    if (newVersion == 4) {
+      LogHandler.log('Adding image_path column to ${Globals.songTable}');
+      await db.execute('alter table ${Globals.songTable} add column image_path text not null default "";');
+      await db.execute('alter table ${Globals.albumTable} add column image_path text not null default "";');
     }
   }
 

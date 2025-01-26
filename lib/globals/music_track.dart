@@ -13,7 +13,7 @@ import 'utils.dart';
 
 class MusicTrack {
   int id, timeListened;
-  String path, name, artist, lyricPath;
+  String path, name, artist, lyricPath, imagePath;
   DateTime timeAdded = DateTime.now();
   bool hasAlbum = false;
 
@@ -26,6 +26,7 @@ class MusicTrack {
     this.artist = 'Unknown',
     this.timeListened = 0,
     this.lyricPath = '',
+    this.imagePath = '',
     required this.timeAdded,
   }) {
     name = name.isEmpty ? path.split('/').last.split('.mp3').first : name;
@@ -38,6 +39,7 @@ class MusicTrack {
         artist = json['artist'] ?? 'Unknown',
         timeListened = json['timeListened'] ?? json['time_listened'] ?? 0,
         lyricPath = json['lyric_path'] ?? '',
+        imagePath = json['image_path'] ?? '',
         timeAdded = json['time_added'] != null
             ? DateTime.parse(json['time_added'])
             : File('${Globals.downloadPath}${json['path']}').statSync().modified;
@@ -51,6 +53,7 @@ class MusicTrack {
         'artist': artist,
         'time_listened': timeListened,
         'lyric_path': lyricPath,
+        'image_path': imagePath,
         'time_added': timeAdded.toIso8601String(),
       };
 
@@ -67,14 +70,6 @@ class MusicTrack {
     id = await DatabaseHandler.db.insert(
       Globals.songTable,
       toJson()..remove('id'),
-      // {
-      //   'path': path,
-      //   'name': name,
-      //   'artist': artist,
-      //   'time_listened': timeListened,
-      //   'lyric_path': lyricPath,
-      //   'time_added': timeAdded.toIso8601String(),
-      // },
     );
     LogHandler.log('Inserted song -> new id: $id');
   }
@@ -144,18 +139,26 @@ class Album {
   int id;
   String name;
   DateTime timeAdded;
+  String imagePath;
   List<int> songs = [];
 
-  Album({required this.name, this.id = -1, required this.timeAdded});
+  Album({
+    required this.name,
+    this.id = -1,
+    this.imagePath = '',
+    required this.timeAdded,
+  });
 
   Album.fromJson(Map<String, dynamic> json)
       : id = json['id'] ?? -1,
         name = json['name'],
+        imagePath = json['image_path'] ?? '',
         timeAdded = DateTime.parse(json['time_added']);
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
+        'image_path': imagePath,
         'time_added': timeAdded.toIso8601String(),
       };
 
@@ -165,10 +168,7 @@ class Album {
     }
     id = await DatabaseHandler.db.insert(
       Globals.albumTable,
-      {
-        'name': name,
-        'time_added': timeAdded.toIso8601String(),
-      },
+      toJson()..remove('id'),
     );
     LogHandler.log('Inserted album -> new id: $id');
     for (final i in range(0, songs.length - 1)) {
