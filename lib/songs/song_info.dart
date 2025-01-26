@@ -71,15 +71,11 @@ class _SongInfoState extends State<SongInfo> {
 
                       song.imagePath = imagePath;
 
+                      await song.update();
                       if (widget.songID == Globals.currentSongID) {
-                        Globals.audioHandler.updateNotificationInfo(
-                          songID: widget.songID,
-                          trackName: _songController.text,
-                          artist: _artistController.text,
-                        );
+                        Globals.audioHandler.updateNotificationInfo(songID: widget.songID);
                       }
 
-                      await song.update();
                       // setState(() => hasChanges = false);
                       if (context.mounted) {
                         Navigator.of(context).pop(hasChanges);

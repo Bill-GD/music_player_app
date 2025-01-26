@@ -181,6 +181,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
       title: item.name,
       artist: item.artist,
       duration: duration,
+      artUri: Uri.parse('file://${item.imagePath}'),
     ));
 
     // Reset song listen duration trackers
@@ -327,23 +328,18 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   Future<void> addMediaItem(MediaItem item) async => mediaItem.add(item);
 
-  Future<void> updateNotificationInfo({
-    required int songID,
-    required String trackName,
-    String? artist,
-    Duration? duration,
-  }) async {
+  Future<void> updateNotificationInfo({required int songID, Duration? duration}) async {
     if (mediaItem.value == null) return;
+    LogHandler.log('Updating media item of $songID');
+    final song = Globals.allSongs.firstWhere((e) => e.id == songID);
 
-    MediaItem item = MediaItem(
+    mediaItem.add(MediaItem(
       id: '$songID',
-      title: trackName,
-    );
-
-    if (artist != null) item = item.copyWith(artist: artist);
-    item = duration != null ? item.copyWith(duration: duration) : item.copyWith(duration: mediaItem.value!.duration);
-
-    mediaItem.add(item);
+      title: song.name,
+      artist: song.artist,
+      duration: duration ?? mediaItem.value!.duration,
+      artUri: Uri.parse('file://${song.imagePath}'),
+    ));
   }
 
   Future<void> setVolume(double volume) async => _player.setVolume(volume);

@@ -158,12 +158,11 @@ class _FilePickerState extends State<FilePicker> {
                 for (var i = 0; i < crumbs.length; i++)
                   TextSpan(
                     text: crumbs[i],
-                    style: i % 2 == 0 && i < crumbs.length - 1
+                    style: i < crumbs.length - 1
                         ? TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            decorationThickness: 2,
                           )
                         : TextStyle(
                             color: Theme.of(context).colorScheme.primary,
