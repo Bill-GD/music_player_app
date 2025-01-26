@@ -263,7 +263,8 @@ Future<void> updateListOfSongs() async {
       ..name = matchingSong.name
       ..artist = matchingSong.artist
       ..timeListened = matchingSong.timeListened
-      ..lyricPath = matchingSong.lyricPath;
+      ..lyricPath = matchingSong.lyricPath
+      ..imagePath = matchingSong.imagePath;
   }
 
   final updateCount = storageSongs.where((e) => e.id >= 0).length;

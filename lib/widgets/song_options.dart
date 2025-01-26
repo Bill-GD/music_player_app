@@ -25,7 +25,7 @@ class SongInfoOption extends StatelessWidget {
       leading: Icon(Icons.info_outline_rounded, color: iconColor(context)),
       title: const Text('Song info', style: bottomSheetText),
       onTap: () async {
-        bool? needsUpdate = await Navigator.of(context).push(
+        final needsUpdate = await Navigator.of(context).push(
           PageRouteBuilder<bool>(
             transitionDuration: 400.ms,
             transitionsBuilder: (_, anim, __, child) {

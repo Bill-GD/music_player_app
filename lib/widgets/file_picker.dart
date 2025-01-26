@@ -189,7 +189,7 @@ class _FilePickerState extends State<FilePicker> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.folder_open_rounded, size: 70),
+                        Icon(Icons.folder_rounded, size: 70),
                         Text('Empty', style: TextStyle(fontSize: 24)),
                       ],
                     ),
