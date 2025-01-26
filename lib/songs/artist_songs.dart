@@ -7,6 +7,7 @@ import '../globals/globals.dart';
 import '../globals/music_track.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
+import '../widgets/song_options.dart';
 
 class ArtistSongs extends StatefulWidget {
   final String artistName;
@@ -172,11 +173,15 @@ class _ArtistSongsState extends State<ArtistSongs> {
                     trailing: IconButton(
                       icon: const Icon(Icons.more_vert_rounded),
                       onPressed: () async {
-                        await showSongOptionsMenu(
-                          context,
-                          songs[songIndex].id,
-                          setState,
-                        );
+                        await showSongOptionsMenu(context, songID: songs[songIndex].id, options: [
+                          SongInfoOption(
+                            songID: songs[songIndex].id,
+                            updateCallback: () {
+                              setState(() {});
+                            },
+                          ),
+                          DeleteSongOption(songID: songs[songIndex].id),
+                        ]);
                         getSongs();
                         if (songs.isEmpty && context.mounted) {
                           Navigator.of(context).pop();

@@ -12,6 +12,7 @@ import '../globals/widgets.dart';
 import '../handlers/log_handler.dart';
 import '../player/music_player.dart';
 import '../widgets/action_dialog.dart';
+import '../widgets/song_options.dart';
 import 'add_album_song.dart';
 import 'album_info.dart';
 
@@ -350,10 +351,14 @@ class _AlbumSongsState extends State<AlbumSongs> {
         onPressed: () async {
           await showSongOptionsMenu(
             context,
-            song.id,
-            setState,
-            showDeleteOption: false,
-            moreActions: [
+            songID: song.id,
+            options: [
+              SongInfoOption(
+                songID: song.id,
+                updateCallback: () {
+                  setState(() {});
+                },
+              ),
               if (album.id != 1)
                 ListTile(
                   shape: RoundedRectangleBorder(

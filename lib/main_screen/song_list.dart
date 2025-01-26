@@ -9,6 +9,7 @@ import '../globals/globals.dart';
 import '../globals/music_track.dart';
 import '../globals/widgets.dart';
 import '../player/music_player.dart';
+import '../widgets/song_options.dart';
 
 class SongList extends StatefulWidget {
   final int param;
@@ -214,10 +215,17 @@ class _SongListState extends State<SongList> with TickerProviderStateMixin {
                       onPressed: () async {
                         await showSongOptionsMenu(
                           context,
-                          Globals.allSongs[songIndex].id,
-                          setState,
+                          songID: Globals.allSongs[songIndex].id,
+                          options: [
+                            SongInfoOption(
+                              songID: Globals.allSongs[songIndex].id,
+                              updateCallback: () {
+                                setState(() {});
+                              },
+                            ),
+                            DeleteSongOption(songID: Globals.allSongs[songIndex].id),
+                          ],
                         );
-                        setState(() {});
                         widget.updateParent(() {});
                       },
                     ),
