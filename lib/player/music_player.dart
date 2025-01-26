@@ -179,7 +179,9 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
         child: _applyBackFilter(
           hasImage: coverImage != null,
           child: Scaffold(
-            backgroundColor: coverImage == null ? Colors.transparent : Colors.black26,
+            backgroundColor: coverImage == null //
+                ? Colors.transparent //
+                : Theme.of(context).colorScheme.surfaceContainerLowest.withOpacity(0.5),
             extendBodyBehindAppBar: true,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
