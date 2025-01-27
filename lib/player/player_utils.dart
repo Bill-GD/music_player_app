@@ -166,24 +166,27 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
     assert(songID >= 0, 'Invalid song ID: $songID');
 
-    MusicTrack item = Globals.allSongs.firstWhere((e) => e.id == songID);
+    MusicTrack song = Globals.allSongs.firstWhere((e) => e.id == songID);
 
-    LogHandler.log('Switching song: (${item.id}) ${item.name}');
+    LogHandler.log('Switching song: (${song.id}) ${song.name}');
     duration = await _player.setAudioSource(
-      AudioSource.uri(Uri.parse(Uri.encodeComponent(item.fullPath))),
+      AudioSource.uri(Uri.parse(Uri.encodeComponent(song.fullPath))),
     );
 
     Globals.currentSongID = songID;
     Globals.showMinimizedPlayer = true;
 
+    String imgPath = song.imagePath;
+    if (imgPath.isEmpty) {
+      imgPath = Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName)?.imagePath ?? '';
+    }
+
     addMediaItem(MediaItem(
       id: '$songID',
-      title: item.name,
-      artist: item.artist,
+      title: song.name,
+      artist: song.artist,
       duration: duration,
-      artUri: Uri.parse(
-        'file://${Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName)?.imagePath ?? item.imagePath}',
-      ),
+      artUri: Uri.parse('file://$imgPath'),
     ));
 
     // Reset song listen duration trackers
@@ -339,14 +342,17 @@ class AudioPlayerHandler extends BaseAudioHandler {
       return LogHandler.log('Song not found', LogLevel.error);
     }
 
+    String imgPath = song.imagePath;
+    if (imgPath.isEmpty) {
+      imgPath = Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName)?.imagePath ?? '';
+    }
+
     mediaItem.add(MediaItem(
       id: '$songID',
       title: song.name,
       artist: song.artist,
       duration: duration ?? mediaItem.value!.duration,
-      artUri: Uri.parse(
-        'file://${Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName)?.imagePath ?? song.imagePath}',
-      ),
+      artUri: Uri.parse('file://$imgPath'),
     ));
   }
 
