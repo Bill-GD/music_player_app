@@ -290,7 +290,7 @@ class _SongInfoState extends State<SongInfo> {
                                   const Icon(Icons.image_not_supported_rounded, size: 80),
                                   Text(
                                     imagePath.isNotEmpty
-                                        ? 'Image not found\nTap to relocate or change'
+                                        ? 'Image is missing\nTap to relocate or change'
                                         : 'No cover image\nTap to change',
                                     textAlign: TextAlign.center,
                                   ),

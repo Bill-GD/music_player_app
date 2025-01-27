@@ -104,7 +104,7 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
     if (coverImage == null) {
       if (song.imagePath.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) showToast(context, 'Image for this song is not found.');
+          if (mounted) showToast(context, 'Image for this song is missing.');
         });
       }
       LogHandler.log('No cover image found');

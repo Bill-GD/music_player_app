@@ -6,3 +6,5 @@
 - Added a scroll bar to main song list.
 - `FilePicker` is now only accessible using its static methods.
 - `FilePicker` now has a version for displaying images in grid.
+- Added cover image for albums. Fallback to album cover if cover image of song isn't found.
+  `All songs` is excluded from this.
