@@ -253,10 +253,9 @@ class _SongInfoState extends State<SongInfo> {
                 padding: const EdgeInsets.only(bottom: 32),
                 child: GestureDetector(
                   onTap: () async {
-                    final path = await FilePicker.open(
+                    final path = await FilePicker.image(
                       context: context,
                       rootDirectory: Directory('/storage/emulated/0'),
-                      allowedExtensions: ['jpg', 'jpeg', 'png'],
                     );
                     if (path == null) return;
                     imagePath = path;

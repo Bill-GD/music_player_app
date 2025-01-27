@@ -7,12 +7,16 @@ import '../globals/utils.dart';
 import '../handlers/log_handler.dart';
 
 class FilePicker extends StatefulWidget {
-  final Directory rootDirectory;
-
   /// LIst of allowed file extensions, example: ['mp3', 'lrc']
   final List<String> allowedExtensions;
+  final Directory rootDirectory;
+  final bool showImage;
 
-  const FilePicker({super.key, required this.rootDirectory, required this.allowedExtensions});
+  const FilePicker._internal({
+    required this.rootDirectory,
+    required this.allowedExtensions,
+    required this.showImage,
+  });
 
   @override
   State<FilePicker> createState() => _FilePickerState();
@@ -25,9 +29,10 @@ class FilePicker extends StatefulWidget {
     return await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, _, __) => FilePicker(
+        pageBuilder: (context, _, __) => FilePicker._internal(
           rootDirectory: rootDirectory,
           allowedExtensions: allowedExtensions,
+          showImage: false,
         ),
         transitionDuration: const Duration(milliseconds: 300),
         transitionsBuilder: (_, anim, __, child) {
@@ -43,16 +48,17 @@ class FilePicker extends StatefulWidget {
     );
   }
 
-  static Future<void> _show({
+  static Future<String?> image({
     required BuildContext context,
     required Directory rootDirectory,
   }) async {
-    await Navigator.push(
+    return await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, _, __) => FilePicker(
+        pageBuilder: (context, _, __) => FilePicker._internal(
           rootDirectory: rootDirectory,
-          allowedExtensions: const [],
+          allowedExtensions: const ['jpg', 'jpeg', 'png', 'webp'],
+          showImage: true,
         ),
         transitionDuration: const Duration(milliseconds: 300),
         transitionsBuilder: (_, anim, __, child) {
@@ -188,35 +194,68 @@ class _FilePickerState extends State<FilePicker> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.folder_rounded, size: 70),
+                        Icon(Icons.folder_off_rounded, size: 70),
                         Text('Empty', style: TextStyle(fontSize: 24)),
                       ],
                     ),
                   )
-                : ListView.builder(
-                    itemCount: fileEntities.length,
-                    itemBuilder: (context, index) {
-                      final entity = fileEntities[index];
+                : widget.showImage
+                    ? GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: fileEntities.length,
+                        itemBuilder: (context, index) {
+                          final entity = fileEntities[index];
 
-                      return ListTile(
-                        leading: Icon(isDirectory[index] ? Icons.folder : Icons.file_copy),
-                        title: Text(entity),
-                        onTap: () async {
-                          if (isDirectory[index]) {
-                            getEntities(Directory(currentRootPath + entity));
-                            getCrumbs();
-                            setState(() {});
-                          } else {
-                            // LogHandler.log('Selected file: $currentRootPath$entity');
-                            Navigator.of(context).pop(currentRootPath + entity);
-                          }
+                          return GestureDetector(
+                            onTap: () => pickFileCallback(index),
+                            child: isDirectory[index]
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.folder_rounded, size: 70),
+                                      Text(entity),
+                                    ],
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      File(currentRootPath + entity),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                          );
                         },
-                      );
-                    },
-                  ),
+                      )
+                    : ListView.builder(
+                        itemCount: fileEntities.length,
+                        itemBuilder: (context, index) {
+                          final entity = fileEntities[index];
+
+                          return ListTile(
+                            leading: Icon(isDirectory[index] ? Icons.folder_rounded : Icons.file_copy),
+                            title: Text(entity),
+                            onTap: () => pickFileCallback(index),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
     );
+  }
+
+  void pickFileCallback(int index) {
+    if (isDirectory[index]) {
+      getEntities(Directory(currentRootPath + fileEntities[index]));
+      getCrumbs();
+      setState(() {});
+    } else {
+      // LogHandler.log('Selected file: $currentRootPath$entity');
+      Navigator.of(context).pop(currentRootPath + fileEntities[index]);
+    }
   }
 }
