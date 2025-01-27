@@ -345,11 +345,18 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
                           song.name,
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20,
+                          ),
                         ),
                         Text(
                           song.artist,
-                          style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600, fontSize: 18),
+                          style: TextStyle(
+                            color: Colors.grey[300],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
                       ],
                     ),

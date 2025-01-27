@@ -181,7 +181,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
       title: item.name,
       artist: item.artist,
       duration: duration,
-      artUri: Uri.parse('file://${item.imagePath}'),
+      artUri: Uri.parse(
+        'file://${Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName)?.imagePath ?? item.imagePath}',
+      ),
     ));
 
     // Reset song listen duration trackers
@@ -342,7 +344,9 @@ class AudioPlayerHandler extends BaseAudioHandler {
       title: song.name,
       artist: song.artist,
       duration: duration ?? mediaItem.value!.duration,
-      artUri: Uri.parse('file://${song.imagePath}'),
+      artUri: Uri.parse(
+        'file://${Globals.albums.firstWhereOrNull((e) => e.name == Globals.savedPlaylistName)?.imagePath ?? song.imagePath}',
+      ),
     ));
   }
 

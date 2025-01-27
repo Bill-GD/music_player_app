@@ -1,10 +1,7 @@
-- Darkened player background blurred image.
-- Cover image has rounded corners.
-- Smaller progress bar thumb.
-- Song cover image is also applied to the media item.
-- Fixed path delimiter has the same color as the current directory in `FilePicker`.
-- Added a scroll bar to main song list.
-- `FilePicker` is now only accessible using its static methods.
-- `FilePicker` now has a version for displaying images in grid.
-- Added cover image for albums. Fallback to album cover if cover image of song isn't found.
-  `All songs` is excluded from this.
+- Better clarity for artist name in player.
+- Added scrollbar in `FilePicker` for better navigation.
+- `FilePicker` now sort directories first and in alphabetical order.
+- Filters images that are hidden (for MIUI). Google Photos already isolated the images.
+- Pressing back on device will return to previous directory in `FilePicker`.
+- Album cover image is available for media item.
+- Images in `FilePicker` are sorted by date changed.
