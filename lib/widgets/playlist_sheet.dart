@@ -54,10 +54,12 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
                       final currentIdx = playlist.indexOf(Globals.currentSongID);
                       final selectedIdx = playlist.indexOf(sId);
 
+                      if (selectedIdx == currentIdx + 1) return;
+
                       LogHandler.log('Adding song #$selectedIdx to play next');
 
                       playlist.insert(currentIdx + 1, sId);
-                      playlist.removeAt(selectedIdx);
+                      playlist.removeAt(selectedIdx > currentIdx ? selectedIdx + 1 : selectedIdx);
 
                       Globals.audioHandler.savePlaylist(Globals.currentSongID);
 
