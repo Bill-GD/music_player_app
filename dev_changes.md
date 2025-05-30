@@ -1,7 +1,1 @@
-- Better clarity for artist name in player.
-- Added scrollbar in `FilePicker` for better navigation.
-- `FilePicker` now sort directories first and in alphabetical order.
-- Filters images that are hidden (for MIUI). Google Photos already isolated the images.
-- Pressing back on device will return to previous directory in `FilePicker`.
-- Album cover image is available for media item.
-- Images in `FilePicker` are sorted by date changed.
+- Song in the playlist can be moved to be the next song

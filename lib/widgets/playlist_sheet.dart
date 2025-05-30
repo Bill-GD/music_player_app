@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals/extensions.dart';
+import 'song_options.dart';
 import '../globals/globals.dart';
 import '../globals/widgets.dart';
 import '../handlers/log_handler.dart';
@@ -18,48 +19,10 @@ class PlaylistSheet extends StatefulWidget {
 
 class _PlaylistSheetState extends State<PlaylistSheet> {
   late final ScrollController scrollController = ScrollController();
-  late final List<ListTile> content;
+  List<ListTile> content = [];
   late final StreamSubscription<bool> sub;
 
   void updateList() {
-    for (int i = 0; i < content.length; i++) {
-      content[i] = ListTile(
-        key: ValueKey(i),
-        visualDensity: VisualDensity.compact,
-        titleAlignment: ListTileTitleAlignment.threeLine,
-        leading: SizedBox(
-          width: 32,
-          child: Align(
-            alignment: Alignment.center,
-            child: Globals.audioHandler.playlist[i] == Globals.currentSongID
-                ? const FaIcon(FontAwesomeIcons.headphonesSimple, size: 20)
-                : Text((i + 1).padIntLeft(2, '0')),
-          ),
-        ),
-        title: content[i].title,
-        subtitle: content[i].subtitle,
-      );
-    }
-  }
-
-  void scroll(Duration time) {
-    if (!scrollController.hasClients) return;
-    final count = Globals.audioHandler.playlist.length;
-    final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
-    final maxScrollExtent = scrollController.position.maxScrollExtent;
-
-    scrollController.animateTo(
-      maxScrollExtent * (current / count),
-      duration: time,
-      curve: Curves.easeIn,
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => scroll(100.ms));
-
     content = Globals.audioHandler.playlist
         .mapIndexed(
           (i, sId) => ListTile(
@@ -82,9 +45,51 @@ class _PlaylistSheetState extends State<PlaylistSheet> {
             subtitle: Text(
               Globals.allSongs.firstWhere((e) => e.id == sId).artist,
             ),
+            trailing: Globals.currentSongID != sId
+                ? IconButton(
+                    icon: const Icon(Icons.playlist_add_rounded),
+                    onPressed: () {
+                      final playlist = Globals.audioHandler.playlist;
+
+                      final currentIdx = playlist.indexOf(Globals.currentSongID);
+                      final selectedIdx = playlist.indexOf(sId);
+
+                      LogHandler.log('Adding song #$selectedIdx to play next');
+
+                      playlist.insert(currentIdx + 1, sId);
+                      playlist.removeAt(selectedIdx);
+
+                      Globals.audioHandler.savePlaylist(Globals.currentSongID);
+
+                      setState(updateList);
+                    },
+                  )
+                : null,
           ),
         )
         .toList();
+  }
+
+  void scroll(Duration time) {
+    if (!scrollController.hasClients) return;
+    final count = Globals.audioHandler.playlist.length;
+    final current = Globals.audioHandler.playlist.indexOf(Globals.currentSongID);
+    final maxScrollExtent = scrollController.position.maxScrollExtent;
+
+    scrollController.animateTo(
+      maxScrollExtent * (current / count),
+      duration: time,
+      curve: Curves.easeIn,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => scroll(100.ms));
+
+    updateList();
+
     sub = Globals.audioHandler.onSongChange.listen((event) {
       scroll(300.ms);
       setState(updateList);
